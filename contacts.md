@@ -5,14 +5,14 @@ and **suppliers**. The `type` field distinguishes them. Read endpoints return al
 types; write endpoints currently support **travelers** only.
 
 All endpoints are nested under `/acc/{account_id}/`. The `{account_id}` must be an
-account you are an agent member of; using a different account id returns `403`. If a
+account you are an agent member of; an account you are not a member of returns `404`, and a token bound to a different account returns `403`. If a
 contact does not exist in that account, the endpoint returns `404`.
 
 ## The contact object
 
 ```json
 {
-  "id": 123,
+  "id": "123",
   "first_name": "Jane",
   "last_name": "Doe",
   "middle_name": null,
@@ -108,7 +108,7 @@ required. Returns `201` with the created contact, or `422` with validation detai
 | `known_traveler_number`        | string |
 | `gender`                       | string |
 | `nationality`                  | string |
-| `referred_by_id`               | integer (contact id) |
+| `referred_by_id`               | string (contact id) |
 | `tag_list`                     | string (comma-separated) |
 | `emergency_contacts_attributes`| array of `{ name, phone }` |
 

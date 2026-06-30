@@ -41,6 +41,7 @@ curl https://connect.safariportal.dev/acc/{account_id}/contacts \
 - [Authentication](authentication.md) — OAuth flow, discovery, scopes, tokens
 - [Contacts](contacts.md) — list, search, retrieve, create, and update contacts
 - [Files](files.md) — list, search, retrieve, create, and update files (trips / tour requests)
+- [Invoices](invoices.md) — list and retrieve invoices with payments (read-only)
 - [Tasks](tasks.md) — list, search, and retrieve tasks (read-only)
 - [Users](users.md) — list and retrieve the account's team members (resolve user ids to names)
 
@@ -49,11 +50,20 @@ curl https://connect.safariportal.dev/acc/{account_id}/contacts \
 ### Account in the URL
 
 All resource paths are nested under `/acc/{account_id}/…`. The `{account_id}` must be
-an account you are an agent member of; using an account id that is not accessible to
-your token returns `403`.
+an account you are an agent member of. Requesting an account you are not a member of
+returns `404`. A token bound to a single account may only address that account;
+addressing any other account returns `403`.
 
 Call `GET /accounts` first to discover the account ids available to your token. Tokens
 bound to a single account list only that account.
+
+### Identifiers
+
+All resource identifiers — `id` and every `*_id` / `*_ids` field — are returned as
+**strings**, not numbers. Safari Portal IDs are larger than the 2⁵³ range a JavaScript
+`number` can hold exactly, so parsing them as numbers silently corrupts them (a later
+request built from a corrupted id then fails as a `404`). Treat IDs as opaque strings:
+store them as strings and pass them back verbatim.
 
 ### Response envelope
 
@@ -62,13 +72,13 @@ Successful responses wrap the payload in a `data` key. List endpoints also inclu
 
 ```json
 {
-  "data": { "id": 123, "first_name": "Jane" }
+  "data": { "id": "123", "first_name": "Jane" }
 }
 ```
 
 ```json
 {
-  "data": [ { "id": 123 }, { "id": 124 } ],
+  "data": [ { "id": "123" }, { "id": "124" } ],
   "meta": {
     "total_count": 240,
     "total_pages": 10,
@@ -109,6 +119,6 @@ Errors use a consistent envelope and the matching HTTP status code:
 | Status | Meaning                                                                             |
 | ------ | ----------------------------------------------------------------------------------- |
 | `401`  | Missing, expired, or invalid access token (`WWW-Authenticate: Bearer` is returned)  |
-| `403`  | The token lacks the required scope, or the account is not permitted                 |
-| `404`  | The resource does not exist or belongs to a different account                       |
+| `403`  | The token lacks the required scope, or is bound to a different account               |
+| `404`  | The resource or account does not exist, or is not accessible to your token           |
 | `422`  | The request body failed validation (`description` lists the reasons)                |

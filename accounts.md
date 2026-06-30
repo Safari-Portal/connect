@@ -36,12 +36,12 @@ curl https://connect.safariportal.dev/accounts \
 {
   "data": [
     {
-      "id": 7,
+      "id": "7",
       "name": "Acacia Travel",
       "created_at": "2024-03-10T09:00:00.000Z"
     },
     {
-      "id": 19,
+      "id": "19",
       "name": "Savanna Expeditions",
       "created_at": "2025-01-22T14:30:00.000Z"
     }
@@ -53,7 +53,7 @@ curl https://connect.safariportal.dev/accounts \
 
 | Field        | Type              | Description                                                          |
 | ------------ | ----------------- | -------------------------------------------------------------------- |
-| `id`         | integer           | The account identifier — use this as `{account_id}` in all resource paths |
+| `id`         | string            | The account identifier — use this as `{account_id}` in all resource paths |
 | `name`       | string            | Display name of the account                                          |
 | `created_at` | string (ISO 8601) | When the account was created                                         |
 

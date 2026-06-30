@@ -9,14 +9,14 @@ update endpoints.
 and email addresses.
 
 All endpoints are nested under `/acc/{account_id}/`. The `{account_id}` must be an
-account you are an agent member of; using a different account id returns `403`. Requesting
+account you are an agent member of; an account you are not a member of returns `404`, and a token bound to a different account returns `403`. Requesting
 a user who is not a member of the account returns `404`.
 
 ## The user object
 
 ```json
 {
-  "id": 11,
+  "id": "11",
   "name": "Alice Kamau",
   "email": "alice@safarico.example"
 }
@@ -26,7 +26,7 @@ a user who is not a member of the account returns `404`.
 
 | Field   | Type    | Description                         |
 | ------- | ------- | ----------------------------------- |
-| `id`    | integer | Unique identifier for the user      |
+| `id`    | string  | Unique identifier for the user      |
 | `name`  | string  | Full name of the user               |
 | `email` | string  | Email address of the user           |
 
@@ -70,12 +70,12 @@ curl "https://connect.safariportal.dev/acc/{account_id}/users?page=1&limit=10" \
 {
   "data": [
     {
-      "id": 7,
+      "id": "7",
       "name": "Bob Osei",
       "email": "bob@safarico.example"
     },
     {
-      "id": 11,
+      "id": "11",
       "name": "Alice Kamau",
       "email": "alice@safarico.example"
     }
@@ -113,7 +113,7 @@ curl https://connect.safariportal.dev/acc/{account_id}/users/11 \
 ```json
 {
   "data": {
-    "id": 11,
+    "id": "11",
     "name": "Alice Kamau",
     "email": "alice@safarico.example"
   }

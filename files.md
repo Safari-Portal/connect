@@ -6,7 +6,7 @@ confirmed → completed → archived**. (Note: the `search` endpoint's `scope` f
 broader vocabulary — `planning`, `traveling`, `deleted` — described under [Search](#search).)
 
 All endpoints are nested under `/acc/{account_id}/`. The `{account_id}` must be an
-account you are an agent member of; using a different account id returns `403`. If a
+account you are an agent member of; an account you are not a member of returns `404`, and a token bound to a different account returns `403`. If a
 file does not exist in that account, or is not visible to the member, the endpoint
 returns `404`. Visibility is governed by the member's dashboard permissions: consultants
 see only their own files; owners and managers see all files in the account.
@@ -15,19 +15,19 @@ see only their own files; owners and managers see all files in the account.
 
 ```json
 {
-  "id": 42,
+  "id": "42",
   "name": "Smith Safari 2027",
   "status": "pipeline",
   "priority": "high",
-  "stage_id": 7,
-  "source_category_id": 3,
-  "trip_type_category_id": 1,
-  "travel_region_category_id": 5,
+  "stage_id": "7",
+  "source_category_id": "3",
+  "trip_type_category_id": "1",
+  "travel_region_category_id": "5",
   "license_type": "standard",
   "channel": "direct",
-  "consultant_id": 11,
+  "consultant_id": "11",
   "tag_list": ["honeymoon", "africa"],
-  "traveler_ids": [101, 102],
+  "traveler_ids": ["101", "102"],
   "created_at": "2026-06-01T08:00:00.000Z",
   "updated_at": "2026-06-15T12:30:00.000Z"
 }
@@ -37,19 +37,19 @@ see only their own files; owners and managers see all files in the account.
 
 | Field                       | Type             | Description                                                    |
 | --------------------------- | ---------------- | -------------------------------------------------------------- |
-| `id`                        | integer          | Unique identifier for the file                                 |
+| `id`                        | string           | Unique identifier for the file                                 |
 | `name`                      | string           | Display name of the file (`file_name` in the app)             |
 | `status`                    | string           | Lifecycle status: one of `leads`, `pipeline`, `confirmed`, `completed`, `archived` |
 | `priority`                  | string           | Priority level: one of `na`, `low`, `medium`, `high`, `top`   |
-| `stage_id`                  | integer \| null  | Opaque ID of the pipeline stage the file is in                |
-| `source_category_id`        | integer \| null  | Opaque ID of the lead source category                          |
-| `trip_type_category_id`     | integer \| null  | Opaque ID of the trip type category                            |
-| `travel_region_category_id` | integer \| null  | Opaque ID of the travel region category                        |
+| `stage_id`                  | string \| null   | Opaque ID of the pipeline stage the file is in                |
+| `source_category_id`        | string \| null   | Opaque ID of the lead source category                          |
+| `trip_type_category_id`     | string \| null   | Opaque ID of the trip type category                            |
+| `travel_region_category_id` | string \| null   | Opaque ID of the travel region category                        |
 | `license_type`              | string \| null   | License type associated with the file                          |
 | `channel`                   | string \| null   | Acquisition channel for the file                               |
-| `consultant_id`             | integer \| null  | ID of the primary consultant (a **user** id) assigned to the file — resolve via the [Users](users.md) endpoint |
+| `consultant_id`             | string \| null   | ID of the primary consultant (a **user** id) assigned to the file — resolve via the [Users](users.md) endpoint |
 | `tag_list`                  | array of strings | Tags applied to the file                                       |
-| `traveler_ids`              | array of integers| IDs of the traveler contacts linked to the file                |
+| `traveler_ids`              | array of strings | IDs of the traveler contacts linked to the file                |
 | `created_at`                | string (ISO 8601)| When the file was created                                      |
 | `updated_at`                | string (ISO 8601)| When the file was last updated                                 |
 
@@ -98,19 +98,19 @@ curl "https://connect.safariportal.dev/acc/{account_id}/files?page=1&limit=10" \
 {
   "data": [
     {
-      "id": 42,
+      "id": "42",
       "name": "Smith Safari 2027",
       "status": "pipeline",
       "priority": "high",
-      "stage_id": 7,
-      "source_category_id": 3,
-      "trip_type_category_id": 1,
-      "travel_region_category_id": 5,
+      "stage_id": "7",
+      "source_category_id": "3",
+      "trip_type_category_id": "1",
+      "travel_region_category_id": "5",
       "license_type": "standard",
       "channel": "direct",
-      "consultant_id": 11,
+      "consultant_id": "11",
       "tag_list": ["honeymoon", "africa"],
-      "traveler_ids": [101, 102],
+      "traveler_ids": ["101", "102"],
       "created_at": "2026-06-01T08:00:00.000Z",
       "updated_at": "2026-06-15T12:30:00.000Z"
     }
@@ -145,16 +145,16 @@ results to a specific lifecycle stage; it defaults to `"planning"`.
 | `q`                            | string           | Full-text search across file name, linked itineraries, lookbooks, portals, and dashboards         |
 | `order`                        | string           | Sort order. One of `created-desc` (default), `created-asc`, `file_name-asc`, `file_name-desc`, `priority-asc`, `priority-desc`, `start_date-asc`, `start_date-desc` |
 | `stage_id`                     | string           | Filter by pipeline stage ID                                                                       |
-| `consultant_ids[]`             | array of integers| Filter by primary consultant                                                                      |
-| `sales_consultant_ids[]`       | array of integers| Filter by sales consultant (member)                                                               |
-| `partner_agent_ids[]`          | array of integers| Filter by partner agent (contact)                                                                 |
-| `supplier_ids[]`               | array of integers| Filter by supplier (contact)                                                                      |
-| `trip_leader_ids[]`            | array of integers| Filter by trip leader (contact)                                                                   |
+| `consultant_ids[]`             | array of strings | Filter by primary consultant                                                                      |
+| `sales_consultant_ids[]`       | array of strings | Filter by sales consultant (member)                                                               |
+| `partner_agent_ids[]`          | array of strings | Filter by partner agent (contact)                                                                 |
+| `supplier_ids[]`               | array of strings | Filter by supplier (contact)                                                                      |
+| `trip_leader_ids[]`            | array of strings | Filter by trip leader (contact)                                                                   |
 | `priorities[]`                 | array of strings | Filter by priority token (`na`, `low`, `medium`, `high`, `top`)                                   |
 | `tags[]`                       | array of strings | Filter by tag (files must have all supplied tags)                                                 |
-| `source_category_ids[]`        | array of integers| Filter by lead source category                                                                    |
-| `trip_type_category_ids[]`     | array of integers| Filter by trip type category                                                                      |
-| `travel_region_category_ids[]` | array of integers| Filter by travel region category                                                                  |
+| `source_category_ids[]`        | array of strings | Filter by lead source category                                                                    |
+| `trip_type_category_ids[]`     | array of strings | Filter by trip type category                                                                      |
+| `travel_region_category_ids[]` | array of strings | Filter by travel region category                                                                  |
 
 ```bash
 curl "https://connect.safariportal.dev/acc/{account_id}/files/search?scope=leads&q=safari&tags[]=honeymoon" \
@@ -182,19 +182,19 @@ curl https://connect.safariportal.dev/acc/{account_id}/files/42 \
 ```json
 {
   "data": {
-    "id": 42,
+    "id": "42",
     "name": "Smith Safari 2027",
     "status": "pipeline",
     "priority": "high",
-    "stage_id": 7,
-    "source_category_id": 3,
-    "trip_type_category_id": 1,
-    "travel_region_category_id": 5,
+    "stage_id": "7",
+    "source_category_id": "3",
+    "trip_type_category_id": "1",
+    "travel_region_category_id": "5",
     "license_type": "standard",
     "channel": "direct",
-    "consultant_id": 11,
+    "consultant_id": "11",
     "tag_list": ["honeymoon", "africa"],
-    "traveler_ids": [101, 102],
+    "traveler_ids": ["101", "102"],
     "created_at": "2026-06-01T08:00:00.000Z",
     "updated_at": "2026-06-15T12:30:00.000Z"
   }
@@ -217,18 +217,18 @@ The request body must wrap fields in a `file` object:
 | ---------------------------- | ------------------------ | -------------------------------------------------------- |
 | `file_name`                  | string                   | Name / title of the file                                 |
 | `priority`                   | string                   | Priority token: one of `na`, `low`, `medium`, `high`, `top` |
-| `stage_id`                   | integer                  | Pipeline stage ID                                        |
-| `source_category_id`         | integer                  | Lead source category ID                                  |
-| `trip_type_category_id`      | integer                  | Trip type category ID                                    |
-| `travel_region_category_id`  | integer                  | Travel region category ID                                |
+| `stage_id`                   | string                   | Pipeline stage ID                                        |
+| `source_category_id`         | string                   | Lead source category ID                                  |
+| `trip_type_category_id`      | string                   | Trip type category ID                                    |
+| `travel_region_category_id`  | string                   | Travel region category ID                                |
 | `license_type`               | string                   | License type                                             |
 | `channel`                    | string                   | Acquisition channel                                      |
 | `tag_list`                   | string (comma-separated) | Tags to apply to the file                                |
-| `sales_consultant_ids[]`     | array of integers        | IDs of sales consultant members                          |
-| `partner_agent_ids[]`        | array of integers        | IDs of partner agent contacts                            |
-| `trip_leader_ids[]`          | array of integers        | IDs of trip leader contacts                              |
-| `supplier_ids[]`             | array of integers        | IDs of supplier contacts                                 |
-| `traveler_ids[]`             | array of integers        | Traveler contacts to link. Must belong to your account (otherwise `422`). |
+| `sales_consultant_ids[]`     | array of strings         | IDs of sales consultant members                          |
+| `partner_agent_ids[]`        | array of strings         | IDs of partner agent contacts                            |
+| `trip_leader_ids[]`          | array of strings         | IDs of trip leader contacts                              |
+| `supplier_ids[]`             | array of strings         | IDs of supplier contacts                                 |
+| `traveler_ids[]`             | array of strings         | Traveler contacts to link. Must belong to your account (otherwise `422`). |
 
 > **`traveler_ids` uses replace semantics.** The supplied array becomes the file's
 > complete traveler set: contacts not listed are unlinked, new ones are added. Send `[]`
@@ -243,7 +243,7 @@ curl -X POST https://connect.safariportal.dev/acc/{account_id}/files \
       "file_name": "Smith Safari 2027",
       "priority": "high",
       "tag_list": "honeymoon,africa",
-      "traveler_ids": [101, 102]
+      "traveler_ids": ["101", "102"]
     }
   }'
 ```
@@ -253,7 +253,7 @@ curl -X POST https://connect.safariportal.dev/acc/{account_id}/files \
 ```json
 {
   "data": {
-    "id": 42,
+    "id": "42",
     "name": "Smith Safari 2027",
     "status": "leads",
     "priority": "high",
@@ -265,7 +265,7 @@ curl -X POST https://connect.safariportal.dev/acc/{account_id}/files \
     "channel": null,
     "consultant_id": null,
     "tag_list": ["honeymoon", "africa"],
-    "traveler_ids": [101, 102],
+    "traveler_ids": ["101", "102"],
     "created_at": "2026-06-25T09:00:00.000Z",
     "updated_at": "2026-06-25T09:00:00.000Z"
   }

@@ -8,7 +8,7 @@ This is a **read-only** API. Tasks can be listed, searched, and retrieved. There
 create or update endpoints.
 
 All endpoints are nested under `/acc/{account_id}/`. The `{account_id}` must be an
-account you are an agent member of; using a different account id returns `403`. A token
+account you are an agent member of; an account you are not a member of returns `404`, and a token bound to a different account returns `403`. A token
 sees all tasks for that account (subject to the member being an agent). Requesting a
 task that does not exist in the account returns `404`.
 
@@ -16,7 +16,7 @@ task that does not exist in the account returns `404`.
 
 ```json
 {
-  "id": 301,
+  "id": "301",
   "name": "Send pre-trip welcome email",
   "note": "Include packing list and visa reminders.",
   "types": ["email", "follow-up"],
@@ -24,9 +24,9 @@ task that does not exist in the account returns `404`.
   "due_date": "2027-03-15",
   "completed": false,
   "completed_at": null,
-  "file_id": 42,
-  "assigned_to_id": 11,
-  "creator_id": 7,
+  "file_id": "42",
+  "assigned_to_id": "11",
+  "creator_id": "7",
   "template_id": null,
   "created_at": "2026-06-01T08:00:00.000Z",
   "updated_at": "2026-06-15T12:30:00.000Z"
@@ -37,7 +37,7 @@ task that does not exist in the account returns `404`.
 
 | Field            | Type              | Description                                                                 |
 | ---------------- | ----------------- | --------------------------------------------------------------------------- |
-| `id`             | integer           | Unique identifier for the task                                              |
+| `id`             | string            | Unique identifier for the task                                              |
 | `name`           | string            | Display name of the task                                                    |
 | `note`           | string \| null    | Optional free-text note                                                     |
 | `types`          | array of strings  | Task type labels. Valid values: `email`, `payments`, `check-in`, `follow-up`, `phone-call`, `admin`, `feedback` |
@@ -45,10 +45,10 @@ task that does not exist in the account returns `404`.
 | `due_date`       | string \| null    | Due date in `YYYY-MM-DD` format, or `null` if not set (TBD)                |
 | `completed`      | boolean           | `true` if the task has been completed                                       |
 | `completed_at`   | string \| null    | ISO 8601 datetime when the task was completed, or `null`                   |
-| `file_id`        | integer           | ID of the file (trip / tour request) this task belongs to                  |
-| `assigned_to_id` | integer           | ID of the user the task is assigned to — resolve via the [Users](users.md) endpoint |
-| `creator_id`     | integer           | ID of the user who created the task — resolve via the [Users](users.md) endpoint    |
-| `template_id`    | integer \| null   | ID of the task template this task was created from, or `null`              |
+| `file_id`        | string            | ID of the file (trip / tour request) this task belongs to                  |
+| `assigned_to_id` | string            | ID of the user the task is assigned to — resolve via the [Users](users.md) endpoint |
+| `creator_id`     | string            | ID of the user who created the task — resolve via the [Users](users.md) endpoint    |
+| `template_id`    | string \| null    | ID of the task template this task was created from, or `null`              |
 | `created_at`     | string (ISO 8601) | When the task was created                                                   |
 | `updated_at`     | string (ISO 8601) | When the task was last updated                                              |
 
@@ -96,7 +96,7 @@ curl "https://connect.safariportal.dev/acc/{account_id}/tasks?page=1&limit=10" \
 {
   "data": [
     {
-      "id": 301,
+      "id": "301",
       "name": "Send pre-trip welcome email",
       "note": "Include packing list and visa reminders.",
       "types": ["email", "follow-up"],
@@ -104,9 +104,9 @@ curl "https://connect.safariportal.dev/acc/{account_id}/tasks?page=1&limit=10" \
       "due_date": "2027-03-15",
       "completed": false,
       "completed_at": null,
-      "file_id": 42,
-      "assigned_to_id": 11,
-      "creator_id": 7,
+      "file_id": "42",
+      "assigned_to_id": "11",
+      "creator_id": "7",
       "template_id": null,
       "created_at": "2026-06-01T08:00:00.000Z",
       "updated_at": "2026-06-15T12:30:00.000Z"
@@ -141,8 +141,8 @@ results to a specific due-date or completion window; it defaults to `"overdue"`.
 | `scope`              | string           | Due-date / completion window. One of `overdue` (default), `due-today`, `due-this-week`, `upcoming`, `completed`, `tbd`, `active-tasks`.               |
 | `completion`         | string           | Completion filter. One of `done`, `not_done`.                                                                                                         |
 | `order`              | string           | Sort order. One of `due-date-asc` (default), `due-date-desc`, `assigned-to-asc`, `assigned-to-desc`, `file-asc`, `file-desc`.                       |
-| `assigned_to_ids[]`  | array of integers| Filter by assigned user ID.                                                                                                                           |
-| `file_ids[]`         | array of integers| Filter by file (tour request) ID.                                                                                                                     |
+| `assigned_to_ids[]`  | array of strings | Filter by assigned user ID.                                                                                                                           |
+| `file_ids[]`         | array of strings | Filter by file (tour request) ID.                                                                                                                     |
 | `types[]`            | array of strings | Filter by task type. Valid values: `email`, `payments`, `check-in`, `follow-up`, `phone-call`, `admin`, `feedback`. Tasks matching any supplied type are returned. |
 | `tags[]`             | array of strings | Filter by tag.                                                                                                                                        |
 | `include_tags`       | boolean          | When `tags[]` is supplied: `true` (default) returns tasks that have **all** of the given tags; `false` returns tasks that have **none** of them.      |
@@ -173,7 +173,7 @@ curl https://connect.safariportal.dev/acc/{account_id}/tasks/301 \
 ```json
 {
   "data": {
-    "id": 301,
+    "id": "301",
     "name": "Send pre-trip welcome email",
     "note": "Include packing list and visa reminders.",
     "types": ["email", "follow-up"],
@@ -181,9 +181,9 @@ curl https://connect.safariportal.dev/acc/{account_id}/tasks/301 \
     "due_date": "2027-03-15",
     "completed": false,
     "completed_at": null,
-    "file_id": 42,
-    "assigned_to_id": 11,
-    "creator_id": 7,
+    "file_id": "42",
+    "assigned_to_id": "11",
+    "creator_id": "7",
     "template_id": null,
     "created_at": "2026-06-01T08:00:00.000Z",
     "updated_at": "2026-06-15T12:30:00.000Z"
