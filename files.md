@@ -28,6 +28,8 @@ see only their own files; owners and managers see all files in the account.
   "consultant_id": "11",
   "tag_list": ["honeymoon", "africa"],
   "traveler_ids": ["101", "102"],
+  "start_date": "2027-03-10",
+  "end_date": "2027-03-24",
   "created_at": "2026-06-01T08:00:00.000Z",
   "updated_at": "2026-06-15T12:30:00.000Z"
 }
@@ -41,15 +43,17 @@ see only their own files; owners and managers see all files in the account.
 | `name`                      | string           | Display name of the file (`file_name` in the app)             |
 | `status`                    | string           | Lifecycle status: one of `leads`, `pipeline`, `confirmed`, `completed`, `archived` |
 | `priority`                  | string           | Priority level: one of `na`, `low`, `medium`, `high`, `top`   |
-| `stage_id`                  | string \| null   | Opaque ID of the pipeline stage the file is in                |
-| `source_category_id`        | string \| null   | Opaque ID of the lead source category                          |
-| `trip_type_category_id`     | string \| null   | Opaque ID of the trip type category                            |
-| `travel_region_category_id` | string \| null   | Opaque ID of the travel region category                        |
+| `stage_id`                  | string \| null   | ID of the pipeline stage the file is in — resolve via the [Stages](stages.md) endpoint |
+| `source_category_id`        | string \| null   | ID of the lead source category — resolve via the [Categories](categories.md) endpoint |
+| `trip_type_category_id`     | string \| null   | ID of the trip type category — resolve via the [Categories](categories.md) endpoint |
+| `travel_region_category_id` | string \| null   | ID of the travel region category — resolve via the [Categories](categories.md) endpoint |
 | `license_type`              | string \| null   | License type associated with the file                          |
 | `channel`                   | string \| null   | Acquisition channel for the file                               |
 | `consultant_id`             | string \| null   | ID of the primary consultant (a **user** id) assigned to the file — resolve via the [Users](users.md) endpoint |
 | `tag_list`                  | array of strings | Tags applied to the file                                       |
 | `traveler_ids`              | array of strings | IDs of the traveler contacts linked to the file                |
+| `start_date`                | string (date) \| null | Trip start date (`YYYY-MM-DD`), taken from the confirmed itinerary; `null` until the file is confirmed with dates. This is the value the `start_date-asc` / `start_date-desc` search order sorts on. |
+| `end_date`                  | string (date) \| null | Trip end date (`YYYY-MM-DD`), taken from the confirmed itinerary; `null` until the file is confirmed with dates |
 | `created_at`                | string (ISO 8601)| When the file was created                                      |
 | `updated_at`                | string (ISO 8601)| When the file was last updated                                 |
 
@@ -111,6 +115,8 @@ curl "https://connect.safariportal.dev/acc/{account_id}/files?page=1&limit=10" \
       "consultant_id": "11",
       "tag_list": ["honeymoon", "africa"],
       "traveler_ids": ["101", "102"],
+      "start_date": "2027-03-10",
+      "end_date": "2027-03-24",
       "created_at": "2026-06-01T08:00:00.000Z",
       "updated_at": "2026-06-15T12:30:00.000Z"
     }
@@ -195,6 +201,8 @@ curl https://connect.safariportal.dev/acc/{account_id}/files/42 \
     "consultant_id": "11",
     "tag_list": ["honeymoon", "africa"],
     "traveler_ids": ["101", "102"],
+    "start_date": "2027-03-10",
+    "end_date": "2027-03-24",
     "created_at": "2026-06-01T08:00:00.000Z",
     "updated_at": "2026-06-15T12:30:00.000Z"
   }
@@ -266,6 +274,8 @@ curl -X POST https://connect.safariportal.dev/acc/{account_id}/files \
     "consultant_id": null,
     "tag_list": ["honeymoon", "africa"],
     "traveler_ids": ["101", "102"],
+    "start_date": null,
+    "end_date": null,
     "created_at": "2026-06-25T09:00:00.000Z",
     "updated_at": "2026-06-25T09:00:00.000Z"
   }
