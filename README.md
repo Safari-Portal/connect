@@ -42,6 +42,7 @@ curl https://connect.safariportal.dev/acc/{account_id}/contacts \
 - [Categories](categories.md) — list category values to resolve file `*_category_id` ids (read-only)
 - [Contacts](contacts.md) — list, search, retrieve, create, and update contacts
 - [Files](files.md) — list, search, retrieve, create, and update files (trips / tour requests)
+- [Events](events.md) — list a file's activity timeline (read-only)
 - [Invoices](invoices.md) — list and retrieve invoices with payments (read-only)
 - [Stages](stages.md) — list pipeline stages to resolve file `stage_id` (read-only)
 - [Tasks](tasks.md) — list, search, and retrieve tasks (read-only)
