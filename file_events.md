@@ -1,4 +1,4 @@
-# Events
+# File Events
 
 Events are the activity timeline of a file (trip / tour request). Each event is a
 timestamped record of something that happened on the file or one of its related objects —
