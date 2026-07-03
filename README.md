@@ -39,12 +39,13 @@ curl https://connect.safariportal.dev/acc/{account_id}/contacts \
 
 - [Accounts](accounts.md) — list the accounts your token can act on
 - [Authentication](authentication.md) — OAuth flow, discovery, scopes, tokens
-- [Categories](categories.md) — list category values to resolve file `*_category_id` ids (read-only)
+- [File Categories](file_categories.md) — list category values to resolve file `*_category_id` ids (read-only)
 - [Contacts](contacts.md) — list, search, retrieve, create, and update contacts
 - [Files](files.md) — list, search, retrieve, create, and update files (trips / tour requests)
 - [File Events](file_events.md) — list a file's activity timeline (read-only)
 - [Invoices](invoices.md) — list and retrieve invoices with payments (read-only)
-- [Stages](stages.md) — list pipeline stages to resolve file `stage_id` (read-only)
+- [Expenses](expenses.md) — list and retrieve expenses with outgoing payments (read-only)
+- [File Stages](file_stages.md) — list pipeline stages to resolve file `stage_id` (read-only)
 - [Tasks](tasks.md) — list, search, and retrieve tasks (read-only)
 - [Users](users.md) — list and retrieve the account's team members (resolve user ids to names)
 

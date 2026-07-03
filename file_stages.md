@@ -1,4 +1,4 @@
-# Stages
+# File Stages
 
 Stages are the pipeline steps a file (trip / tour request) moves through. Each stage
 belongs to a pipeline — typically `leads` or `planning`. Use this endpoint to resolve the
@@ -40,12 +40,12 @@ This endpoint resolves ids that appear on files, so it shares the `files:read` s
 
 | Method | Path                        | Scope        | Description   |
 | ------ | --------------------------- | ------------ | ------------- |
-| `GET`  | `/acc/{account_id}/stages`  | `files:read` | List stages   |
+| `GET`  | `/acc/{account_id}/file_stages`  | `files:read` | List stages   |
 
 ## List stages
 
 ```
-GET /acc/{account_id}/stages
+GET /acc/{account_id}/file_stages
 ```
 
 Requires `files:read`. Returns the account's stages ordered by pipeline then position
@@ -56,7 +56,7 @@ Requires `files:read`. Returns the account's stages ordered by pipeline then pos
 | `pipeline`  | string | Optional. Filters to a pipeline (e.g. `leads`, `planning`). An unrecognized value returns an empty list. |
 
 ```bash
-curl "https://connect.safariportal.dev/acc/{account_id}/stages?pipeline=planning" \
+curl "https://connect.safariportal.dev/acc/{account_id}/file_stages?pipeline=planning" \
   -H "Authorization: Bearer <access_token>"
 ```
 

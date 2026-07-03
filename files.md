@@ -43,10 +43,10 @@ see only their own files; owners and managers see all files in the account.
 | `name`                      | string           | Display name of the file (`file_name` in the app)             |
 | `status`                    | string           | Lifecycle status: one of `leads`, `pipeline`, `confirmed`, `completed`, `archived` |
 | `priority`                  | string           | Priority level: one of `na`, `low`, `medium`, `high`, `top`   |
-| `stage_id`                  | string \| null   | ID of the pipeline stage the file is in — resolve via the [Stages](stages.md) endpoint |
-| `source_category_id`        | string \| null   | ID of the lead source category — resolve via the [Categories](categories.md) endpoint |
-| `trip_type_category_id`     | string \| null   | ID of the trip type category — resolve via the [Categories](categories.md) endpoint |
-| `travel_region_category_id` | string \| null   | ID of the travel region category — resolve via the [Categories](categories.md) endpoint |
+| `stage_id`                  | string \| null   | ID of the pipeline stage the file is in — resolve via the [File Stages](file_stages.md) endpoint |
+| `source_category_id`        | string \| null   | ID of the lead source category — resolve via the [File Categories](file_categories.md) endpoint |
+| `trip_type_category_id`     | string \| null   | ID of the trip type category — resolve via the [File Categories](file_categories.md) endpoint |
+| `travel_region_category_id` | string \| null   | ID of the travel region category — resolve via the [File Categories](file_categories.md) endpoint |
 | `license_type`              | string \| null   | License type associated with the file                          |
 | `channel`                   | string \| null   | Acquisition channel for the file                               |
 | `consultant_id`             | string \| null   | ID of the primary consultant (a **user** id) assigned to the file — resolve via the [Users](users.md) endpoint |

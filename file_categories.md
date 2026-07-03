@@ -1,4 +1,4 @@
-# Categories
+# File Categories
 
 Categories are the account-defined classification values used on files (trips / tour
 requests): **lead sources**, **trip types**, and **travel regions**. The `type` field
@@ -42,12 +42,12 @@ This endpoint resolves ids that appear on files, so it shares the `files:read` s
 
 | Method | Path                            | Scope        | Description       |
 | ------ | ------------------------------- | ------------ | ----------------- |
-| `GET`  | `/acc/{account_id}/categories`  | `files:read` | List categories   |
+| `GET`  | `/acc/{account_id}/file_categories`  | `files:read` | List categories   |
 
 ## List categories
 
 ```
-GET /acc/{account_id}/categories
+GET /acc/{account_id}/file_categories
 ```
 
 Requires `files:read`. Returns the account's categories, ordered by `type` then
@@ -58,7 +58,7 @@ position. No pagination — the full set is returned.
 | `type`      | string | Optional. One of `source`, `trip_type`, `travel_region`. An unrecognized value returns an empty list. |
 
 ```bash
-curl "https://connect.safariportal.dev/acc/{account_id}/categories?type=trip_type" \
+curl "https://connect.safariportal.dev/acc/{account_id}/file_categories?type=trip_type" \
   -H "Authorization: Bearer <access_token>"
 ```
 
