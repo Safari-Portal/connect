@@ -43,6 +43,8 @@ curl https://connect.safariportal.dev/acc/{account_id}/contacts \
 - [Contacts](contacts.md) — list, search, retrieve, create, and update contacts
 - [Files](files.md) — list, search, retrieve, create, and update files (trips / tour requests)
 - [File Events](file_events.md) — list a file's activity timeline (read-only)
+- [Forms](forms.md) — list and retrieve the account's forms (read-only)
+- [Form Submissions](form_submissions.md) — read form submissions per form or per contact (read-only)
 - [Invoices](invoices.md) — list and retrieve invoices with payments (read-only)
 - [Expenses](expenses.md) — list and retrieve expenses with outgoing payments (read-only)
 - [File Stages](file_stages.md) — list pipeline stages to resolve file `stage_id` (read-only)
