@@ -1,0 +1,1719 @@
+openapi: 3.0.3
+info:
+  title: Safari Portal Connect API
+  version: 1.0.0
+  description: >
+    Machine-readable contract for the Safari Portal Connect API. See the narrative
+    documentation in README.md for the auth flow, conventions, and per-resource prose.
+    All resource ids are opaque strings.
+servers:
+  - url: https://connect.safariportal.dev
+    description: Production
+paths:
+  /accounts:
+    get:
+      operationId: listAccounts
+      summary: List the agent accounts the token can act on
+      security:
+        - oauth2: []
+      responses:
+        "200":
+          description: The accessible accounts
+          content:
+            application/json:
+              schema:
+                type: object
+                additionalProperties: false
+                properties:
+                  data:
+                    type: array
+                    items:
+                      $ref: "#/components/schemas/Account"
+                required:
+                  - data
+        "401":
+          $ref: "#/components/responses/Unauthorized"
+  /acc/{acc_id}/contacts:
+    get:
+      operationId: listContacts
+      summary: List the account's contacts (all types)
+      security:
+        - oauth2: [contacts:read]
+      parameters:
+        - $ref: "#/components/parameters/AccId"
+        - $ref: "#/components/parameters/Q"
+        - $ref: "#/components/parameters/Scope"
+        - $ref: "#/components/parameters/Order"
+        - $ref: "#/components/parameters/Page"
+        - $ref: "#/components/parameters/Limit"
+      responses:
+        "200":
+          $ref: "#/components/responses/ContactList"
+        "401":
+          $ref: "#/components/responses/Unauthorized"
+        "403":
+          $ref: "#/components/responses/Forbidden"
+        "404":
+          $ref: "#/components/responses/NotFound"
+    post:
+      operationId: createContact
+      summary: Create a contact
+      security:
+        - oauth2: [contacts:write]
+      parameters:
+        - $ref: "#/components/parameters/AccId"
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/ContactWrite"
+      responses:
+        "201":
+          $ref: "#/components/responses/ContactShow"
+        "401":
+          $ref: "#/components/responses/Unauthorized"
+        "403":
+          $ref: "#/components/responses/Forbidden"
+        "404":
+          $ref: "#/components/responses/NotFound"
+        "422":
+          $ref: "#/components/responses/UnprocessableEntity"
+  /acc/{acc_id}/contacts/search:
+    get:
+      operationId: searchContacts
+      summary: Search the account's contacts by type
+      security:
+        - oauth2: [contacts:read]
+      parameters:
+        - $ref: "#/components/parameters/AccId"
+        - $ref: "#/components/parameters/Q"
+        - $ref: "#/components/parameters/Scope"
+        - $ref: "#/components/parameters/Order"
+        - $ref: "#/components/parameters/Page"
+        - $ref: "#/components/parameters/Limit"
+      responses:
+        "200":
+          $ref: "#/components/responses/ContactList"
+        "401":
+          $ref: "#/components/responses/Unauthorized"
+        "403":
+          $ref: "#/components/responses/Forbidden"
+        "404":
+          $ref: "#/components/responses/NotFound"
+  /acc/{acc_id}/contacts/{id}:
+    get:
+      operationId: getContact
+      summary: Retrieve a single contact
+      security:
+        - oauth2: [contacts:read]
+      parameters:
+        - $ref: "#/components/parameters/AccId"
+        - name: id
+          in: path
+          required: true
+          schema:
+            type: string
+      responses:
+        "200":
+          $ref: "#/components/responses/ContactShow"
+        "401":
+          $ref: "#/components/responses/Unauthorized"
+        "403":
+          $ref: "#/components/responses/Forbidden"
+        "404":
+          $ref: "#/components/responses/NotFound"
+    patch:
+      operationId: updateContact
+      summary: Update a contact
+      security:
+        - oauth2: [contacts:write]
+      parameters:
+        - $ref: "#/components/parameters/AccId"
+        - name: id
+          in: path
+          required: true
+          schema:
+            type: string
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/ContactWrite"
+      responses:
+        "200":
+          $ref: "#/components/responses/ContactShow"
+        "401":
+          $ref: "#/components/responses/Unauthorized"
+        "403":
+          $ref: "#/components/responses/Forbidden"
+        "404":
+          $ref: "#/components/responses/NotFound"
+        "422":
+          $ref: "#/components/responses/UnprocessableEntity"
+  /acc/{acc_id}/forms:
+    get:
+      operationId: listForms
+      summary: List the account's forms (metadata only)
+      security:
+        - oauth2: [forms:read]
+      parameters:
+        - $ref: "#/components/parameters/AccId"
+        - $ref: "#/components/parameters/Page"
+        - $ref: "#/components/parameters/Limit"
+      responses:
+        "200":
+          description: A page of forms
+          content:
+            application/json:
+              schema:
+                type: object
+                additionalProperties: false
+                properties:
+                  data:
+                    type: array
+                    items:
+                      $ref: "#/components/schemas/Form"
+                  meta:
+                    $ref: "#/components/schemas/PaginationMeta"
+                required:
+                  - data
+                  - meta
+        "401":
+          $ref: "#/components/responses/Unauthorized"
+        "403":
+          $ref: "#/components/responses/Forbidden"
+        "404":
+          $ref: "#/components/responses/NotFound"
+  /acc/{acc_id}/forms/{id}:
+    get:
+      operationId: getForm
+      summary: Retrieve a single form (metadata only)
+      security:
+        - oauth2: [forms:read]
+      parameters:
+        - $ref: "#/components/parameters/AccId"
+        - name: id
+          in: path
+          required: true
+          schema:
+            type: string
+      responses:
+        "200":
+          description: The form
+          content:
+            application/json:
+              schema:
+                type: object
+                additionalProperties: false
+                properties:
+                  data:
+                    $ref: "#/components/schemas/Form"
+                required:
+                  - data
+        "401":
+          $ref: "#/components/responses/Unauthorized"
+        "403":
+          $ref: "#/components/responses/Forbidden"
+        "404":
+          $ref: "#/components/responses/NotFound"
+  /acc/{acc_id}/forms/{form_id}/submissions:
+    get:
+      operationId: listFormSubmissions
+      summary: List a form's submissions
+      security:
+        - oauth2: [forms:read]
+      parameters:
+        - $ref: "#/components/parameters/AccId"
+        - name: form_id
+          in: path
+          required: true
+          schema:
+            type: string
+        - $ref: "#/components/parameters/Page"
+        - $ref: "#/components/parameters/Limit"
+      responses:
+        "200":
+          $ref: "#/components/responses/SubmissionList"
+        "401":
+          $ref: "#/components/responses/Unauthorized"
+        "403":
+          $ref: "#/components/responses/Forbidden"
+        "404":
+          $ref: "#/components/responses/NotFound"
+  /acc/{acc_id}/contacts/{contact_id}/form_submissions:
+    get:
+      operationId: listContactFormSubmissions
+      summary: List a contact's form submissions
+      security:
+        - oauth2: [forms:read]
+      parameters:
+        - $ref: "#/components/parameters/AccId"
+        - name: contact_id
+          in: path
+          required: true
+          schema:
+            type: string
+        - $ref: "#/components/parameters/Page"
+        - $ref: "#/components/parameters/Limit"
+      responses:
+        "200":
+          $ref: "#/components/responses/SubmissionList"
+        "401":
+          $ref: "#/components/responses/Unauthorized"
+        "403":
+          $ref: "#/components/responses/Forbidden"
+        "404":
+          $ref: "#/components/responses/NotFound"
+  /acc/{acc_id}/form_submissions/{id}:
+    get:
+      operationId: getFormSubmission
+      summary: Retrieve a single form submission
+      security:
+        - oauth2: [forms:read]
+      parameters:
+        - $ref: "#/components/parameters/AccId"
+        - name: id
+          in: path
+          required: true
+          schema:
+            type: string
+      responses:
+        "200":
+          description: The submission
+          content:
+            application/json:
+              schema:
+                type: object
+                additionalProperties: false
+                properties:
+                  data:
+                    $ref: "#/components/schemas/Submission"
+                required:
+                  - data
+        "401":
+          $ref: "#/components/responses/Unauthorized"
+        "403":
+          $ref: "#/components/responses/Forbidden"
+        "404":
+          $ref: "#/components/responses/NotFound"
+  /acc/{acc_id}/files:
+    get:
+      operationId: listFiles
+      summary: List the account's files
+      security:
+        - oauth2: [files:read]
+      parameters:
+        - $ref: "#/components/parameters/AccId"
+        - $ref: "#/components/parameters/Page"
+        - $ref: "#/components/parameters/Limit"
+      responses:
+        "200":
+          $ref: "#/components/responses/FileList"
+        "401":
+          $ref: "#/components/responses/Unauthorized"
+        "403":
+          $ref: "#/components/responses/Forbidden"
+        "404":
+          $ref: "#/components/responses/NotFound"
+    post:
+      operationId: createFile
+      summary: Create a file (as a lead)
+      security:
+        - oauth2: [files:write]
+      parameters:
+        - $ref: "#/components/parameters/AccId"
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/FileWrite"
+      responses:
+        "201":
+          $ref: "#/components/responses/FileShow"
+        "400":
+          $ref: "#/components/responses/BadRequest"
+        "401":
+          $ref: "#/components/responses/Unauthorized"
+        "403":
+          $ref: "#/components/responses/Forbidden"
+        "404":
+          $ref: "#/components/responses/NotFound"
+        "422":
+          $ref: "#/components/responses/UnprocessableEntity"
+  /acc/{acc_id}/files/search:
+    get:
+      operationId: searchFiles
+      summary: Search the account's files
+      security:
+        - oauth2: [files:read]
+      parameters:
+        - $ref: "#/components/parameters/AccId"
+        - $ref: "#/components/parameters/Q"
+        - $ref: "#/components/parameters/Scope"
+        - $ref: "#/components/parameters/Order"
+        - $ref: "#/components/parameters/Page"
+        - $ref: "#/components/parameters/Limit"
+      responses:
+        "200":
+          $ref: "#/components/responses/FileList"
+        "401":
+          $ref: "#/components/responses/Unauthorized"
+        "403":
+          $ref: "#/components/responses/Forbidden"
+        "404":
+          $ref: "#/components/responses/NotFound"
+  /acc/{acc_id}/files/{id}:
+    get:
+      operationId: getFile
+      summary: Retrieve a single file
+      security:
+        - oauth2: [files:read]
+      parameters:
+        - $ref: "#/components/parameters/AccId"
+        - name: id
+          in: path
+          required: true
+          schema:
+            type: string
+      responses:
+        "200":
+          $ref: "#/components/responses/FileShow"
+        "401":
+          $ref: "#/components/responses/Unauthorized"
+        "403":
+          $ref: "#/components/responses/Forbidden"
+        "404":
+          $ref: "#/components/responses/NotFound"
+    patch:
+      operationId: updateFile
+      summary: Update a file
+      security:
+        - oauth2: [files:write]
+      parameters:
+        - $ref: "#/components/parameters/AccId"
+        - name: id
+          in: path
+          required: true
+          schema:
+            type: string
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/FileWrite"
+      responses:
+        "200":
+          $ref: "#/components/responses/FileShow"
+        "400":
+          $ref: "#/components/responses/BadRequest"
+        "401":
+          $ref: "#/components/responses/Unauthorized"
+        "403":
+          $ref: "#/components/responses/Forbidden"
+        "404":
+          $ref: "#/components/responses/NotFound"
+        "422":
+          $ref: "#/components/responses/UnprocessableEntity"
+  /acc/{acc_id}/files/{file_id}/events:
+    get:
+      operationId: listFileEvents
+      summary: List a file's events
+      security:
+        - oauth2: [files:read]
+      parameters:
+        - $ref: "#/components/parameters/AccId"
+        - name: file_id
+          in: path
+          required: true
+          schema:
+            type: string
+        - $ref: "#/components/parameters/Page"
+        - $ref: "#/components/parameters/Limit"
+      responses:
+        "200":
+          $ref: "#/components/responses/EventList"
+        "401":
+          $ref: "#/components/responses/Unauthorized"
+        "403":
+          $ref: "#/components/responses/Forbidden"
+        "404":
+          $ref: "#/components/responses/NotFound"
+  /acc/{acc_id}/file_categories:
+    get:
+      operationId: listFileCategories
+      summary: List the account's file categories
+      security:
+        - oauth2: [files:read]
+      parameters:
+        - $ref: "#/components/parameters/AccId"
+        - name: type
+          in: query
+          required: false
+          description: Filter to a single category type.
+          schema:
+            type: string
+      responses:
+        "200":
+          description: The categories
+          content:
+            application/json:
+              schema:
+                type: object
+                additionalProperties: false
+                properties:
+                  data:
+                    type: array
+                    items:
+                      $ref: "#/components/schemas/FileCategory"
+                required:
+                  - data
+        "401":
+          $ref: "#/components/responses/Unauthorized"
+        "403":
+          $ref: "#/components/responses/Forbidden"
+        "404":
+          $ref: "#/components/responses/NotFound"
+  /acc/{acc_id}/file_stages:
+    get:
+      operationId: listFileStages
+      summary: List the account's file stages
+      security:
+        - oauth2: [files:read]
+      parameters:
+        - $ref: "#/components/parameters/AccId"
+        - name: pipeline
+          in: query
+          required: false
+          description: Filter to a single pipeline.
+          schema:
+            type: string
+      responses:
+        "200":
+          description: The stages
+          content:
+            application/json:
+              schema:
+                type: object
+                additionalProperties: false
+                properties:
+                  data:
+                    type: array
+                    items:
+                      $ref: "#/components/schemas/FileStage"
+                required:
+                  - data
+        "401":
+          $ref: "#/components/responses/Unauthorized"
+        "403":
+          $ref: "#/components/responses/Forbidden"
+        "404":
+          $ref: "#/components/responses/NotFound"
+  /acc/{acc_id}/tasks:
+    get:
+      operationId: listTasks
+      summary: List the account's tasks
+      security:
+        - oauth2: [tasks:read]
+      parameters:
+        - $ref: "#/components/parameters/AccId"
+        - $ref: "#/components/parameters/Page"
+        - $ref: "#/components/parameters/Limit"
+      responses:
+        "200":
+          $ref: "#/components/responses/TaskList"
+        "401":
+          $ref: "#/components/responses/Unauthorized"
+        "403":
+          $ref: "#/components/responses/Forbidden"
+        "404":
+          $ref: "#/components/responses/NotFound"
+  /acc/{acc_id}/tasks/search:
+    get:
+      operationId: searchTasks
+      summary: Search the account's tasks
+      security:
+        - oauth2: [tasks:read]
+      parameters:
+        - $ref: "#/components/parameters/AccId"
+        - $ref: "#/components/parameters/Q"
+        - $ref: "#/components/parameters/Scope"
+        - $ref: "#/components/parameters/Order"
+        - $ref: "#/components/parameters/Page"
+        - $ref: "#/components/parameters/Limit"
+      responses:
+        "200":
+          $ref: "#/components/responses/TaskList"
+        "401":
+          $ref: "#/components/responses/Unauthorized"
+        "403":
+          $ref: "#/components/responses/Forbidden"
+        "404":
+          $ref: "#/components/responses/NotFound"
+  /acc/{acc_id}/tasks/{id}:
+    get:
+      operationId: getTask
+      summary: Retrieve a single task
+      security:
+        - oauth2: [tasks:read]
+      parameters:
+        - $ref: "#/components/parameters/AccId"
+        - name: id
+          in: path
+          required: true
+          schema:
+            type: string
+      responses:
+        "200":
+          description: The task
+          content:
+            application/json:
+              schema:
+                type: object
+                additionalProperties: false
+                properties:
+                  data:
+                    $ref: "#/components/schemas/Task"
+                required:
+                  - data
+        "401":
+          $ref: "#/components/responses/Unauthorized"
+        "403":
+          $ref: "#/components/responses/Forbidden"
+        "404":
+          $ref: "#/components/responses/NotFound"
+  /acc/{acc_id}/users:
+    get:
+      operationId: listUsers
+      summary: List the account's team members
+      security:
+        - oauth2: [users:read]
+      parameters:
+        - $ref: "#/components/parameters/AccId"
+        - $ref: "#/components/parameters/Page"
+        - $ref: "#/components/parameters/Limit"
+      responses:
+        "200":
+          $ref: "#/components/responses/UserList"
+        "401":
+          $ref: "#/components/responses/Unauthorized"
+        "403":
+          $ref: "#/components/responses/Forbidden"
+        "404":
+          $ref: "#/components/responses/NotFound"
+  /acc/{acc_id}/users/{id}:
+    get:
+      operationId: getUser
+      summary: Retrieve a single team member
+      security:
+        - oauth2: [users:read]
+      parameters:
+        - $ref: "#/components/parameters/AccId"
+        - name: id
+          in: path
+          required: true
+          schema:
+            type: string
+      responses:
+        "200":
+          description: The user
+          content:
+            application/json:
+              schema:
+                type: object
+                additionalProperties: false
+                properties:
+                  data:
+                    $ref: "#/components/schemas/User"
+                required:
+                  - data
+        "401":
+          $ref: "#/components/responses/Unauthorized"
+        "403":
+          $ref: "#/components/responses/Forbidden"
+        "404":
+          $ref: "#/components/responses/NotFound"
+  /acc/{acc_id}/invoices:
+    get:
+      operationId: listInvoices
+      summary: List the account's invoices
+      security:
+        - oauth2: [invoices:read]
+      parameters:
+        - $ref: "#/components/parameters/AccId"
+        - $ref: "#/components/parameters/Page"
+        - $ref: "#/components/parameters/Limit"
+      responses:
+        "200":
+          $ref: "#/components/responses/InvoiceList"
+        "401":
+          $ref: "#/components/responses/Unauthorized"
+        "403":
+          $ref: "#/components/responses/Forbidden"
+        "404":
+          $ref: "#/components/responses/NotFound"
+  /acc/{acc_id}/invoices/{id}:
+    get:
+      operationId: getInvoice
+      summary: Retrieve a single invoice with its payments
+      security:
+        - oauth2: [invoices:read]
+      parameters:
+        - $ref: "#/components/parameters/AccId"
+        - name: id
+          in: path
+          required: true
+          schema:
+            type: string
+      responses:
+        "200":
+          description: The invoice
+          content:
+            application/json:
+              schema:
+                type: object
+                additionalProperties: false
+                properties:
+                  data:
+                    $ref: "#/components/schemas/InvoiceDetail"
+                required:
+                  - data
+        "401":
+          $ref: "#/components/responses/Unauthorized"
+        "403":
+          $ref: "#/components/responses/Forbidden"
+        "404":
+          $ref: "#/components/responses/NotFound"
+  /acc/{acc_id}/expenses:
+    get:
+      operationId: listExpenses
+      summary: List the account's expenses
+      security:
+        - oauth2: [expenses:read]
+      parameters:
+        - $ref: "#/components/parameters/AccId"
+        - $ref: "#/components/parameters/Page"
+        - $ref: "#/components/parameters/Limit"
+      responses:
+        "200":
+          $ref: "#/components/responses/ExpenseList"
+        "401":
+          $ref: "#/components/responses/Unauthorized"
+        "403":
+          $ref: "#/components/responses/Forbidden"
+        "404":
+          $ref: "#/components/responses/NotFound"
+  /acc/{acc_id}/expenses/{id}:
+    get:
+      operationId: getExpense
+      summary: Retrieve a single expense with its payments
+      security:
+        - oauth2: [expenses:read]
+      parameters:
+        - $ref: "#/components/parameters/AccId"
+        - name: id
+          in: path
+          required: true
+          schema:
+            type: string
+      responses:
+        "200":
+          description: The expense
+          content:
+            application/json:
+              schema:
+                type: object
+                additionalProperties: false
+                properties:
+                  data:
+                    $ref: "#/components/schemas/ExpenseDetail"
+                required:
+                  - data
+        "401":
+          $ref: "#/components/responses/Unauthorized"
+        "403":
+          $ref: "#/components/responses/Forbidden"
+        "404":
+          $ref: "#/components/responses/NotFound"
+components:
+  securitySchemes:
+    oauth2:
+      type: oauth2
+      description: OAuth 2.0 authorization code flow with PKCE.
+      flows:
+        authorizationCode:
+          authorizationUrl: https://account.safariportal.app/oauth/authorize
+          tokenUrl: https://connect.safariportal.dev/oauth/token
+          scopes:
+            files:read: Read files and their events, categories, and stages
+            files:write: Create and update files
+            contacts:read: Read contacts
+            contacts:write: Create and update contacts
+            tasks:read: Read tasks
+            users:read: Read account users
+            invoices:read: Read invoices
+            expenses:read: Read expenses
+            forms:read: Read forms and their submissions
+  parameters:
+    AccId:
+      name: acc_id
+      in: path
+      required: true
+      description: Account id the token is bound to.
+      schema:
+        type: string
+    Page:
+      name: page
+      in: query
+      required: false
+      description: 1-based page number.
+      schema:
+        type: integer
+        minimum: 1
+    Limit:
+      name: limit
+      in: query
+      required: false
+      description: Page size.
+      schema:
+        type: integer
+        minimum: 1
+    Q:
+      name: q
+      in: query
+      required: false
+      description: Free-text search query.
+      schema:
+        type: string
+    Order:
+      name: order
+      in: query
+      required: false
+      description: Sort order token.
+      schema:
+        type: string
+    Scope:
+      name: scope
+      in: query
+      required: false
+      description: Named filter scope.
+      schema:
+        type: string
+  responses:
+    Unauthorized:
+      description: Missing or invalid access token
+      content:
+        application/json:
+          schema:
+            $ref: "#/components/schemas/ErrorEnvelope"
+    Forbidden:
+      description: The token lacks the required scope or is bound to another account
+      content:
+        application/json:
+          schema:
+            $ref: "#/components/schemas/ErrorEnvelope"
+    NotFound:
+      description: The resource does not exist or is not visible to this token
+      content:
+        application/json:
+          schema:
+            $ref: "#/components/schemas/ErrorEnvelope"
+    UnprocessableEntity:
+      description: Validation failed
+      content:
+        application/json:
+          schema:
+            $ref: "#/components/schemas/ErrorEnvelope"
+    BadRequest:
+      description: Malformed request (e.g. a missing required top-level key)
+      content:
+        application/json:
+          schema:
+            $ref: "#/components/schemas/ErrorEnvelope"
+    TaskList:
+      description: A page of tasks
+      content:
+        application/json:
+          schema:
+            type: object
+            additionalProperties: false
+            properties:
+              data:
+                type: array
+                items:
+                  $ref: "#/components/schemas/Task"
+              meta:
+                $ref: "#/components/schemas/PaginationMeta"
+            required:
+              - data
+              - meta
+    UserList:
+      description: A page of team members
+      content:
+        application/json:
+          schema:
+            type: object
+            additionalProperties: false
+            properties:
+              data:
+                type: array
+                items:
+                  $ref: "#/components/schemas/User"
+              meta:
+                $ref: "#/components/schemas/PaginationMeta"
+            required:
+              - data
+              - meta
+    InvoiceList:
+      description: A page of invoices
+      content:
+        application/json:
+          schema:
+            type: object
+            additionalProperties: false
+            properties:
+              data:
+                type: array
+                items:
+                  $ref: "#/components/schemas/Invoice"
+              meta:
+                $ref: "#/components/schemas/PaginationMeta"
+            required:
+              - data
+              - meta
+    ExpenseList:
+      description: A page of expenses
+      content:
+        application/json:
+          schema:
+            type: object
+            additionalProperties: false
+            properties:
+              data:
+                type: array
+                items:
+                  $ref: "#/components/schemas/Expense"
+              meta:
+                $ref: "#/components/schemas/PaginationMeta"
+            required:
+              - data
+              - meta
+    FileShow:
+      description: The file
+      content:
+        application/json:
+          schema:
+            type: object
+            additionalProperties: false
+            properties:
+              data:
+                $ref: "#/components/schemas/File"
+            required:
+              - data
+    FileList:
+      description: A page of files
+      content:
+        application/json:
+          schema:
+            type: object
+            additionalProperties: false
+            properties:
+              data:
+                type: array
+                items:
+                  $ref: "#/components/schemas/File"
+              meta:
+                $ref: "#/components/schemas/PaginationMeta"
+            required:
+              - data
+              - meta
+    EventList:
+      description: A page of file events
+      content:
+        application/json:
+          schema:
+            type: object
+            additionalProperties: false
+            properties:
+              data:
+                type: array
+                items:
+                  $ref: "#/components/schemas/FileEvent"
+              meta:
+                $ref: "#/components/schemas/PaginationMeta"
+            required:
+              - data
+              - meta
+    ContactShow:
+      description: The contact
+      content:
+        application/json:
+          schema:
+            type: object
+            additionalProperties: false
+            properties:
+              data:
+                $ref: "#/components/schemas/Contact"
+            required:
+              - data
+    ContactList:
+      description: A page of contacts
+      content:
+        application/json:
+          schema:
+            type: object
+            additionalProperties: false
+            properties:
+              data:
+                type: array
+                items:
+                  $ref: "#/components/schemas/Contact"
+              meta:
+                $ref: "#/components/schemas/PaginationMeta"
+            required:
+              - data
+              - meta
+    SubmissionList:
+      description: A page of submissions
+      content:
+        application/json:
+          schema:
+            type: object
+            additionalProperties: false
+            properties:
+              data:
+                type: array
+                items:
+                  $ref: "#/components/schemas/Submission"
+              meta:
+                $ref: "#/components/schemas/PaginationMeta"
+            required:
+              - data
+              - meta
+  schemas:
+    PaginationMeta:
+      type: object
+      additionalProperties: false
+      properties:
+        total_count:
+          type: integer
+        total_pages:
+          type: integer
+        current_page:
+          type: integer
+        current_count:
+          type: integer
+        next_page:
+          type: integer
+          nullable: true
+        prev_page:
+          type: integer
+          nullable: true
+        first_page:
+          type: boolean
+        last_page:
+          type: boolean
+        out_of_range:
+          type: boolean
+      required:
+        - total_count
+        - total_pages
+        - current_page
+        - current_count
+        - next_page
+        - prev_page
+        - first_page
+        - last_page
+        - out_of_range
+    ErrorEnvelope:
+      type: object
+      additionalProperties: false
+      properties:
+        errors:
+          type: object
+          additionalProperties: false
+          properties:
+            status:
+              type: integer
+            title:
+              type: string
+            description:
+              type: string
+            source:
+              type: string
+          required:
+            - status
+            - title
+      required:
+        - errors
+    Account:
+      type: object
+      additionalProperties: false
+      properties:
+        id:
+          type: string
+        name:
+          type: string
+        created_at:
+          type: string
+      required:
+        - id
+        - name
+        - created_at
+    Contact:
+      type: object
+      additionalProperties: false
+      properties:
+        id:
+          type: string
+        first_name:
+          type: string
+          nullable: true
+        last_name:
+          type: string
+          nullable: true
+        middle_name:
+          type: string
+          nullable: true
+        preferred_name:
+          type: string
+          nullable: true
+        email:
+          type: string
+          nullable: true
+        alternative_email:
+          type: string
+          nullable: true
+        phone:
+          type: string
+          nullable: true
+        alternative_phone:
+          type: string
+          nullable: true
+        company_name:
+          type: string
+          nullable: true
+        type:
+          type: string
+          enum:
+            - partner
+            - supplier
+            - traveler
+        tag_list:
+          type: array
+          items:
+            type: string
+        created_at:
+          type: string
+        updated_at:
+          type: string
+      required:
+        - id
+        - first_name
+        - last_name
+        - middle_name
+        - preferred_name
+        - email
+        - alternative_email
+        - phone
+        - alternative_phone
+        - company_name
+        - type
+        - tag_list
+        - created_at
+        - updated_at
+    ContactWrite:
+      type: object
+      description: Request body for creating or updating a contact.
+      properties:
+        contact:
+          type: object
+          properties:
+            first_name:
+              type: string
+            last_name:
+              type: string
+            middle_name:
+              type: string
+            preferred_name:
+              type: string
+            title:
+              type: string
+            email:
+              type: string
+            alternative_email:
+              type: string
+            phone:
+              type: string
+            alternative_phone:
+              type: string
+            date_of_birth:
+              type: string
+            anniversary_date:
+              type: string
+            known_traveler_number:
+              type: string
+            gender:
+              type: string
+            nationality:
+              type: string
+            referred_by_id:
+              type: string
+            tag_list:
+              oneOf:
+                - type: string
+                - type: array
+                  items:
+                    type: string
+            emergency_contacts_attributes:
+              type: array
+              items:
+                type: object
+                properties:
+                  name:
+                    type: string
+                  phone:
+                    type: string
+      required:
+        - contact
+    Task:
+      type: object
+      additionalProperties: false
+      properties:
+        id:
+          type: string
+        name:
+          type: string
+          nullable: true
+        note:
+          type: string
+          nullable: true
+        types:
+          type: array
+          items:
+            type: string
+        tags:
+          type: array
+          items:
+            type: string
+        due_date:
+          type: string
+          nullable: true
+        completed:
+          type: boolean
+        completed_at:
+          type: string
+          nullable: true
+        file_id:
+          type: string
+          nullable: true
+        assigned_to_id:
+          type: string
+          nullable: true
+        creator_id:
+          type: string
+          nullable: true
+        template_id:
+          type: string
+          nullable: true
+        created_at:
+          type: string
+        updated_at:
+          type: string
+      required:
+        - id
+        - name
+        - note
+        - types
+        - tags
+        - due_date
+        - completed
+        - completed_at
+        - file_id
+        - assigned_to_id
+        - creator_id
+        - template_id
+        - created_at
+        - updated_at
+    User:
+      type: object
+      additionalProperties: false
+      properties:
+        id:
+          type: string
+        name:
+          type: string
+          nullable: true
+        email:
+          type: string
+          nullable: true
+      required:
+        - id
+        - name
+        - email
+    Invoice:
+      type: object
+      additionalProperties: false
+      properties:
+        id:
+          type: string
+        number:
+          type: string
+          nullable: true
+        status:
+          type: string
+          nullable: true
+        file_id:
+          type: string
+          nullable: true
+        currency:
+          type: string
+          nullable: true
+        total_amount:
+          type: number
+          nullable: true
+        created_at:
+          type: string
+        updated_at:
+          type: string
+      required:
+        - id
+        - number
+        - status
+        - file_id
+        - currency
+        - total_amount
+        - created_at
+        - updated_at
+    InvoiceDetail:
+      type: object
+      additionalProperties: false
+      properties:
+        id:
+          type: string
+        number:
+          type: string
+          nullable: true
+        status:
+          type: string
+          nullable: true
+        file_id:
+          type: string
+          nullable: true
+        currency:
+          type: string
+          nullable: true
+        total_amount:
+          type: number
+          nullable: true
+        created_at:
+          type: string
+        updated_at:
+          type: string
+        primary_contact_id:
+          type: string
+          nullable: true
+        amount_paid:
+          type: number
+          nullable: true
+        balance_due:
+          type: number
+          nullable: true
+        payments:
+          type: array
+          items:
+            $ref: "#/components/schemas/Payment"
+      required:
+        - id
+        - number
+        - status
+        - file_id
+        - currency
+        - total_amount
+        - created_at
+        - updated_at
+        - primary_contact_id
+        - amount_paid
+        - balance_due
+        - payments
+    Expense:
+      type: object
+      additionalProperties: false
+      properties:
+        id:
+          type: string
+        number:
+          type: string
+          nullable: true
+        status:
+          type: string
+          nullable: true
+        file_id:
+          type: string
+          nullable: true
+        created_at:
+          type: string
+        updated_at:
+          type: string
+      required:
+        - id
+        - number
+        - status
+        - file_id
+        - created_at
+        - updated_at
+    ExpenseDetail:
+      type: object
+      additionalProperties: false
+      properties:
+        id:
+          type: string
+        number:
+          type: string
+          nullable: true
+        status:
+          type: string
+          nullable: true
+        file_id:
+          type: string
+          nullable: true
+        created_at:
+          type: string
+        updated_at:
+          type: string
+        pay_to_id:
+          type: string
+          nullable: true
+        payments:
+          type: array
+          items:
+            $ref: "#/components/schemas/Payment"
+      required:
+        - id
+        - number
+        - status
+        - file_id
+        - created_at
+        - updated_at
+        - pay_to_id
+        - payments
+    Payment:
+      type: object
+      additionalProperties: false
+      properties:
+        id:
+          type: string
+        direction:
+          type: string
+          enum:
+            - receivable
+            - refund
+            - payable
+        amount:
+          type: number
+          nullable: true
+        currency:
+          type: string
+          nullable: true
+        status:
+          type: string
+          nullable: true
+        due_date:
+          type: string
+          nullable: true
+        paid_at:
+          type: string
+          nullable: true
+      required:
+        - id
+        - direction
+        - amount
+        - currency
+        - status
+        - due_date
+        - paid_at
+    File:
+      type: object
+      additionalProperties: false
+      properties:
+        id:
+          type: string
+        name:
+          type: string
+          nullable: true
+        status:
+          type: string
+        priority:
+          type: string
+          enum:
+            - na
+            - low
+            - medium
+            - high
+            - top
+        stage_id:
+          type: string
+          nullable: true
+        source_category_id:
+          type: string
+          nullable: true
+        trip_type_category_id:
+          type: string
+          nullable: true
+        travel_region_category_id:
+          type: string
+          nullable: true
+        license_type:
+          type: string
+          nullable: true
+        channel:
+          type: string
+          nullable: true
+        consultant_id:
+          type: string
+          nullable: true
+        tag_list:
+          type: array
+          items:
+            type: string
+        traveler_ids:
+          type: array
+          items:
+            type: string
+        start_date:
+          type: string
+          nullable: true
+        end_date:
+          type: string
+          nullable: true
+        created_at:
+          type: string
+        updated_at:
+          type: string
+      required:
+        - id
+        - name
+        - status
+        - priority
+        - stage_id
+        - source_category_id
+        - trip_type_category_id
+        - travel_region_category_id
+        - license_type
+        - channel
+        - consultant_id
+        - tag_list
+        - traveler_ids
+        - start_date
+        - end_date
+        - created_at
+        - updated_at
+    FileWrite:
+      type: object
+      description: >
+        Request body for creating or updating a file. Ids may be sent as strings
+        or integers; the schema is intentionally lenient on scalar id types.
+      properties:
+        file:
+          type: object
+          properties:
+            file_name:
+              type: string
+            stage_id: {}
+            source_category_id: {}
+            trip_type_category_id: {}
+            travel_region_category_id: {}
+            license_type:
+              type: string
+            channel:
+              type: string
+            tag_list: {}
+            priority:
+              type: string
+            traveler_ids:
+              type: array
+              items: {}
+            sales_consultant_ids:
+              type: array
+              items: {}
+            partner_agent_ids:
+              type: array
+              items: {}
+            trip_leader_ids:
+              type: array
+              items: {}
+            supplier_ids:
+              type: array
+              items: {}
+      required:
+        - file
+    FileEvent:
+      type: object
+      additionalProperties: false
+      properties:
+        id:
+          type: string
+        type:
+          type: string
+        file_id:
+          type: string
+          nullable: true
+        user_id:
+          type: string
+          nullable: true
+        request_location:
+          type: string
+          nullable: true
+        request_ip:
+          type: string
+          nullable: true
+        created_at:
+          type: string
+      required:
+        - id
+        - type
+        - file_id
+        - user_id
+        - request_location
+        - request_ip
+        - created_at
+    FileCategory:
+      type: object
+      additionalProperties: false
+      properties:
+        id:
+          type: string
+        name:
+          type: string
+        type:
+          type: string
+      required:
+        - id
+        - name
+        - type
+    FileStage:
+      type: object
+      additionalProperties: false
+      properties:
+        id:
+          type: string
+        name:
+          type: string
+        pipeline:
+          type: string
+      required:
+        - id
+        - name
+        - pipeline
+    Form:
+      type: object
+      additionalProperties: false
+      properties:
+        id:
+          type: string
+        sqid:
+          type: string
+        name:
+          type: string
+        category:
+          type: string
+        tags:
+          type: array
+          items:
+            type: string
+        published:
+          type: boolean
+        published_at:
+          type: string
+          nullable: true
+        created_at:
+          type: string
+        updated_at:
+          type: string
+      required:
+        - id
+        - sqid
+        - name
+        - category
+        - tags
+        - published
+        - published_at
+        - created_at
+        - updated_at
+    Submission:
+      type: object
+      additionalProperties: false
+      properties:
+        id:
+          type: string
+        form_id:
+          type: string
+        contact_id:
+          type: string
+        file_id:
+          type: string
+          nullable: true
+        submitted_at:
+          type: string
+        updated_at:
+          type: string
+        responses:
+          type: array
+          items:
+            $ref: "#/components/schemas/SubmissionResponse"
+      required:
+        - id
+        - form_id
+        - contact_id
+        - file_id
+        - submitted_at
+        - updated_at
+        - responses
+    SubmissionResponse:
+      type: object
+      additionalProperties: false
+      properties:
+        element_id:
+          type: string
+        label:
+          type: string
+          nullable: true
+        type:
+          type: string
+        mapped_to:
+          type: string
+          nullable: true
+        value:
+          # A response value is a scalar, an array of strings, a file object, or
+          # null (unanswered / file-typed with no upload). Null is carried by the
+          # nullable string branch — valid OpenAPI 3.0 (unlike a top-level
+          # `nullable` sibling of `oneOf`) and matched uniquely by openapi_parser.
+          oneOf:
+            - type: string
+              nullable: true
+            - type: number
+            - type: boolean
+            - type: array
+              items:
+                type: string
+            - $ref: "#/components/schemas/SubmissionFileValue"
+      required:
+        - element_id
+        - label
+        - type
+        - mapped_to
+        - value
+    SubmissionFileValue:
+      type: object
+      additionalProperties: false
+      properties:
+        filename:
+          type: string
+        url:
+          type: string
+      required:
+        - filename
+        - url

@@ -12,6 +12,9 @@ user granted.
 - **Format:** JSON only (`Content-Type: application/json` for request bodies)
 - **Auth:** OAuth 2.1 bearer tokens — see [Authentication](authentication.md)
 
+> **OpenAPI 3.0 spec:** the full API is described in [`openapi.yaml`](openapi.yaml) — use it
+> for code generation, client SDKs, and tooling.
+
 > The Connect API is hosted on a dedicated, cookie-free domain. It never relies on
 > browser session cookies; every request authenticates with a bearer token.
 
@@ -50,6 +53,7 @@ curl https://connect.safariportal.dev/acc/{account_id}/contacts \
 - [File Stages](file_stages.md) — list pipeline stages to resolve file `stage_id` (read-only)
 - [Tasks](tasks.md) — list, search, and retrieve tasks (read-only)
 - [Users](users.md) — list and retrieve the account's team members (resolve user ids to names)
+- [OpenAPI spec](openapi.yaml) — the machine-readable API description (OpenAPI 3.0)
 
 ## Conventions
 
