@@ -46,6 +46,8 @@ curl https://connect.safariportal.dev/acc/{account_id}/contacts \
 - [Contacts](contacts.md) — list, search, retrieve, create, and update contacts
 - [Files](files.md) — list, search, retrieve, create, and update files (trips / tour requests)
 - [File Events](file_events.md) — list a file's activity timeline (read-only)
+- [Itineraries](itineraries.md) — list and retrieve a file's itineraries, metadata only (read-only, v2/v3)
+- [Lookbooks](lookbooks.md) — list and retrieve a file's lookbooks, metadata only (read-only, v2/v3)
 - [Forms](forms.md) — list and retrieve the account's forms (read-only)
 - [Form Submissions](form_submissions.md) — read form submissions per form or per contact (read-only)
 - [Invoices](invoices.md) — list and retrieve invoices with payments (read-only)

@@ -442,6 +442,108 @@ paths:
           $ref: "#/components/responses/Forbidden"
         "404":
           $ref: "#/components/responses/NotFound"
+  /acc/{acc_id}/files/{file_id}/itineraries:
+    get:
+      operationId: listFileItineraries
+      summary: List a file's itineraries (metadata only)
+      security:
+        - oauth2: [files:read]
+      parameters:
+        - $ref: "#/components/parameters/AccId"
+        - name: file_id
+          in: path
+          required: true
+          schema:
+            type: string
+        - $ref: "#/components/parameters/Page"
+        - $ref: "#/components/parameters/Limit"
+      responses:
+        "200":
+          $ref: "#/components/responses/ItineraryList"
+        "401":
+          $ref: "#/components/responses/Unauthorized"
+        "403":
+          $ref: "#/components/responses/Forbidden"
+        "404":
+          $ref: "#/components/responses/NotFound"
+  /acc/{acc_id}/files/{file_id}/itineraries/{id}:
+    get:
+      operationId: getFileItinerary
+      summary: Retrieve a single itinerary (metadata only)
+      security:
+        - oauth2: [files:read]
+      parameters:
+        - $ref: "#/components/parameters/AccId"
+        - name: file_id
+          in: path
+          required: true
+          schema:
+            type: string
+        - name: id
+          in: path
+          required: true
+          schema:
+            type: string
+      responses:
+        "200":
+          $ref: "#/components/responses/ItineraryShow"
+        "401":
+          $ref: "#/components/responses/Unauthorized"
+        "403":
+          $ref: "#/components/responses/Forbidden"
+        "404":
+          $ref: "#/components/responses/NotFound"
+  /acc/{acc_id}/files/{file_id}/lookbooks:
+    get:
+      operationId: listFileLookbooks
+      summary: List a file's lookbooks (metadata only)
+      security:
+        - oauth2: [files:read]
+      parameters:
+        - $ref: "#/components/parameters/AccId"
+        - name: file_id
+          in: path
+          required: true
+          schema:
+            type: string
+        - $ref: "#/components/parameters/Page"
+        - $ref: "#/components/parameters/Limit"
+      responses:
+        "200":
+          $ref: "#/components/responses/LookbookList"
+        "401":
+          $ref: "#/components/responses/Unauthorized"
+        "403":
+          $ref: "#/components/responses/Forbidden"
+        "404":
+          $ref: "#/components/responses/NotFound"
+  /acc/{acc_id}/files/{file_id}/lookbooks/{id}:
+    get:
+      operationId: getFileLookbook
+      summary: Retrieve a single lookbook (metadata only)
+      security:
+        - oauth2: [files:read]
+      parameters:
+        - $ref: "#/components/parameters/AccId"
+        - name: file_id
+          in: path
+          required: true
+          schema:
+            type: string
+        - name: id
+          in: path
+          required: true
+          schema:
+            type: string
+      responses:
+        "200":
+          $ref: "#/components/responses/LookbookShow"
+        "401":
+          $ref: "#/components/responses/Unauthorized"
+        "403":
+          $ref: "#/components/responses/Forbidden"
+        "404":
+          $ref: "#/components/responses/NotFound"
   /acc/{acc_id}/file_categories:
     get:
       operationId: listFileCategories
@@ -942,6 +1044,64 @@ components:
                 type: array
                 items:
                   $ref: "#/components/schemas/FileEvent"
+              meta:
+                $ref: "#/components/schemas/PaginationMeta"
+            required:
+              - data
+              - meta
+    ItineraryShow:
+      description: The itinerary
+      content:
+        application/json:
+          schema:
+            type: object
+            additionalProperties: false
+            properties:
+              data:
+                $ref: "#/components/schemas/Itinerary"
+            required:
+              - data
+    ItineraryList:
+      description: A page of itineraries
+      content:
+        application/json:
+          schema:
+            type: object
+            additionalProperties: false
+            properties:
+              data:
+                type: array
+                items:
+                  $ref: "#/components/schemas/Itinerary"
+              meta:
+                $ref: "#/components/schemas/PaginationMeta"
+            required:
+              - data
+              - meta
+    LookbookShow:
+      description: The lookbook
+      content:
+        application/json:
+          schema:
+            type: object
+            additionalProperties: false
+            properties:
+              data:
+                $ref: "#/components/schemas/Lookbook"
+            required:
+              - data
+    LookbookList:
+      description: A page of lookbooks
+      content:
+        application/json:
+          schema:
+            type: object
+            additionalProperties: false
+            properties:
+              data:
+                type: array
+                items:
+                  $ref: "#/components/schemas/Lookbook"
               meta:
                 $ref: "#/components/schemas/PaginationMeta"
             required:
@@ -1608,6 +1768,80 @@ components:
         - id
         - name
         - pipeline
+    Itinerary:
+      type: object
+      additionalProperties: false
+      properties:
+        id:
+          type: string
+        version:
+          type: string
+          enum:
+            - v2
+            - v3
+        file_id:
+          type: string
+        title:
+          type: string
+          nullable: true
+        prepared_for:
+          type: string
+          nullable: true
+        start_date:
+          type: string
+          nullable: true
+        end_date:
+          type: string
+          nullable: true
+        confirmed:
+          type: boolean
+          nullable: true
+        created_at:
+          type: string
+        updated_at:
+          type: string
+      required:
+        - id
+        - version
+        - file_id
+        - title
+        - prepared_for
+        - start_date
+        - end_date
+        - confirmed
+        - created_at
+        - updated_at
+    Lookbook:
+      type: object
+      additionalProperties: false
+      properties:
+        id:
+          type: string
+        version:
+          type: string
+          enum:
+            - v2
+            - v3
+        file_id:
+          type: string
+        title:
+          type: string
+          nullable: true
+        prepared_for:
+          type: string
+          nullable: true
+        created_at:
+          type: string
+        updated_at:
+          type: string
+      required:
+        - id
+        - version
+        - file_id
+        - title
+        - prepared_for
+        - created_at
+        - updated_at
     Form:
       type: object
       additionalProperties: false
