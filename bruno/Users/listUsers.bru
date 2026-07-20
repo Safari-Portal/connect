@@ -1,0 +1,22 @@
+meta {
+  name: List the account's team members
+  type: http
+  seq: 1
+}
+get {
+  url: {{baseUrl}}/acc/:acc_id/users
+  body: none
+  auth: inherit
+}
+params:path {
+  acc_id: {{accId}}
+}
+params:query {
+  ~page: 
+  ~limit: 
+}
+docs {
+  List the account's team members
+
+  Scopes: users:read
+}

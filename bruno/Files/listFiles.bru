@@ -1,0 +1,25 @@
+meta {
+  name: List the account's files
+  type: http
+  seq: 1
+}
+get {
+  url: {{baseUrl}}/acc/:acc_id/files
+  body: none
+  auth: inherit
+}
+params:path {
+  acc_id: {{accId}}
+}
+params:query {
+  ~q: 
+  ~scope: 
+  ~order: 
+  ~page: 
+  ~limit: 
+}
+docs {
+  List the account's files
+
+  Scopes: files:read
+}

@@ -1,0 +1,19 @@
+meta {
+  name: Retrieve a single file
+  type: http
+  seq: 8
+}
+get {
+  url: {{baseUrl}}/acc/:acc_id/files/:id
+  body: none
+  auth: inherit
+}
+params:path {
+  acc_id: {{accId}}
+  id: 
+}
+docs {
+  Retrieve a single file
+
+  Scopes: files:read
+}

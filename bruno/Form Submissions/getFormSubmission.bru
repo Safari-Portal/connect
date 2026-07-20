@@ -1,0 +1,19 @@
+meta {
+  name: Retrieve a single form submission
+  type: http
+  seq: 1
+}
+get {
+  url: {{baseUrl}}/acc/:acc_id/form_submissions/:id
+  body: none
+  auth: inherit
+}
+params:path {
+  acc_id: {{accId}}
+  id: 
+}
+docs {
+  Retrieve a single form submission
+
+  Scopes: forms:read
+}

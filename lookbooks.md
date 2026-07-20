@@ -5,14 +5,18 @@ Lookbooks are curated collections of inspiration and destination content attache
 day-by-day [Itineraries](itineraries.md). This endpoint exposes their **metadata** (title and
 who they were prepared for). The full content of a lookbook is not part of this API.
 
-This is a **read-only** API: a file's lookbooks can be listed and retrieved individually.
-There is no search, create, or update.
+This is a **read-only** API: lookbooks can be listed for a whole account or for a single
+file, and retrieved individually. There is no create or update.
 
 Lookbooks are nested under a file: `/acc/{account_id}/files/{file_id}/lookbooks`. The
 `{account_id}` must be an account you are an agent member of (otherwise `404`; a token bound
 to a different account returns `403`). The `{file_id}` must be a file you can see in that
 account — a file that does not exist, or one you are not permitted to view, returns `404`
 (the same visibility rules as [Files](files.md)).
+
+There is also an **account-level** index — `/acc/{account_id}/lookbooks` — that lists the
+account's published lookbooks across all its files and can be filtered by country. See
+[List the account's lookbooks](#list-the-accounts-lookbooks).
 
 Itineraries are a separate document type with their own endpoint — see
 [Itineraries](itineraries.md). The lookbooks endpoint never returns itineraries.
@@ -50,6 +54,7 @@ migrated. The object shape is identical across versions. Treat `id` as an opaque
 | `prepared_for` | string \| null    | Who the lookbook was prepared for                             |
 | `created_at`   | string (ISO 8601) | When the lookbook was created                                 |
 | `updated_at`   | string (ISO 8601) | When the lookbook was last updated                            |
+| `countries`    | array             | Countries the lookbook covers, each `{ id, code, name }`. Returned only by [Retrieve](#retrieve-a-single-lookbook) — populated for `v3`, an empty array (`[]`) for `v2` |
 
 ## Scopes
 
@@ -64,8 +69,63 @@ lookbooks. There is no dedicated lookbooks scope and no write scope.
 
 | Method | Path                                                 | Scope        | Description               |
 | ------ | ---------------------------------------------------- | ------------ | ------------------------- |
+| `GET`  | `/acc/{account_id}/lookbooks`                        | `files:read` | List the account's published lookbooks |
 | `GET`  | `/acc/{account_id}/files/{file_id}/lookbooks`        | `files:read` | List a file's lookbooks   |
 | `GET`  | `/acc/{account_id}/files/{file_id}/lookbooks/{id}`   | `files:read` | Retrieve a single lookbook |
+
+## List the account's lookbooks
+
+```
+GET /acc/{account_id}/lookbooks
+```
+
+Requires `files:read`. Lists the account's **published** lookbooks (v3) across all of its
+files, ordered newest first (by `created_at` descending). Only published proposals are
+returned — unpublished drafts are omitted. Supports [pagination](README.md#pagination) via
+`page` and `limit`, and filtering by country via `country_codes`.
+
+| Query param     | Description                                                                                                          |
+| --------------- | ------------------------------------------------------------------------------------------------------------------ |
+| `country_codes` | Comma-separated ISO 3166-1 alpha-2 codes (e.g. `KE,TZ`), case-insensitive. Keeps only lookbooks whose published snapshot contains at least one of the given countries |
+| `page`          | Page number (default `1`)                                                                                          |
+| `limit`         | Items per page (default `25`, maximum `100`)                                                                        |
+
+```bash
+curl "https://connect.safariportal.dev/acc/{account_id}/lookbooks?country_codes=KE,TZ" \
+  -H "Authorization: Bearer <access_token>"
+```
+
+**Response `200`**
+
+```json
+{
+  "data": [
+    {
+      "id": "12345",
+      "version": "v3",
+      "file_id": "42",
+      "title": "Kenya Inspiration",
+      "prepared_for": "The Smith Family",
+      "created_at": "2026-06-30T14:12:05.000Z",
+      "updated_at": "2026-07-01T09:30:00.000Z"
+    }
+  ],
+  "meta": {
+    "total_count": 1,
+    "total_pages": 1,
+    "current_page": 1,
+    "current_count": 1,
+    "next_page": null,
+    "prev_page": null,
+    "first_page": true,
+    "last_page": true,
+    "out_of_range": false
+  }
+}
+```
+
+List items carry the same fields as the file-scoped list; fetch a single lookbook with
+[Retrieve](#retrieve-a-single-lookbook) to get its `countries`.
 
 ## List a file's lookbooks
 
@@ -140,10 +200,15 @@ curl "https://connect.safariportal.dev/acc/{account_id}/files/{file_id}/lookbook
     "title": "Kenya Inspiration",
     "prepared_for": "The Smith Family",
     "created_at": "2026-06-30T14:12:05.000Z",
-    "updated_at": "2026-07-01T09:30:00.000Z"
+    "updated_at": "2026-07-01T09:30:00.000Z",
+    "countries": []
   }
 }
 ```
+
+The retrieve response additionally includes a `countries` array. For `v3` lookbooks it lists
+the countries the lookbook covers, each entry `{ "id": "…", "code": "KE", "name": "Kenya" }`; for
+`v2` lookbooks it is always empty (`[]`).
 
 See [Errors](README.md#errors) and [Pagination](README.md#pagination) in the README for
 shared conventions.

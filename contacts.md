@@ -49,24 +49,11 @@ Requires `contacts:read`. Returns all contact types for the account, paginated.
 | `owner_ids[]` | Filter by owning member                                           |
 
 When no filters are given, all types are returned. Providing `scope`/`q`/filters
-narrows the results.
+narrows the results. An unrecognized `scope` falls back to all types rather than
+erroring.
 
 ```bash
 curl "https://connect.safariportal.dev/acc/{account_id}/contacts?scope=partners&limit=50" \
-  -H "Authorization: Bearer <access_token>"
-```
-
-## Search contacts
-
-```
-GET /acc/{account_id}/contacts/search
-```
-
-Requires `contacts:read`. Same filtering as the list endpoint; `scope` defaults to
-`travelers`. An unrecognized `scope` falls back to the default rather than erroring.
-
-```bash
-curl "https://connect.safariportal.dev/acc/{account_id}/contacts/search?scope=travelers&q=jane" \
   -H "Authorization: Bearer <access_token>"
 ```
 

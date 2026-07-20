@@ -1,0 +1,23 @@
+meta {
+  name: List a file's lookbooks (metadata only)
+  type: http
+  seq: 6
+}
+get {
+  url: {{baseUrl}}/acc/:acc_id/files/:file_id/lookbooks
+  body: none
+  auth: inherit
+}
+params:path {
+  acc_id: {{accId}}
+  file_id: 
+}
+params:query {
+  ~page: 
+  ~limit: 
+}
+docs {
+  List a file's lookbooks (metadata only)
+
+  Scopes: files:read
+}

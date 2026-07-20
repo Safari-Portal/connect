@@ -1,0 +1,21 @@
+meta {
+  name: List the account's file stages
+  type: http
+  seq: 1
+}
+get {
+  url: {{baseUrl}}/acc/:acc_id/file_stages
+  body: none
+  auth: inherit
+}
+params:path {
+  acc_id: {{accId}}
+}
+params:query {
+  ~pipeline: 
+}
+docs {
+  List the account's file stages
+
+  Scopes: files:read
+}

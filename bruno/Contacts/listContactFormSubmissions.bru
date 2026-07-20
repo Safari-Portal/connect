@@ -1,0 +1,23 @@
+meta {
+  name: List a contact's form submissions
+  type: http
+  seq: 3
+}
+get {
+  url: {{baseUrl}}/acc/:acc_id/contacts/:contact_id/form_submissions
+  body: none
+  auth: inherit
+}
+params:path {
+  acc_id: {{accId}}
+  contact_id: 
+}
+params:query {
+  ~page: 
+  ~limit: 
+}
+docs {
+  List a contact's form submissions
+
+  Scopes: forms:read
+}

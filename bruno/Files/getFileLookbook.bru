@@ -1,0 +1,20 @@
+meta {
+  name: Retrieve a single lookbook (metadata only)
+  type: http
+  seq: 7
+}
+get {
+  url: {{baseUrl}}/acc/:acc_id/files/:file_id/lookbooks/:id
+  body: none
+  auth: inherit
+}
+params:path {
+  acc_id: {{accId}}
+  file_id: 
+  id: 
+}
+docs {
+  Retrieve a single lookbook (metadata only)
+
+  Scopes: files:read
+}

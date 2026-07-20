@@ -1,0 +1,24 @@
+meta {
+  name: List the account's tasks
+  type: http
+  seq: 1
+}
+get {
+  url: {{baseUrl}}/acc/:acc_id/tasks
+  body: none
+  auth: inherit
+}
+params:path {
+  acc_id: {{accId}}
+}
+params:query {
+  ~scope: 
+  ~order: 
+  ~page: 
+  ~limit: 
+}
+docs {
+  List the account's tasks
+
+  Scopes: tasks:read
+}

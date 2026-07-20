@@ -1,0 +1,22 @@
+meta {
+  name: List the account's forms (metadata only)
+  type: http
+  seq: 1
+}
+get {
+  url: {{baseUrl}}/acc/:acc_id/forms
+  body: none
+  auth: inherit
+}
+params:path {
+  acc_id: {{accId}}
+}
+params:query {
+  ~page: 
+  ~limit: 
+}
+docs {
+  List the account's forms (metadata only)
+
+  Scopes: forms:read
+}

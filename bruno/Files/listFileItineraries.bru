@@ -1,0 +1,23 @@
+meta {
+  name: List a file's itineraries (metadata only)
+  type: http
+  seq: 4
+}
+get {
+  url: {{baseUrl}}/acc/:acc_id/files/:file_id/itineraries
+  body: none
+  auth: inherit
+}
+params:path {
+  acc_id: {{accId}}
+  file_id: 
+}
+params:query {
+  ~page: 
+  ~limit: 
+}
+docs {
+  List a file's itineraries (metadata only)
+
+  Scopes: files:read
+}

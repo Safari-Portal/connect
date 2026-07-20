@@ -2,8 +2,9 @@
 
 "Files" are trips / tour requests in Safari Portal — the central planning record for
 a traveler's trip. Every file moves through a `status` lifecycle: **leads → pipeline →
-confirmed → completed → archived**. (Note: the `search` endpoint's `scope` filter uses a
-broader vocabulary — `planning`, `traveling`, `deleted` — described under [Search](#search).)
+confirmed → completed → archived**. (Note: the list endpoint's `scope` filter uses a
+broader vocabulary — `planning`, `traveling`, `deleted` — described under
+[List files](#list-files).)
 
 All endpoints are nested under `/acc/{account_id}/`. The `{account_id}` must be an
 account you are an agent member of; an account you are not a member of returns `404`, and a token bound to a different account returns `403`. If a
@@ -61,15 +62,14 @@ see only their own files; owners and managers see all files in the account.
 
 | Scope          | Endpoints                     |
 | -------------- | ----------------------------- |
-| `files:read`   | List, Search, Get             |
+| `files:read`   | List, Get                     |
 | `files:write`  | Create, Update                |
 
 ## Endpoints
 
 | Method  | Path                              | Scope          | Description         |
 | ------- | --------------------------------- | -------------- | ------------------- |
-| `GET`   | `/acc/{account_id}/files`         | `files:read`   | List files          |
-| `GET`   | `/acc/{account_id}/files/search`  | `files:read`   | Search files        |
+| `GET`   | `/acc/{account_id}/files`         | `files:read`   | List / filter files |
 | `GET`   | `/acc/{account_id}/files/:id`     | `files:read`   | Retrieve a file     |
 | `POST`  | `/acc/{account_id}/files`         | `files:write`  | Create a file       |
 | `PATCH` | `/acc/{account_id}/files/:id`     | `files:write`  | Update a file       |
@@ -80,19 +80,32 @@ see only their own files; owners and managers see all files in the account.
 GET /acc/{account_id}/files
 ```
 
-Requires `files:read`. Returns all files visible to the member, ordered by name.
-Supports [pagination](README.md#pagination) via `page` and `limit`.
+Requires `files:read`. With no filter parameters, returns all files visible to the
+member, ordered by name. Supplying any of the filters below narrows the results;
+`scope` alone is enough to filter by lifecycle stage. Supports
+[pagination](README.md#pagination) via `page` and `limit`.
 
-If any search parameter other than `order` or `scope` is present, the request behaves
-identically to [Search files](#search-files).
-
-| Query param                   | Description                                         |
-| ----------------------------- | --------------------------------------------------- |
-| `page`                        | Page number (default `1`)                           |
-| `limit`                       | Items per page (default `25`, maximum `100`)        |
+| Query param                    | Type             | Description                                                                                       |
+| ------------------------------ | ---------------- | ------------------------------------------------------------------------------------------------- |
+| `page`                         | integer          | Page number (default `1`)                                                                         |
+| `limit`                        | integer          | Items per page (default `25`, maximum `100`)                                                       |
+| `scope`                        | string           | Lifecycle stage to filter within. One of `leads`, `planning`, `confirmed`, `traveling`, `completed`, `archived`, `deleted`. When any filter other than `scope` is supplied without a `scope`, it defaults to `planning`. |
+| `q`                            | string           | Full-text search across file name, linked itineraries, lookbooks, portals, and dashboards         |
+| `order`                        | string           | Sort order. One of `created-desc` (default), `created-asc`, `file_name-asc`, `file_name-desc`, `priority-asc`, `priority-desc`, `start_date-asc`, `start_date-desc` |
+| `stage_id`                     | string           | Filter by pipeline stage ID                                                                       |
+| `consultant_ids[]`             | array of strings | Filter by primary consultant                                                                      |
+| `sales_consultant_ids[]`       | array of strings | Filter by sales consultant (member)                                                               |
+| `partner_agent_ids[]`          | array of strings | Filter by partner agent (contact)                                                                 |
+| `supplier_ids[]`               | array of strings | Filter by supplier (contact)                                                                      |
+| `trip_leader_ids[]`            | array of strings | Filter by trip leader (contact)                                                                   |
+| `priorities[]`                 | array of strings | Filter by priority token (`na`, `low`, `medium`, `high`, `top`)                                   |
+| `tags[]`                       | array of strings | Filter by tag (files must have all supplied tags)                                                 |
+| `source_category_ids[]`        | array of strings | Filter by lead source category                                                                    |
+| `trip_type_category_ids[]`     | array of strings | Filter by trip type category                                                                      |
+| `travel_region_category_ids[]` | array of strings | Filter by travel region category                                                                  |
 
 ```bash
-curl "https://connect.safariportal.dev/acc/{account_id}/files?page=1&limit=10" \
+curl "https://connect.safariportal.dev/acc/{account_id}/files?scope=leads&q=safari&tags[]=honeymoon" \
   -H "Authorization: Bearer <access_token>"
 ```
 
@@ -134,40 +147,6 @@ curl "https://connect.safariportal.dev/acc/{account_id}/files?page=1&limit=10" \
   }
 }
 ```
-
-## Search files
-
-```
-GET /acc/{account_id}/files/search
-```
-
-Requires `files:read`. Filters files by the supplied parameters. Supports
-[pagination](README.md#pagination) via `page` and `limit`. The `scope` param narrows
-results to a specific lifecycle stage; it defaults to `"planning"`.
-
-| Query param                    | Type             | Description                                                                                       |
-| ------------------------------ | ---------------- | ------------------------------------------------------------------------------------------------- |
-| `scope`                        | string           | Lifecycle stage to search within. One of `leads`, `planning`, `confirmed`, `traveling`, `completed`, `archived`, `deleted`. Defaults to `planning`. |
-| `q`                            | string           | Full-text search across file name, linked itineraries, lookbooks, portals, and dashboards         |
-| `order`                        | string           | Sort order. One of `created-desc` (default), `created-asc`, `file_name-asc`, `file_name-desc`, `priority-asc`, `priority-desc`, `start_date-asc`, `start_date-desc` |
-| `stage_id`                     | string           | Filter by pipeline stage ID                                                                       |
-| `consultant_ids[]`             | array of strings | Filter by primary consultant                                                                      |
-| `sales_consultant_ids[]`       | array of strings | Filter by sales consultant (member)                                                               |
-| `partner_agent_ids[]`          | array of strings | Filter by partner agent (contact)                                                                 |
-| `supplier_ids[]`               | array of strings | Filter by supplier (contact)                                                                      |
-| `trip_leader_ids[]`            | array of strings | Filter by trip leader (contact)                                                                   |
-| `priorities[]`                 | array of strings | Filter by priority token (`na`, `low`, `medium`, `high`, `top`)                                   |
-| `tags[]`                       | array of strings | Filter by tag (files must have all supplied tags)                                                 |
-| `source_category_ids[]`        | array of strings | Filter by lead source category                                                                    |
-| `trip_type_category_ids[]`     | array of strings | Filter by trip type category                                                                      |
-| `travel_region_category_ids[]` | array of strings | Filter by travel region category                                                                  |
-
-```bash
-curl "https://connect.safariportal.dev/acc/{account_id}/files/search?scope=leads&q=safari&tags[]=honeymoon" \
-  -H "Authorization: Bearer <access_token>"
-```
-
-**Response `200`** — same envelope shape as [List files](#list-files).
 
 ## Retrieve a file
 

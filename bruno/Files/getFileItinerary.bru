@@ -1,0 +1,20 @@
+meta {
+  name: Retrieve a single itinerary (metadata only)
+  type: http
+  seq: 5
+}
+get {
+  url: {{baseUrl}}/acc/:acc_id/files/:file_id/itineraries/:id
+  body: none
+  auth: inherit
+}
+params:path {
+  acc_id: {{accId}}
+  file_id: 
+  id: 
+}
+docs {
+  Retrieve a single itinerary (metadata only)
+
+  Scopes: files:read
+}

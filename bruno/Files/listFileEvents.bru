@@ -1,0 +1,23 @@
+meta {
+  name: List a file's events
+  type: http
+  seq: 3
+}
+get {
+  url: {{baseUrl}}/acc/:acc_id/files/:file_id/events
+  body: none
+  auth: inherit
+}
+params:path {
+  acc_id: {{accId}}
+  file_id: 
+}
+params:query {
+  ~page: 
+  ~limit: 
+}
+docs {
+  List a file's events
+
+  Scopes: files:read
+}

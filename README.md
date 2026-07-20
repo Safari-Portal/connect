@@ -15,6 +15,9 @@ user granted.
 > **OpenAPI 3.0 spec:** the full API is described in [`openapi.yaml`](openapi.yaml) — use it
 > for code generation, client SDKs, and tooling.
 
+> **Bruno collection:** a ready-to-run [Bruno](https://usebruno.com) collection lives in
+> [`bruno/`](bruno/README.md), generated from `openapi.yaml`, for exercising every endpoint.
+
 > The Connect API is hosted on a dedicated, cookie-free domain. It never relies on
 > browser session cookies; every request authenticates with a bearer token.
 
@@ -43,17 +46,17 @@ curl https://connect.safariportal.dev/acc/{account_id}/contacts \
 - [Accounts](accounts.md) — list the accounts your token can act on
 - [Authentication](authentication.md) — OAuth flow, discovery, scopes, tokens
 - [File Categories](file_categories.md) — list category values to resolve file `*_category_id` ids (read-only)
-- [Contacts](contacts.md) — list, search, retrieve, create, and update contacts
-- [Files](files.md) — list, search, retrieve, create, and update files (trips / tour requests)
+- [Contacts](contacts.md) — list (with filtering), retrieve, create, and update contacts
+- [Files](files.md) — list (with filtering), retrieve, create, and update files (trips / tour requests)
 - [File Events](file_events.md) — list a file's activity timeline (read-only)
-- [Itineraries](itineraries.md) — list and retrieve a file's itineraries, metadata only (read-only, v2/v3)
-- [Lookbooks](lookbooks.md) — list and retrieve a file's lookbooks, metadata only (read-only, v2/v3)
+- [Itineraries](itineraries.md) — list a file's or the whole account's itineraries and retrieve them, metadata only (read-only, v2/v3)
+- [Lookbooks](lookbooks.md) — list a file's or the whole account's lookbooks and retrieve them, metadata only (read-only, v2/v3)
 - [Forms](forms.md) — list and retrieve the account's forms (read-only)
 - [Form Submissions](form_submissions.md) — read form submissions per form or per contact (read-only)
 - [Invoices](invoices.md) — list and retrieve invoices with payments (read-only)
 - [Expenses](expenses.md) — list and retrieve expenses with outgoing payments (read-only)
 - [File Stages](file_stages.md) — list pipeline stages to resolve file `stage_id` (read-only)
-- [Tasks](tasks.md) — list, search, and retrieve tasks (read-only)
+- [Tasks](tasks.md) — list (with filtering) and retrieve tasks (read-only)
 - [Users](users.md) — list and retrieve the account's team members (resolve user ids to names)
 - [OpenAPI spec](openapi.yaml) — the machine-readable API description (OpenAPI 3.0)
 

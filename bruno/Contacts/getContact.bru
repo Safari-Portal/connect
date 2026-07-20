@@ -1,0 +1,19 @@
+meta {
+  name: Retrieve a single contact
+  type: http
+  seq: 4
+}
+get {
+  url: {{baseUrl}}/acc/:acc_id/contacts/:id
+  body: none
+  auth: inherit
+}
+params:path {
+  acc_id: {{accId}}
+  id: 
+}
+docs {
+  Retrieve a single contact
+
+  Scopes: contacts:read
+}

@@ -79,22 +79,40 @@ paths:
           $ref: "#/components/responses/NotFound"
         "422":
           $ref: "#/components/responses/UnprocessableEntity"
-  /acc/{acc_id}/contacts/search:
+  /acc/{acc_id}/itineraries:
     get:
-      operationId: searchContacts
-      summary: Search the account's contacts by type
+      operationId: listItineraries
+      summary: List the account's published itineraries, optionally filtered by country
       security:
-        - oauth2: [contacts:read]
+        - oauth2: [files:read]
       parameters:
         - $ref: "#/components/parameters/AccId"
-        - $ref: "#/components/parameters/Q"
-        - $ref: "#/components/parameters/Scope"
-        - $ref: "#/components/parameters/Order"
+        - $ref: "#/components/parameters/CountryCodes"
         - $ref: "#/components/parameters/Page"
         - $ref: "#/components/parameters/Limit"
       responses:
         "200":
-          $ref: "#/components/responses/ContactList"
+          $ref: "#/components/responses/ItineraryList"
+        "401":
+          $ref: "#/components/responses/Unauthorized"
+        "403":
+          $ref: "#/components/responses/Forbidden"
+        "404":
+          $ref: "#/components/responses/NotFound"
+  /acc/{acc_id}/lookbooks:
+    get:
+      operationId: listLookbooks
+      summary: List the account's published lookbooks, optionally filtered by country
+      security:
+        - oauth2: [files:read]
+      parameters:
+        - $ref: "#/components/parameters/AccId"
+        - $ref: "#/components/parameters/CountryCodes"
+        - $ref: "#/components/parameters/Page"
+        - $ref: "#/components/parameters/Limit"
+      responses:
+        "200":
+          $ref: "#/components/responses/LookbookList"
         "401":
           $ref: "#/components/responses/Unauthorized"
         "403":
@@ -306,6 +324,9 @@ paths:
         - oauth2: [files:read]
       parameters:
         - $ref: "#/components/parameters/AccId"
+        - $ref: "#/components/parameters/Q"
+        - $ref: "#/components/parameters/Scope"
+        - $ref: "#/components/parameters/Order"
         - $ref: "#/components/parameters/Page"
         - $ref: "#/components/parameters/Limit"
       responses:
@@ -343,28 +364,6 @@ paths:
           $ref: "#/components/responses/NotFound"
         "422":
           $ref: "#/components/responses/UnprocessableEntity"
-  /acc/{acc_id}/files/search:
-    get:
-      operationId: searchFiles
-      summary: Search the account's files
-      security:
-        - oauth2: [files:read]
-      parameters:
-        - $ref: "#/components/parameters/AccId"
-        - $ref: "#/components/parameters/Q"
-        - $ref: "#/components/parameters/Scope"
-        - $ref: "#/components/parameters/Order"
-        - $ref: "#/components/parameters/Page"
-        - $ref: "#/components/parameters/Limit"
-      responses:
-        "200":
-          $ref: "#/components/responses/FileList"
-        "401":
-          $ref: "#/components/responses/Unauthorized"
-        "403":
-          $ref: "#/components/responses/Forbidden"
-        "404":
-          $ref: "#/components/responses/NotFound"
   /acc/{acc_id}/files/{id}:
     get:
       operationId: getFile
@@ -622,26 +621,6 @@ paths:
         - oauth2: [tasks:read]
       parameters:
         - $ref: "#/components/parameters/AccId"
-        - $ref: "#/components/parameters/Page"
-        - $ref: "#/components/parameters/Limit"
-      responses:
-        "200":
-          $ref: "#/components/responses/TaskList"
-        "401":
-          $ref: "#/components/responses/Unauthorized"
-        "403":
-          $ref: "#/components/responses/Forbidden"
-        "404":
-          $ref: "#/components/responses/NotFound"
-  /acc/{acc_id}/tasks/search:
-    get:
-      operationId: searchTasks
-      summary: Search the account's tasks
-      security:
-        - oauth2: [tasks:read]
-      parameters:
-        - $ref: "#/components/parameters/AccId"
-        - $ref: "#/components/parameters/Q"
         - $ref: "#/components/parameters/Scope"
         - $ref: "#/components/parameters/Order"
         - $ref: "#/components/parameters/Page"
@@ -904,6 +883,17 @@ components:
       description: Named filter scope.
       schema:
         type: string
+    CountryCodes:
+      name: country_codes
+      in: query
+      required: false
+      description: Filter to proposals whose published snapshot contains any of these ISO 3166-1 alpha-2 country codes (case-insensitive, e.g. `KE`). Comma-separated.
+      style: form
+      explode: false
+      schema:
+        type: array
+        items:
+          type: string
   responses:
     Unauthorized:
       description: Missing or invalid access token
@@ -1058,7 +1048,7 @@ components:
             additionalProperties: false
             properties:
               data:
-                $ref: "#/components/schemas/Itinerary"
+                $ref: "#/components/schemas/ItineraryDetail"
             required:
               - data
     ItineraryList:
@@ -1087,7 +1077,7 @@ components:
             additionalProperties: false
             properties:
               data:
-                $ref: "#/components/schemas/Lookbook"
+                $ref: "#/components/schemas/LookbookDetail"
             required:
               - data
     LookbookList:
@@ -1811,6 +1801,54 @@ components:
         - confirmed
         - created_at
         - updated_at
+    ItineraryDetail:
+      type: object
+      additionalProperties: false
+      properties:
+        id:
+          type: string
+        version:
+          type: string
+          enum:
+            - v2
+            - v3
+        file_id:
+          type: string
+        title:
+          type: string
+          nullable: true
+        prepared_for:
+          type: string
+          nullable: true
+        start_date:
+          type: string
+          nullable: true
+        end_date:
+          type: string
+          nullable: true
+        confirmed:
+          type: boolean
+          nullable: true
+        created_at:
+          type: string
+        updated_at:
+          type: string
+        countries:
+          type: array
+          items:
+            $ref: "#/components/schemas/LocationCountry"
+      required:
+        - id
+        - version
+        - file_id
+        - title
+        - prepared_for
+        - start_date
+        - end_date
+        - confirmed
+        - created_at
+        - updated_at
+        - countries
     Lookbook:
       type: object
       additionalProperties: false
@@ -1842,6 +1880,56 @@ components:
         - prepared_for
         - created_at
         - updated_at
+    LookbookDetail:
+      type: object
+      additionalProperties: false
+      properties:
+        id:
+          type: string
+        version:
+          type: string
+          enum:
+            - v2
+            - v3
+        file_id:
+          type: string
+        title:
+          type: string
+          nullable: true
+        prepared_for:
+          type: string
+          nullable: true
+        created_at:
+          type: string
+        updated_at:
+          type: string
+        countries:
+          type: array
+          items:
+            $ref: "#/components/schemas/LocationCountry"
+      required:
+        - id
+        - version
+        - file_id
+        - title
+        - prepared_for
+        - created_at
+        - updated_at
+        - countries
+    LocationCountry:
+      type: object
+      additionalProperties: false
+      properties:
+        id:
+          type: string
+        code:
+          type: string
+        name:
+          type: string
+      required:
+        - id
+        - code
+        - name
     Form:
       type: object
       additionalProperties: false

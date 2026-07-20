@@ -1,0 +1,9 @@
+{
+  "version": "1",
+  "name": "Safari Portal Connect API",
+  "type": "collection",
+  "ignore": [
+    "node_modules",
+    ".git"
+  ]
+}

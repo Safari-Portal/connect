@@ -1,0 +1,47 @@
+meta {
+  name: Update a contact
+  type: http
+  seq: 5
+}
+patch {
+  url: {{baseUrl}}/acc/:acc_id/contacts/:id
+  body: json
+  auth: inherit
+}
+params:path {
+  acc_id: {{accId}}
+  id: 
+}
+body:json {
+  {
+    "contact": {
+      "first_name": "",
+      "last_name": "",
+      "middle_name": "",
+      "preferred_name": "",
+      "title": "",
+      "email": "",
+      "alternative_email": "",
+      "phone": "",
+      "alternative_phone": "",
+      "date_of_birth": "",
+      "anniversary_date": "",
+      "known_traveler_number": "",
+      "gender": "",
+      "nationality": "",
+      "referred_by_id": "",
+      "tag_list": "",
+      "emergency_contacts_attributes": [
+        {
+          "name": "",
+          "phone": ""
+        }
+      ]
+    }
+  }
+}
+docs {
+  Update a contact
+
+  Scopes: contacts:write
+}

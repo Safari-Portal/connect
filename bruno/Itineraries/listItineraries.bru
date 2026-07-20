@@ -1,0 +1,23 @@
+meta {
+  name: List the account's published itineraries, optionally filtered by country
+  type: http
+  seq: 1
+}
+get {
+  url: {{baseUrl}}/acc/:acc_id/itineraries
+  body: none
+  auth: inherit
+}
+params:path {
+  acc_id: {{accId}}
+}
+params:query {
+  ~country_codes: 
+  ~page: 
+  ~limit: 
+}
+docs {
+  List the account's published itineraries, optionally filtered by country
+
+  Scopes: files:read
+}

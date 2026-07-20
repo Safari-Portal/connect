@@ -1,0 +1,14 @@
+meta {
+  name: List the agent accounts the token can act on
+  type: http
+  seq: 1
+}
+get {
+  url: {{baseUrl}}/accounts
+  body: none
+  auth: inherit
+}
+docs {
+  List the agent accounts the token can act on
+
+}

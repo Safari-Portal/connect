@@ -1,0 +1,48 @@
+meta {
+  name: Create a file (as a lead)
+  type: http
+  seq: 2
+}
+post {
+  url: {{baseUrl}}/acc/:acc_id/files
+  body: json
+  auth: inherit
+}
+params:path {
+  acc_id: {{accId}}
+}
+body:json {
+  {
+    "file": {
+      "file_name": "",
+      "stage_id": "",
+      "source_category_id": "",
+      "trip_type_category_id": "",
+      "travel_region_category_id": "",
+      "license_type": "",
+      "channel": "",
+      "tag_list": "",
+      "priority": "",
+      "traveler_ids": [
+        ""
+      ],
+      "sales_consultant_ids": [
+        ""
+      ],
+      "partner_agent_ids": [
+        ""
+      ],
+      "trip_leader_ids": [
+        ""
+      ],
+      "supplier_ids": [
+        ""
+      ]
+    }
+  }
+}
+docs {
+  Create a file (as a lead)
+
+  Scopes: files:write
+}

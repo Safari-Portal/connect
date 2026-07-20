@@ -1,0 +1,25 @@
+meta {
+  name: List the account's contacts (all types)
+  type: http
+  seq: 1
+}
+get {
+  url: {{baseUrl}}/acc/:acc_id/contacts
+  body: none
+  auth: inherit
+}
+params:path {
+  acc_id: {{accId}}
+}
+params:query {
+  ~q: 
+  ~scope: 
+  ~order: 
+  ~page: 
+  ~limit: 
+}
+docs {
+  List the account's contacts (all types)
+
+  Scopes: contacts:read
+}

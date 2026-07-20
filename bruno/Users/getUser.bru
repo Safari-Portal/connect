@@ -1,0 +1,19 @@
+meta {
+  name: Retrieve a single team member
+  type: http
+  seq: 2
+}
+get {
+  url: {{baseUrl}}/acc/:acc_id/users/:id
+  body: none
+  auth: inherit
+}
+params:path {
+  acc_id: {{accId}}
+  id: 
+}
+docs {
+  Retrieve a single team member
+
+  Scopes: users:read
+}
