@@ -115,18 +115,34 @@ The following four fields are **only present on the retrieve (show) endpoint**:
 
 ## Scopes
 
-| Scope            | Endpoints  |
-| ---------------- | ---------- |
-| `invoices:read`  | List, Get  |
+| Scope              | Endpoints  |
+| ------------------ | ---------- |
+| `financials:read`  | List, Get  |
 
-There are no write scopes. This API is read-only.
+There are no write scopes. This API is read-only. `financials:read` covers invoices **and**
+expenses: the two were once separate scopes, but no permission state can tell them apart —
+both are governed by the same `financials_*` member permissions — so they are one scope.
+
+### Financial access
+
+`financials:read` is the token's half of the gate; the authorizing member's financial
+permission is the other half, and the lower of the two wins. Access level decides which
+records exist for you: all files, only your own, or the files you are sales consultant on.
+A member with no financial access sees an empty list, and `404` on any individual lookup.
+
+That `404` is the same answer a record outside your access level gives, and the same one an
+id that never existed gives — so it reveals nothing about which records are there.
+
+Note that the financials **capabilities** — CSV export, statistics, Flowbrite — are not
+financial access. A member holding only those sees an empty list like any other member
+without access.
 
 ## Endpoints
 
-| Method | Path                               | Scope            | Description          |
-| ------ | ---------------------------------- | ---------------- | -------------------- |
-| `GET`  | `/acc/{account_id}/invoices`       | `invoices:read`  | List invoices        |
-| `GET`  | `/acc/{account_id}/invoices/:id`   | `invoices:read`  | Retrieve an invoice  |
+| Method | Path                               | Scope              | Description          |
+| ------ | ---------------------------------- | ------------------ | -------------------- |
+| `GET`  | `/acc/{account_id}/invoices`       | `financials:read`  | List invoices        |
+| `GET`  | `/acc/{account_id}/invoices/:id`   | `financials:read`  | Retrieve an invoice  |
 
 ## List invoices
 
@@ -134,7 +150,7 @@ There are no write scopes. This API is read-only.
 GET /acc/{account_id}/invoices
 ```
 
-Requires `invoices:read`. Returns all invoices visible to the member, ordered newest
+Requires `financials:read`. Returns all invoices visible to the member, ordered newest
 first (by `created_at` descending, then `id` descending). Returns invoice fields only —
 payments are not included in the list response. Supports
 [pagination](README.md#pagination) via `page` and `limit`.
@@ -185,7 +201,7 @@ curl "https://connect.safariportal.dev/acc/{account_id}/invoices?page=1&limit=10
 GET /acc/{account_id}/invoices/:id
 ```
 
-Requires `invoices:read`. Returns the invoice with its full payment detail, including
+Requires `financials:read`. Returns the invoice with its full payment detail, including
 `amount_paid`, `balance_due`, and the `payments` array. Returns `404` if the invoice
 does not exist, belongs to another account, or is not visible to the member.
 

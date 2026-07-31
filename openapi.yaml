@@ -722,7 +722,7 @@ paths:
       operationId: listInvoices
       summary: List the account's invoices
       security:
-        - oauth2: [invoices:read]
+        - oauth2: [financials:read]
       parameters:
         - $ref: "#/components/parameters/AccId"
         - $ref: "#/components/parameters/Page"
@@ -741,7 +741,7 @@ paths:
       operationId: getInvoice
       summary: Retrieve a single invoice with its payments
       security:
-        - oauth2: [invoices:read]
+        - oauth2: [financials:read]
       parameters:
         - $ref: "#/components/parameters/AccId"
         - name: id
@@ -773,7 +773,7 @@ paths:
       operationId: listExpenses
       summary: List the account's expenses
       security:
-        - oauth2: [expenses:read]
+        - oauth2: [financials:read]
       parameters:
         - $ref: "#/components/parameters/AccId"
         - $ref: "#/components/parameters/Page"
@@ -792,7 +792,7 @@ paths:
       operationId: getExpense
       summary: Retrieve a single expense with its payments
       security:
-        - oauth2: [expenses:read]
+        - oauth2: [financials:read]
       parameters:
         - $ref: "#/components/parameters/AccId"
         - name: id
@@ -835,8 +835,7 @@ components:
             contacts:write: Create and update contacts
             tasks:read: Read tasks
             users:read: Read account users
-            invoices:read: Read invoices
-            expenses:read: Read expenses
+            financials:read: Read invoices and expenses
             forms:read: Read forms and their submissions
   parameters:
     AccId:
@@ -2009,9 +2008,10 @@ components:
           type: string
           nullable: true
         value:
-          # A response value is a scalar, an array of strings, a file object, or
-          # null (unanswered / file-typed with no upload). Null is carried by the
-          # nullable string branch — valid OpenAPI 3.0 (unlike a top-level
+          # A response value is a scalar, an array (of option strings, or of
+          # program/number pairs for loyalty_programs elements), a file object,
+          # or null (unanswered / file-typed with no upload). Null is carried by
+          # the nullable string branch — valid OpenAPI 3.0 (unlike a top-level
           # `nullable` sibling of `oneOf`) and matched uniquely by openapi_parser.
           oneOf:
             - type: string
@@ -2020,7 +2020,9 @@ components:
             - type: boolean
             - type: array
               items:
-                type: string
+                oneOf:
+                  - type: string
+                  - $ref: "#/components/schemas/SubmissionLoyaltyProgramValue"
             - $ref: "#/components/schemas/SubmissionFileValue"
       required:
         - element_id
@@ -2028,6 +2030,17 @@ components:
         - type
         - mapped_to
         - value
+    SubmissionLoyaltyProgramValue:
+      type: object
+      additionalProperties: false
+      properties:
+        program:
+          type: string
+        number:
+          type: string
+      required:
+        - program
+        - number
     SubmissionFileValue:
       type: object
       additionalProperties: false

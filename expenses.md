@@ -112,19 +112,35 @@ Expense payments are always **outgoing** (`direction: "payable"`).
 
 ## Scopes
 
-| Scope            | Endpoints  |
-| ---------------- | ---------- |
-| `expenses:read`  | List, Get  |
+| Scope              | Endpoints  |
+| ------------------ | ---------- |
+| `financials:read`  | List, Get  |
 
-There are no write scopes. This API is read-only. `expenses:read` is independent of
-`invoices:read` — a token may hold either without the other.
+There are no write scopes. This API is read-only. `financials:read` is the SAME scope the
+Invoices API requires: expenses and invoices were once separate scopes, but no permission
+state distinguishes them — both are governed by the same `financials_*` member permissions —
+so a token can no longer hold one without the other.
+
+### Financial access
+
+`financials:read` is the token's half of the gate; the authorizing member's financial
+permission is the other half, and the lower of the two wins. Access level decides which
+records exist for you: all files, only your own, or the files you are sales consultant on.
+A member with no financial access sees an empty list, and `404` on any individual lookup.
+
+That `404` is the same answer a record outside your access level gives, and the same one an
+id that never existed gives — so it reveals nothing about which records are there.
+
+Note that the financials **capabilities** — CSV export, statistics, Flowbrite — are not
+financial access. A member holding only those sees an empty list like any other member
+without access.
 
 ## Endpoints
 
-| Method | Path                               | Scope           | Description          |
-| ------ | ---------------------------------- | --------------- | -------------------- |
-| `GET`  | `/acc/{account_id}/expenses`       | `expenses:read` | List expenses        |
-| `GET`  | `/acc/{account_id}/expenses/:id`   | `expenses:read` | Retrieve an expense  |
+| Method | Path                               | Scope             | Description          |
+| ------ | ---------------------------------- | ----------------- | -------------------- |
+| `GET`  | `/acc/{account_id}/expenses`       | `financials:read` | List expenses        |
+| `GET`  | `/acc/{account_id}/expenses/:id`   | `financials:read` | Retrieve an expense  |
 
 ## List expenses
 
@@ -132,7 +148,7 @@ There are no write scopes. This API is read-only. `expenses:read` is independent
 GET /acc/{account_id}/expenses
 ```
 
-Requires `expenses:read`. Returns all expenses visible to the member, ordered newest first
+Requires `financials:read`. Returns all expenses visible to the member, ordered newest first
 (by `created_at` descending, then `id` descending). Returns expense fields only — payments
 are not included in the list response. Supports [pagination](README.md#pagination) via `page`
 and `limit`.
@@ -181,7 +197,7 @@ curl "https://connect.safariportal.dev/acc/{account_id}/expenses?page=1&limit=10
 GET /acc/{account_id}/expenses/:id
 ```
 
-Requires `expenses:read`. Returns the expense with its `pay_to_id` and the full `payments`
+Requires `financials:read`. Returns the expense with its `pay_to_id` and the full `payments`
 array (each payment carrying its own currency). Returns `404` if the expense does not exist,
 belongs to another account, or is not visible to the member.
 
