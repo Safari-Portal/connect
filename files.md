@@ -28,7 +28,28 @@ see only their own files; owners and managers see all files in the account.
   "channel": "direct",
   "consultant_id": "11",
   "tag_list": ["honeymoon", "africa"],
-  "traveler_ids": ["101", "102"],
+  "travelers": [
+    {
+      "id": "101",
+      "first_name": "Ada",
+      "last_name": "Smith",
+      "middle_name": null,
+      "preferred_name": null,
+      "email": "ada.smith@example.com",
+      "alternative_email": null,
+      "phone": "+1-555-0100",
+      "alternative_phone": null,
+      "company_name": null,
+      "type": "traveler",
+      "tag_list": [],
+      "dob": "1985-06-15",
+      "anniversary": "2010-08-20",
+      "medical_issues": "Penicillin allergy",
+      "dietary_preferences": "Vegetarian, no nuts",
+      "created_at": "2026-01-10T09:00:00.000Z",
+      "updated_at": "2026-05-02T11:15:00.000Z"
+    }
+  ],
   "start_date": "2027-03-10",
   "end_date": "2027-03-24",
   "created_at": "2026-06-01T08:00:00.000Z",
@@ -52,7 +73,7 @@ see only their own files; owners and managers see all files in the account.
 | `channel`                   | string \| null   | Acquisition channel for the file                               |
 | `consultant_id`             | string \| null   | ID of the primary consultant (a **user** id) assigned to the file — resolve via the [Users](users.md) endpoint |
 | `tag_list`                  | array of strings | Tags applied to the file                                       |
-| `traveler_ids`              | array of strings | IDs of the traveler contacts linked to the file                |
+| `travelers`                 | array of [Contact](contacts.md) objects | The traveler contacts linked to the file, expanded in full. **Only present when your token holds `contacts:read`** — it carries contact data, not file data, so a `files:read`-only token receives no `travelers` key at all (distinct from `[]`, which means the file genuinely has no travelers). Returned by show, create and update; the list endpoint never includes it. |
 | `start_date`                | string (date) \| null | Trip start date (`YYYY-MM-DD`), taken from the confirmed itinerary; `null` until the file is confirmed with dates. This is the value the `start_date-asc` / `start_date-desc` search order sorts on. |
 | `end_date`                  | string (date) \| null | Trip end date (`YYYY-MM-DD`), taken from the confirmed itinerary; `null` until the file is confirmed with dates |
 | `created_at`                | string (ISO 8601)| When the file was created                                      |
@@ -81,7 +102,8 @@ GET /acc/{account_id}/files
 ```
 
 Requires `files:read`. With no filter parameters, returns all files visible to the
-member, ordered by name. Supplying any of the filters below narrows the results;
+member, ordered by name. The list response carries no traveler information at all —
+`travelers` is returned only by [Retrieve a file](#retrieve-a-file), create and update. Supplying any of the filters below narrows the results;
 `scope` alone is enough to filter by lifecycle stage. Supports
 [pagination](README.md#pagination) via `page` and `limit`.
 
@@ -127,7 +149,6 @@ curl "https://connect.safariportal.dev/acc/{account_id}/files?scope=leads&q=safa
       "channel": "direct",
       "consultant_id": "11",
       "tag_list": ["honeymoon", "africa"],
-      "traveler_ids": ["101", "102"],
       "start_date": "2027-03-10",
       "end_date": "2027-03-24",
       "created_at": "2026-06-01T08:00:00.000Z",
@@ -179,7 +200,28 @@ curl https://connect.safariportal.dev/acc/{account_id}/files/42 \
     "channel": "direct",
     "consultant_id": "11",
     "tag_list": ["honeymoon", "africa"],
-    "traveler_ids": ["101", "102"],
+    "travelers": [
+      {
+        "id": "101",
+        "first_name": "Ada",
+        "last_name": "Smith",
+        "middle_name": null,
+        "preferred_name": null,
+        "email": "ada.smith@example.com",
+        "alternative_email": null,
+        "phone": "+1-555-0100",
+        "alternative_phone": null,
+        "company_name": null,
+        "type": "traveler",
+        "tag_list": [],
+        "dob": "1985-06-15",
+        "anniversary": "2010-08-20",
+        "medical_issues": "Penicillin allergy",
+        "dietary_preferences": "Vegetarian, no nuts",
+        "created_at": "2026-01-10T09:00:00.000Z",
+        "updated_at": "2026-05-02T11:15:00.000Z"
+      }
+    ],
     "start_date": "2027-03-10",
     "end_date": "2027-03-24",
     "created_at": "2026-06-01T08:00:00.000Z",
@@ -252,7 +294,28 @@ curl -X POST https://connect.safariportal.dev/acc/{account_id}/files \
     "channel": null,
     "consultant_id": null,
     "tag_list": ["honeymoon", "africa"],
-    "traveler_ids": ["101", "102"],
+    "travelers": [
+      {
+        "id": "101",
+        "first_name": "Ada",
+        "last_name": "Smith",
+        "middle_name": null,
+        "preferred_name": null,
+        "email": "ada.smith@example.com",
+        "alternative_email": null,
+        "phone": "+1-555-0100",
+        "alternative_phone": null,
+        "company_name": null,
+        "type": "traveler",
+        "tag_list": [],
+        "dob": "1985-06-15",
+        "anniversary": "2010-08-20",
+        "medical_issues": "Penicillin allergy",
+        "dietary_preferences": "Vegetarian, no nuts",
+        "created_at": "2026-01-10T09:00:00.000Z",
+        "updated_at": "2026-05-02T11:15:00.000Z"
+      }
+    ],
     "start_date": null,
     "end_date": null,
     "created_at": "2026-06-25T09:00:00.000Z",
@@ -260,6 +323,18 @@ curl -X POST https://connect.safariportal.dev/acc/{account_id}/files \
   }
 }
 ```
+
+### What the write endpoints return
+
+Create and update answer to `files:write`, and echoing a record back is a **read**. A token
+holding `files:write` without `files:read` receives only the file's id:
+
+```json
+{ "data": { "id": "42" } }
+```
+
+The id is always returned, so a write-only client can still reference what it created. Add
+`files:read` for the full file, and `contacts:read` on top for the `travelers` array.
 
 ## Update a file
 

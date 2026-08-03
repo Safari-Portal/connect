@@ -24,12 +24,37 @@ contact does not exist in that account, the endpoint returns `404`.
   "company_name": null,
   "type": "traveler",
   "tag_list": ["vip", "honeymoon"],
+  "dob": "1985-06-15",
+  "anniversary": "2010-08-20",
+  "medical_issues": "Penicillin allergy",
+  "dietary_preferences": "Vegetarian, no nuts",
   "created_at": "2026-06-24T10:00:00.000Z",
   "updated_at": "2026-06-24T10:00:00.000Z"
 }
 ```
 
 `type` is one of `traveler`, `partner`, `supplier`.
+
+### The traveler profile
+
+`dob`, `anniversary`, `medical_issues` and `dietary_preferences` are the traveler profile.
+`dob` and `anniversary` are `YYYY-MM-DD` or `null` and can be set on write (as `date_of_birth`
+and `anniversary_date`); `medical_issues` and `dietary_preferences` are free text or `null` and
+are **read-only** — nothing in this API can set them. All four are stored encrypted, and the
+same four appear on each entry of a file's [`travelers`](files.md) array.
+
+### What the write endpoints return
+
+Create and update answer to `contacts:write`, and echoing a record back is a **read**. A token
+holding `contacts:write` without `contacts:read` therefore receives only the contact's id:
+
+```json
+{ "data": { "id": "123" } }
+```
+
+The id is always returned, so a write-only client can still reference what it created. Add
+`contacts:read` to the grant to get the full contact back instead. The same rule applies to
+[files](files.md).
 
 ## List contacts
 

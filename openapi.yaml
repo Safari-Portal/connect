@@ -70,7 +70,7 @@ paths:
               $ref: "#/components/schemas/ContactWrite"
       responses:
         "201":
-          $ref: "#/components/responses/ContactShow"
+          $ref: "#/components/responses/ContactWriteResult"
         "401":
           $ref: "#/components/responses/Unauthorized"
         "403":
@@ -161,7 +161,7 @@ paths:
               $ref: "#/components/schemas/ContactWrite"
       responses:
         "200":
-          $ref: "#/components/responses/ContactShow"
+          $ref: "#/components/responses/ContactWriteResult"
         "401":
           $ref: "#/components/responses/Unauthorized"
         "403":
@@ -353,7 +353,7 @@ paths:
               $ref: "#/components/schemas/FileWrite"
       responses:
         "201":
-          $ref: "#/components/responses/FileShow"
+          $ref: "#/components/responses/FileWriteResult"
         "400":
           $ref: "#/components/responses/BadRequest"
         "401":
@@ -406,7 +406,7 @@ paths:
               $ref: "#/components/schemas/FileWrite"
       responses:
         "200":
-          $ref: "#/components/responses/FileShow"
+          $ref: "#/components/responses/FileWriteResult"
         "400":
           $ref: "#/components/responses/BadRequest"
         "401":
@@ -1001,7 +1001,39 @@ components:
             additionalProperties: false
             properties:
               data:
-                $ref: "#/components/schemas/File"
+                $ref: "#/components/schemas/FileDetail"
+            required:
+              - data
+    ContactWriteResult:
+      description: >
+        The contact. Full representation for a token holding `contacts:read`; otherwise just
+        the id, since echoing the record back is a read.
+      content:
+        application/json:
+          schema:
+            type: object
+            additionalProperties: false
+            properties:
+              data:
+                oneOf:
+                  - $ref: "#/components/schemas/Contact"
+                  - $ref: "#/components/schemas/ResourceIdentity"
+            required:
+              - data
+    FileWriteResult:
+      description: >
+        The file. Full representation for a token holding `files:read`; otherwise just the id,
+        since echoing the record back is a read.
+      content:
+        application/json:
+          schema:
+            type: object
+            additionalProperties: false
+            properties:
+              data:
+                oneOf:
+                  - $ref: "#/components/schemas/FileDetail"
+                  - $ref: "#/components/schemas/ResourceIdentity"
             required:
               - data
     FileList:
@@ -1255,6 +1287,20 @@ components:
           type: array
           items:
             type: string
+        dob:
+          type: string
+          nullable: true
+          description: Date of birth, ISO 8601 (YYYY-MM-DD).
+        anniversary:
+          type: string
+          nullable: true
+          description: Anniversary date, ISO 8601 (YYYY-MM-DD).
+        medical_issues:
+          type: string
+          nullable: true
+        dietary_preferences:
+          type: string
+          nullable: true
         created_at:
           type: string
         updated_at:
@@ -1272,8 +1318,25 @@ components:
         - company_name
         - type
         - tag_list
+        - dob
+        - anniversary
+        - medical_issues
+        - dietary_preferences
         - created_at
         - updated_at
+    ResourceIdentity:
+      type: object
+      description: >
+        The identity of a record a write endpoint just created or updated. Returned in place of
+        the full resource when the token holds the resource's `:write` scope but not its
+        `:read` scope — echoing the record back is a read, so a write-only grant receives only
+        what it needs to reference what it wrote.
+      additionalProperties: false
+      properties:
+        id:
+          type: string
+      required:
+        - id
     ContactWrite:
       type: object
       description: Request body for creating or updating a contact.
@@ -1628,10 +1691,6 @@ components:
           type: array
           items:
             type: string
-        traveler_ids:
-          type: array
-          items:
-            type: string
         start_date:
           type: string
           nullable: true
@@ -1655,7 +1714,93 @@ components:
         - channel
         - consultant_id
         - tag_list
-        - traveler_ids
+        - start_date
+        - end_date
+        - created_at
+        - updated_at
+    FileDetail:
+      type: object
+      description: >
+        A single file, as returned by the show, create, and update endpoints. Identical to File
+        plus the expanded `travelers` array, which is present only when the token holds
+        `contacts:read`, since it carries contact data rather than file data. It replaces the
+        `traveler_ids` list that these endpoints used to return; ids are still accepted on
+        write, and remain the way to set a file's travelers.
+
+
+        Deliberately spells out File's fields again rather than composing with `allOf`:
+        `additionalProperties: false` is evaluated per subschema, so an `allOf` of File plus
+        travelers would reject every File field. Keep the duplication — the two are kept honest
+        by conformance tests on both the list and show responses.
+      additionalProperties: false
+      properties:
+        id:
+          type: string
+        name:
+          type: string
+          nullable: true
+        status:
+          type: string
+        priority:
+          type: string
+          enum:
+            - na
+            - low
+            - medium
+            - high
+            - top
+        stage_id:
+          type: string
+          nullable: true
+        source_category_id:
+          type: string
+          nullable: true
+        trip_type_category_id:
+          type: string
+          nullable: true
+        travel_region_category_id:
+          type: string
+          nullable: true
+        license_type:
+          type: string
+          nullable: true
+        channel:
+          type: string
+          nullable: true
+        consultant_id:
+          type: string
+          nullable: true
+        tag_list:
+          type: array
+          items:
+            type: string
+        travelers:
+          type: array
+          items:
+            $ref: "#/components/schemas/Contact"
+        start_date:
+          type: string
+          nullable: true
+        end_date:
+          type: string
+          nullable: true
+        created_at:
+          type: string
+        updated_at:
+          type: string
+      required:
+        - id
+        - name
+        - status
+        - priority
+        - stage_id
+        - source_category_id
+        - trip_type_category_id
+        - travel_region_category_id
+        - license_type
+        - channel
+        - consultant_id
+        - tag_list
         - start_date
         - end_date
         - created_at
