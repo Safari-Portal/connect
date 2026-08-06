@@ -53,6 +53,7 @@ see only their own files; owners and managers see all files in the account.
   "start_date": "2027-03-10",
   "end_date": "2027-03-24",
   "created_at": "2026-06-01T08:00:00.000Z",
+  "confirmed_at": "2026-08-14T16:45:00.000Z",
   "updated_at": "2026-06-15T12:30:00.000Z"
 }
 ```
@@ -77,6 +78,7 @@ see only their own files; owners and managers see all files in the account.
 | `start_date`                | string (date) \| null | Trip start date (`YYYY-MM-DD`), taken from the confirmed itinerary; `null` until the file is confirmed with dates. This is the value the `start_date-asc` / `start_date-desc` search order sorts on. |
 | `end_date`                  | string (date) \| null | Trip end date (`YYYY-MM-DD`), taken from the confirmed itinerary; `null` until the file is confirmed with dates |
 | `created_at`                | string (ISO 8601)| When the file was created                                      |
+| `confirmed_at`              | string (ISO 8601) \| null | When the file was confirmed; `null` while it is still a lead or in the pipeline. Together with `created_at` this brackets the file's time to confirm. |
 | `updated_at`                | string (ISO 8601)| When the file was last updated                                 |
 
 ## Scopes
@@ -152,6 +154,7 @@ curl "https://connect.safariportal.dev/acc/{account_id}/files?scope=leads&q=safa
       "start_date": "2027-03-10",
       "end_date": "2027-03-24",
       "created_at": "2026-06-01T08:00:00.000Z",
+      "confirmed_at": "2026-08-14T16:45:00.000Z",
       "updated_at": "2026-06-15T12:30:00.000Z"
     }
   ],
@@ -225,6 +228,7 @@ curl https://connect.safariportal.dev/acc/{account_id}/files/42 \
     "start_date": "2027-03-10",
     "end_date": "2027-03-24",
     "created_at": "2026-06-01T08:00:00.000Z",
+    "confirmed_at": "2026-08-14T16:45:00.000Z",
     "updated_at": "2026-06-15T12:30:00.000Z"
   }
 }
@@ -319,6 +323,7 @@ curl -X POST https://connect.safariportal.dev/acc/{account_id}/files \
     "start_date": null,
     "end_date": null,
     "created_at": "2026-06-25T09:00:00.000Z",
+    "confirmed_at": null,
     "updated_at": "2026-06-25T09:00:00.000Z"
   }
 }

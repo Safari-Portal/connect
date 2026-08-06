@@ -43,12 +43,16 @@ paths:
         - $ref: "#/components/parameters/AccId"
         - $ref: "#/components/parameters/Q"
         - $ref: "#/components/parameters/Scope"
+        - $ref: "#/components/parameters/BirthdayWindow"
+        - $ref: "#/components/parameters/AnniversaryWindow"
         - $ref: "#/components/parameters/Order"
         - $ref: "#/components/parameters/Page"
         - $ref: "#/components/parameters/Limit"
       responses:
         "200":
           $ref: "#/components/responses/ContactList"
+        "400":
+          $ref: "#/components/responses/BadRequest"
         "401":
           $ref: "#/components/responses/Unauthorized"
         "403":
@@ -882,6 +886,29 @@ components:
       description: Named filter scope.
       schema:
         type: string
+    BirthdayWindow:
+      name: birthday_window
+      in: query
+      required: false
+      description: >
+        Filter to contacts whose birthday falls in a named window. `next_7_days` counts seven
+        days from today inclusive; `this_week` and `next_week` are Monday-to-Sunday. Travelers
+        only — combining with a non-traveler `scope` is a 400. Combining with
+        `anniversary_window` intersects.
+      schema:
+        type: string
+        enum: [next_7_days, this_week, next_week]
+    AnniversaryWindow:
+      name: anniversary_window
+      in: query
+      required: false
+      description: >
+        Filter to contacts whose anniversary falls in a named window, same vocabulary as
+        `birthday_window`. Travelers only — combining with a non-traveler `scope` is a 400.
+        Combining with `birthday_window` intersects.
+      schema:
+        type: string
+        enum: [next_7_days, this_week, next_week]
     CountryCodes:
       name: country_codes
       in: query
@@ -1277,6 +1304,20 @@ components:
         company_name:
           type: string
           nullable: true
+        referred_by:
+          type: object
+          nullable: true
+          description: The contact who referred this one, or null.
+          additionalProperties: false
+          properties:
+            id:
+              type: string
+            display_name:
+              type: string
+              nullable: true
+          required:
+            - id
+            - display_name
         type:
           type: string
           enum:
@@ -1316,6 +1357,7 @@ components:
         - phone
         - alternative_phone
         - company_name
+        - referred_by
         - type
         - tag_list
         - dob
@@ -1372,6 +1414,9 @@ components:
               type: string
             nationality:
               type: string
+            nationality_country_code:
+              type: string
+              description: ISO 3166-1 alpha-2 country code, e.g. "BR". Takes precedence over `nationality` when both are sent.
             referred_by_id:
               type: string
             tag_list:
@@ -1699,6 +1744,9 @@ components:
           nullable: true
         created_at:
           type: string
+        confirmed_at:
+          type: string
+          nullable: true
         updated_at:
           type: string
       required:
@@ -1717,6 +1765,7 @@ components:
         - start_date
         - end_date
         - created_at
+        - confirmed_at
         - updated_at
     FileDetail:
       type: object
@@ -1786,6 +1835,9 @@ components:
           nullable: true
         created_at:
           type: string
+        confirmed_at:
+          type: string
+          nullable: true
         updated_at:
           type: string
       required:
@@ -1804,6 +1856,7 @@ components:
         - start_date
         - end_date
         - created_at
+        - confirmed_at
         - updated_at
     FileWrite:
       type: object

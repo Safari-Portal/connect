@@ -8,6 +8,12 @@ All endpoints are nested under `/acc/{account_id}/`. The `{account_id}` must be 
 account you are an agent member of; an account you are not a member of returns `404`, and a token bound to a different account returns `403`. If a
 contact does not exist in that account, the endpoint returns `404`.
 
+The token scope is not the only gate. Every endpoint here also requires the member the
+token belongs to to hold the **Contacts** permission in that account — the same permission
+that grants the Contacts area in the web UI. A member without it gets `403` on read and
+write alike, whatever scopes the token carries, because a member who cannot browse the
+contact list in the product must not be able to page it out through the API.
+
 ## The contact object
 
 ```json
@@ -22,6 +28,7 @@ contact does not exist in that account, the endpoint returns `404`.
   "phone": "+1 555 0100",
   "alternative_phone": null,
   "company_name": null,
+  "referred_by": { "id": "45", "display_name": "Jane Doe" },
   "type": "traveler",
   "tag_list": ["vip", "honeymoon"],
   "dob": "1985-06-15",
@@ -64,18 +71,22 @@ GET /acc/{account_id}/contacts
 
 Requires `contacts:read`. Returns all contact types for the account, paginated.
 
-| Query param   | Description                                                       |
-| ------------- | ----------------------------------------------------------------- |
-| `page`        | Page number (default `1`)                                         |
-| `limit`       | Items per page (default `25`)                                     |
-| `scope`       | Filter by type: `travelers`, `partners`, or `suppliers`           |
-| `q`           | Full-text search                                                  |
-| `tags[]`      | Filter by tag                                                     |
-| `owner_ids[]` | Filter by owning member                                           |
+| Query param           | Description                                                       |
+| --------------------- | ----------------------------------------------------------------- |
+| `page`                | Page number (default `1`)                                         |
+| `limit`               | Items per page (default `25`)                                     |
+| `scope`               | Filter by type: `travelers`, `partners`, or `suppliers`           |
+| `q`                   | Full-text search                                                  |
+| `tags[]`              | Filter by tag                                                     |
+| `owner_ids[]`         | Filter by owning member                                           |
+| `birthday_window`     | Contacts whose birthday falls in `next_7_days`, `this_week`, or `next_week` (travelers only; a non-traveler `scope` is a 400) |
+| `anniversary_window`  | Contacts whose anniversary falls in the same windows (travelers only)                                                          |
 
 When no filters are given, all types are returned. Providing `scope`/`q`/filters
 narrows the results. An unrecognized `scope` falls back to all types rather than
-erroring.
+erroring. `birthday_window`/`anniversary_window` are the opposite: an unrecognized
+window, or a window combined with a non-traveler `scope`, is a `400` — silently
+dropping either would return an unfiltered page that reads as an answer.
 
 ```bash
 curl "https://connect.safariportal.dev/acc/{account_id}/contacts?scope=partners&limit=50" \
