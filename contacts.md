@@ -71,16 +71,18 @@ GET /acc/{account_id}/contacts
 
 Requires `contacts:read`. Returns all contact types for the account, paginated.
 
-| Query param           | Description                                                       |
-| --------------------- | ----------------------------------------------------------------- |
-| `page`                | Page number (default `1`)                                         |
-| `limit`               | Items per page (default `25`)                                     |
-| `scope`               | Filter by type: `travelers`, `partners`, or `suppliers`           |
-| `q`                   | Full-text search                                                  |
-| `tags[]`              | Filter by tag                                                     |
-| `owner_ids[]`         | Filter by owning member                                           |
-| `birthday_window`     | Contacts whose birthday falls in `next_7_days`, `this_week`, or `next_week` (travelers only; a non-traveler `scope` is a 400) |
-| `anniversary_window`  | Contacts whose anniversary falls in the same windows (travelers only)                                                          |
+| Query param          | Description                                                                                                                   |
+| -------------------- | ----------------------------------------------------------------------------------------------------------------------------- |
+| `page`               | Page number (default `1`)                                                                                                     |
+| `limit`              | Items per page (default `25`)                                                                                                 |
+| `scope`              | Filter by type: `travelers`, `partners`, or `suppliers`                                                                       |
+| `q`                  | Full-text search                                                                                                              |
+| `tags[]`             | Filter by tag                                                                                                                 |
+| `owner_ids[]`        | Filter by owning member                                                                                                       |
+| `country_codes[]`    | Filter by primary-address country (ISO 3166-1 alpha-2, e.g. `US`)                                                             |
+| `cities[]`           | Filter by primary-address city (case-insensitive, exact match)                                                                |
+| `birthday_window`    | Contacts whose birthday falls in `next_7_days`, `this_week`, or `next_week` (travelers only; a non-traveler `scope` is a 400) |
+| `anniversary_window` | Contacts whose anniversary falls in the same windows (travelers only)                                                         |
 
 When no filters are given, all types are returned. Providing `scope`/`q`/filters
 narrows the results. An unrecognized `scope` falls back to all types rather than
@@ -90,6 +92,22 @@ dropping either would return an unfiltered page that reads as an answer.
 
 ```bash
 curl "https://connect.safariportal.dev/acc/{account_id}/contacts?scope=partners&limit=50" \
+  -H "Authorization: Bearer <access_token>"
+```
+
+Contacts carry the coarse location of their **primary** address — `city`, `state_code`,
+`country_code`, and `country_name`. Both filters read that same primary address, so a contact
+is never returned for a country it does not display. The street line and postal code are
+encrypted at rest and are neither exposed nor filterable.
+
+Repeat both filters rather than comma-separating them — `country_codes[]=US&country_codes[]=KE`,
+not `country_codes=US,KE`. A comma-separated value is not a shape this API reads, so it is
+ignored like any other unrecognized parameter and you get an unfiltered list back. An
+unrecognized country *code* is different: `country_codes[]=Kenya` returns a `400`, because the
+parameter was understood and its value was not.
+
+```bash
+curl "https://connect.safariportal.dev/acc/{account_id}/contacts?country_codes[]=US&country_codes[]=KE" \
   -H "Authorization: Bearer <access_token>"
 ```
 

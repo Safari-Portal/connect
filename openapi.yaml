@@ -45,6 +45,8 @@ paths:
         - $ref: "#/components/parameters/Scope"
         - $ref: "#/components/parameters/BirthdayWindow"
         - $ref: "#/components/parameters/AnniversaryWindow"
+        - $ref: "#/components/parameters/ContactCountryCodes"
+        - $ref: "#/components/parameters/ContactCities"
         - $ref: "#/components/parameters/Order"
         - $ref: "#/components/parameters/Page"
         - $ref: "#/components/parameters/Limit"
@@ -920,6 +922,33 @@ components:
         type: array
         items:
           type: string
+    ContactCountryCodes:
+      name: "country_codes[]"
+      in: query
+      required: false
+      description: >
+        Filter to contacts whose primary address is in any of these ISO 3166-1 alpha-2 country
+        codes (case-insensitive, e.g. `KE`). Repeat the parameter for multiple values. An
+        unrecognized code is rejected with a 400.
+      style: form
+      explode: true
+      schema:
+        type: array
+        items:
+          type: string
+    ContactCities:
+      name: "cities[]"
+      in: query
+      required: false
+      description: >
+        Filter to contacts whose primary address city matches any of these, case-insensitively.
+        Exact match, not a prefix search. Repeat the parameter for multiple values.
+      style: form
+      explode: true
+      schema:
+        type: array
+        items:
+          type: string
   responses:
     Unauthorized:
       description: Missing or invalid access token
@@ -1328,6 +1357,22 @@ components:
           type: array
           items:
             type: string
+        city:
+          type: string
+          nullable: true
+          description: City of the contact's primary address.
+        state_code:
+          type: string
+          nullable: true
+          description: ISO 3166-2 subdivision code of the primary address.
+        country_code:
+          type: string
+          nullable: true
+          description: ISO 3166-1 alpha-2 country code of the primary address.
+        country_name:
+          type: string
+          nullable: true
+          description: Country name of the primary address.
         dob:
           type: string
           nullable: true
@@ -1360,6 +1405,10 @@ components:
         - referred_by
         - type
         - tag_list
+        - city
+        - state_code
+        - country_code
+        - country_name
         - dob
         - anniversary
         - medical_issues
@@ -1417,14 +1466,18 @@ components:
             nationality_country_code:
               type: string
               description: ISO 3166-1 alpha-2 country code, e.g. "BR". Takes precedence over `nationality` when both are sent.
+            medical_issues:
+              type: string
+            dietary_preferences:
+              type: string
             referred_by_id:
               type: string
             tag_list:
-              oneOf:
-                - type: string
-                - type: array
-                  items:
-                    type: string
+              type: string
+              description: >-
+                Comma-separated tags, e.g. "vip, repeat". Wrap a tag that itself contains a
+                comma in quotes: '"Nairobi, Kenya", vip'. Sent as a string, not an array —
+                an array is dropped. Reads return `tag_list` as an array.
             emergency_contacts_attributes:
               type: array
               items:

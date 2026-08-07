@@ -71,6 +71,15 @@ The user signs in (if needed), selects which account to authorize, and approves 
 requested scopes. They are redirected back to your `redirect_uri` with `code` and
 `state`.
 
+**Write scopes are declinable.** Any `:write` scope you request is offered as a
+separate, unticked checkbox on the consent screen, and is dropped from the grant
+unless the user ticks it — so a token may come back holding only the `:read` scopes
+you asked for. Read the `scope` in the token response to find out: when it is narrower
+than what you requested, the user declined, and the right move is to offer a
+re-authorize rather than to retry the write and read the `403`. If you requested write
+scopes *only* and the user declines, no grant is minted at all: the callback carries
+`error=access_denied`.
+
 Exchange the code for tokens on the token endpoint:
 
 ```bash
@@ -87,7 +96,8 @@ curl -X POST https://connect.safariportal.dev/oauth/token \
   "access_token": "…",
   "token_type": "bearer",
   "expires_in": 3600,
-  "refresh_token": "…"
+  "refresh_token": "…",
+  "scope": "contacts:read"
 }
 ```
 
