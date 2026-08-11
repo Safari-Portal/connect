@@ -43,22 +43,32 @@ curl https://connect.safariportal.dev/acc/{account_id}/contacts \
 
 ## Resources
 
-- [Accounts](accounts.md) — list the accounts your token can act on
-- [Authentication](authentication.md) — OAuth flow, discovery, scopes, tokens
-- [File Categories](file_categories.md) — list category values to resolve file `*_category_id` ids (read-only)
-- [Contacts](contacts.md) — list (with filtering), retrieve, create, and update contacts
-- [Files](files.md) — list (with filtering), retrieve, create, and update files (trips / tour requests)
-- [File Events](file_events.md) — list a file's activity timeline (read-only)
-- [Itineraries](itineraries.md) — list a file's or the whole account's itineraries and retrieve them, metadata only (read-only, v2/v3)
-- [Lookbooks](lookbooks.md) — list a file's or the whole account's lookbooks and retrieve them, metadata only (read-only, v2/v3)
-- [Forms](forms.md) — list and retrieve the account's forms (read-only)
-- [Form Submissions](form_submissions.md) — read form submissions per form or per contact (read-only)
-- [Invoices](invoices.md) — list and retrieve invoices with payments (read-only)
-- [Expenses](expenses.md) — list and retrieve expenses with outgoing payments (read-only)
-- [File Stages](file_stages.md) — list pipeline stages to resolve file `stage_id` (read-only)
-- [Tasks](tasks.md) — list (with filtering), retrieve, and create tasks on a file
-- [Users](users.md) — list and retrieve the account's team members (resolve user ids to names)
-- [OpenAPI spec](openapi.yaml) — the machine-readable API description (OpenAPI 3.0)
+Every resource is readable over `GET`. The **Access** badge says whether the API can also
+change it:
+
+- ![read-only](https://img.shields.io/badge/read--only-blue) — `GET` only; nothing in this API creates or updates it.
+- ![read + write](https://img.shields.io/badge/read%20%2B%20write-brightgreen) — also creates or updates, via `POST` / `PATCH`.
+
+| Resource | Access | Scope | Covers |
+| -------- | ------ | ----- | ------ |
+| [Accounts](accounts.md) | ![read-only](https://img.shields.io/badge/read--only-blue) | — | The accounts your token can act on — start here to get `{account_id}` |
+| [Contacts](contacts.md) | ![read + write](https://img.shields.io/badge/read%20%2B%20write-brightgreen) | `contacts:read`, `contacts:write` | Travelers, partners, and suppliers; filtering on list, writes for travelers only |
+| [Files](files.md) | ![read + write](https://img.shields.io/badge/read%20%2B%20write-brightgreen) | `files:read`, `files:write` | Trips / tour requests, with filtering on list |
+| [File Events](file_events.md) | ![read-only](https://img.shields.io/badge/read--only-blue) | `files:read` | A file's activity timeline |
+| [File Categories](file_categories.md) | ![read-only](https://img.shields.io/badge/read--only-blue) | `files:read` | Category values behind a file's `*_category_id` fields |
+| [File Stages](file_stages.md) | ![read-only](https://img.shields.io/badge/read--only-blue) | `files:read` | Pipeline stages behind a file's `stage_id` |
+| [Itineraries](itineraries.md) | ![read-only](https://img.shields.io/badge/read--only-blue) | `files:read` | A file's or the whole account's itineraries, metadata only (v2 / v3) |
+| [Lookbooks](lookbooks.md) | ![read-only](https://img.shields.io/badge/read--only-blue) | `files:read` | A file's or the whole account's lookbooks, metadata only (v2 / v3) |
+| [Forms](forms.md) | ![read-only](https://img.shields.io/badge/read--only-blue) | `forms:read` | The account's forms |
+| [Form Submissions](form_submissions.md) | ![read-only](https://img.shields.io/badge/read--only-blue) | `forms:read` | Submissions, per form or per contact |
+| [Invoices](invoices.md) | ![read-only](https://img.shields.io/badge/read--only-blue) | `financials:read` | Invoices with their payments |
+| [Expenses](expenses.md) | ![read-only](https://img.shields.io/badge/read--only-blue) | `financials:read` | Expenses with their outgoing payments |
+| [Tasks](tasks.md) | ![read + write](https://img.shields.io/badge/read%20%2B%20write-brightgreen) | `tasks:read`, `tasks:write` | Tasks, with filtering on list; create a task on a file |
+| [Users](users.md) | ![read-only](https://img.shields.io/badge/read--only-blue) | `users:read` | The account's team members — resolve user ids to names |
+
+A token must carry the scope an endpoint requires, and the authorizing member must hold the
+matching permission in the account — see [Authentication](authentication.md#scopes). Write
+scopes are declinable at consent, so a grant may come back read-only.
 
 ## Conventions
 

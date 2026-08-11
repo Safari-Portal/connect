@@ -140,6 +140,9 @@ One `financials:read` covers invoices and expenses because no permission state
 distinguishes them — the account permissions they derive from have no
 invoice-versus-expense concept.
 
-A request must carry the scope its endpoint requires (otherwise `403`), and the
-authorizing member must have the corresponding access in the account. More scopes are
-added as new resources ship.
+`GET /accounts` needs no scope — only a valid token. Every other endpoint must carry the
+scope it requires (otherwise `403`), and the authorizing member must have the corresponding
+access in the account. See [Resources](README.md#resources) for the scope each one takes.
+
+More scopes are added as new resources ship; read `scopes_supported` from the discovery
+document rather than hard-coding this list.
