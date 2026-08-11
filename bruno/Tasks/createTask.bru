@@ -1,0 +1,34 @@
+meta {
+  name: Create a task on a file
+  type: http
+  seq: 2
+}
+post {
+  url: {{baseUrl}}/acc/:acc_id/tasks
+  body: json
+  auth: inherit
+}
+params:path {
+  acc_id: {{accId}}
+}
+body:json {
+  {
+    "task": {
+      "file_id": "",
+      "name": "",
+      "due_date": "",
+      "note": "",
+      "types": [],
+      "tags": []
+    }
+  }
+}
+docs {
+  Create a task on a file
+
+  file_id, name and due_date are required. due_date is YYYY-MM-DD.
+
+  assigned_to_id is absent from the example body on purpose: it defaults to the member the token belongs to, and that default is keyed on the field being ABSENT, not blank. Adding it back as "" is a 422, not the default. Add it only with a real user id.
+
+  Scopes: tasks:write
+}

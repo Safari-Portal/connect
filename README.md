@@ -56,7 +56,7 @@ curl https://connect.safariportal.dev/acc/{account_id}/contacts \
 - [Invoices](invoices.md) — list and retrieve invoices with payments (read-only)
 - [Expenses](expenses.md) — list and retrieve expenses with outgoing payments (read-only)
 - [File Stages](file_stages.md) — list pipeline stages to resolve file `stage_id` (read-only)
-- [Tasks](tasks.md) — list (with filtering) and retrieve tasks (read-only)
+- [Tasks](tasks.md) — list (with filtering), retrieve, and create tasks on a file
 - [Users](users.md) — list and retrieve the account's team members (resolve user ids to names)
 - [OpenAPI spec](openapi.yaml) — the machine-readable API description (OpenAPI 3.0)
 

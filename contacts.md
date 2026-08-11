@@ -30,7 +30,7 @@ contact list in the product must not be able to page it out through the API.
   "company_name": null,
   "referred_by": { "id": "45", "display_name": "Jane Doe" },
   "type": "traveler",
-  "tag_list": ["vip", "honeymoon"],
+  "tags": ["vip", "honeymoon"],
   "dob": "1985-06-15",
   "anniversary": "2010-08-20",
   "medical_issues": "Penicillin allergy",
@@ -150,7 +150,7 @@ required. Returns `201` with the created contact, or `422` with validation detai
 | `gender`                       | string |
 | `nationality`                  | string |
 | `referred_by_id`               | string (contact id) |
-| `tag_list`                     | string (comma-separated) |
+| `tags`                         | array of strings         |
 | `emergency_contacts_attributes`| array of `{ name, phone }` |
 
 ```bash
@@ -162,7 +162,7 @@ curl -X POST https://connect.safariportal.dev/acc/{account_id}/contacts \
       "first_name": "Jane",
       "last_name": "Doe",
       "email": "jane@example.com",
-      "tag_list": "vip,honeymoon"
+      "tags": ["vip", "honeymoon"]
     }
   }'
 ```

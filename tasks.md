@@ -4,8 +4,8 @@ Tasks are to-dos attached to a file (trip / tour request). Each task has an opti
 due date, one or more types, tags, and an assignee. Every task belongs to exactly one
 file.
 
-This is a **read-only** API. Tasks can be listed (with optional filtering) and
-retrieved. There are no create or update endpoints.
+Tasks can be listed (with optional filtering), retrieved, and created. There is no
+update or delete endpoint — a task's state changes in the app.
 
 All endpoints are nested under `/acc/{account_id}/`. The `{account_id}` must be an
 account you are an agent member of; an account you are not a member of returns `404`, and a token bound to a different account returns `403`. A token
@@ -54,18 +54,23 @@ task that does not exist in the account returns `404`.
 
 ## Scopes
 
-| Scope        | Endpoints           |
-| ------------ | ------------------- |
-| `tasks:read` | List, Get           |
+| Scope         | Endpoints  |
+| ------------- | ---------- |
+| `tasks:read`  | List, Get  |
+| `tasks:write` | Create     |
 
-There are no write scopes. This API is read-only.
+`tasks:write` is offered as its own tick on the consent screen and is granted only if
+the user takes it — see [Authentication](authentication.md#authorization-code--pkce).
+It does not imply `tasks:read`; the two are independent, and a token can hold either
+alone.
 
 ## Endpoints
 
-| Method | Path                             | Scope        | Description      |
-| ------ | -------------------------------- | ------------ | ---------------- |
-| `GET`  | `/acc/{account_id}/tasks`        | `tasks:read` | List / filter tasks |
-| `GET`  | `/acc/{account_id}/tasks/:id`    | `tasks:read` | Retrieve a task  |
+| Method | Path                             | Scope         | Description         |
+| ------ | -------------------------------- | ------------- | ------------------- |
+| `GET`  | `/acc/{account_id}/tasks`        | `tasks:read`  | List / filter tasks |
+| `GET`  | `/acc/{account_id}/tasks/:id`    | `tasks:read`  | Retrieve a task     |
+| `POST` | `/acc/{account_id}/tasks`        | `tasks:write` | Create a task on a file |
 
 ## List tasks
 
@@ -169,11 +174,99 @@ curl https://connect.safariportal.dev/acc/{account_id}/tasks/301 \
 }
 ```
 
+## Create a task
+
+```
+POST /acc/{account_id}/tasks
+```
+
+Requires `tasks:write`. Files one task on one file. `file_id`, `name` and `due_date`
+are required — a task with no due date (`tbd`) can exist in the app but cannot be
+created through this endpoint, because the alternative is a dynamic due date computed
+from trip events, which is not writable here.
+
+| Field                     | Type             | Notes                                                                       |
+| ------------------------- | ---------------- | --------------------------------------------------------------------------- |
+| `file_id` *(required)*    | string           | The file (trip) the task belongs to. Must be a file **you** can see — see below. |
+| `name` *(required)*       | string           | Up to 255 characters                                                        |
+| `due_date` *(required)*   | string           | `YYYY-MM-DD`. Other parseable date formats are accepted but not guaranteed. |
+| `assigned_to_id`          | string (user id) | Defaults to the member the token belongs to. Must be an **active** member.  |
+| `note`                    | string           | Free text                                                                   |
+| `types`                   | array of strings | `email`, `payments`, `check-in`, `follow-up`, `phone-call`, `admin`, `feedback` |
+| `tags`                    | array of strings | Matched exactly, and case-sensitive                                         |
+
+The body is wrapped in a `task` envelope. A `task` whose values are wrong is a `422`.
+A body that carries neither a `task` key nor any recognised task field is a `400` — send
+the envelope, but note that top-level task fields are folded into it rather than rejected,
+so `{"name": "..."}` reaches the same `422`s as `{"task": {"name": "..."}}`.
+
+**`tags` is an array** — `["vip", "africa"]`, the same shape reads return, on every
+resource in this API.
+
+Creating a task with type `email` creates it **without** email content; it cannot be
+sent until content is added in the app.
+
+```bash
+curl -X POST https://connect.safariportal.dev/acc/{account_id}/tasks \
+  -H "Authorization: Bearer <access_token>" \
+  -H "Content-Type: application/json" \
+  -d '{
+    "task": {
+      "file_id": "42",
+      "name": "Chase the Kenya deposit",
+      "due_date": "2026-08-14",
+      "assigned_to_id": "11",
+      "types": ["payments", "follow-up"],
+      "tags": ["vip"]
+    }
+  }'
+```
+
+**Response `201`** — the full task object, exactly as `GET /tasks/:id` returns it.
+
+### What create returns without `tasks:read`
+
+Echoing the record back is a **read**. A token holding `tasks:write` without
+`tasks:read` therefore receives only the new task's id:
+
+```json
+{ "data": { "id": "301" } }
+```
+
+The id is always returned, so a write-only client can still reference what it created.
+Add `tasks:read` to the grant to get the full task back instead. The same rule applies
+to [contacts](contacts.md) and [files](files.md).
+
+### Refusals
+
+Every refusal below is a `422` carrying the reason in `errors.description`, phrased in
+the field names you sent rather than the columns they land in.
+
+| `errors.description`                                    | Cause                                                                 |
+| ------------------------------------------------------- | --------------------------------------------------------------------- |
+| `File This field is required`                           | No `file_id`                                                          |
+| `Name This field is required`                           | No `name`, or an empty one                                            |
+| `Due date This field is required and Due date conditions This field is required` | No `due_date`, or one that does not parse as a date |
+| `File must be accessible to you in this account`        | The file is in another account, is deleted, or is one your membership does not reach — a consultant sees only the files they consult on, and can write to exactly the files they can read |
+| `Assigned to must be an active member of this account`  | Unknown user id, or a member deactivated in this account or globally. The caller is **never** substituted in: an id naming nobody is refused, not quietly replaced |
+| `Task Type is invalid`                                  | A value in `types` outside the list above                             |
+
+Values must have the shapes the table above documents. A value of the wrong shape (an object
+where a scalar belongs, a bare string where an array belongs) is **dropped** before processing,
+as if the field had not been sent — so a wrongly-shaped optional field is silently ignored, and
+a wrongly-shaped required field reports as missing.
+
+A token without `tasks:write` gets `403`, and a member who is not an agent of the
+account gets `404` — the same gates the read endpoints apply.
+
 See [Errors](README.md#errors) and [Pagination](README.md#pagination) in the README for
 shared conventions.
 
 | Status | Meaning                                                            |
 | ------ | ------------------------------------------------------------------ |
 | `200`  | Success                                                            |
-| `403`  | The token lacks the `tasks:read` scope                             |
+| `201`  | The task was created                                               |
+| `400`  | The body carries neither a `task` key nor any recognised task field |
+| `403`  | The token lacks the `tasks:read` / `tasks:write` scope             |
 | `404`  | The task does not exist or belongs to a different account          |
+| `422`  | The task could not be created — see the refusals above             |

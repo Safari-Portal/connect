@@ -27,7 +27,7 @@ see only their own files; owners and managers see all files in the account.
   "license_type": "standard",
   "channel": "direct",
   "consultant_id": "11",
-  "tag_list": ["honeymoon", "africa"],
+  "tags": ["honeymoon", "africa"],
   "travelers": [
     {
       "id": "101",
@@ -41,7 +41,7 @@ see only their own files; owners and managers see all files in the account.
       "alternative_phone": null,
       "company_name": null,
       "type": "traveler",
-      "tag_list": [],
+      "tags": [],
       "dob": "1985-06-15",
       "anniversary": "2010-08-20",
       "medical_issues": "Penicillin allergy",
@@ -73,7 +73,7 @@ see only their own files; owners and managers see all files in the account.
 | `license_type`              | string \| null   | License type associated with the file                          |
 | `channel`                   | string \| null   | Acquisition channel for the file                               |
 | `consultant_id`             | string \| null   | ID of the primary consultant (a **user** id) assigned to the file — resolve via the [Users](users.md) endpoint |
-| `tag_list`                  | array of strings | Tags applied to the file                                       |
+| `tags`                  | array of strings | Tags applied to the file                                       |
 | `travelers`                 | array of [Contact](contacts.md) objects | The traveler contacts linked to the file, expanded in full. **Only present when your token holds `contacts:read`** — it carries contact data, not file data, so a `files:read`-only token receives no `travelers` key at all (distinct from `[]`, which means the file genuinely has no travelers). Returned by show, create and update; the list endpoint never includes it. |
 | `start_date`                | string (date) \| null | Trip start date (`YYYY-MM-DD`), taken from the confirmed itinerary; `null` until the file is confirmed with dates. This is the value the `start_date-asc` / `start_date-desc` search order sorts on. |
 | `end_date`                  | string (date) \| null | Trip end date (`YYYY-MM-DD`), taken from the confirmed itinerary; `null` until the file is confirmed with dates |
@@ -150,7 +150,7 @@ curl "https://connect.safariportal.dev/acc/{account_id}/files?scope=leads&q=safa
       "license_type": "standard",
       "channel": "direct",
       "consultant_id": "11",
-      "tag_list": ["honeymoon", "africa"],
+      "tags": ["honeymoon", "africa"],
       "start_date": "2027-03-10",
       "end_date": "2027-03-24",
       "created_at": "2026-06-01T08:00:00.000Z",
@@ -202,7 +202,7 @@ curl https://connect.safariportal.dev/acc/{account_id}/files/42 \
     "license_type": "standard",
     "channel": "direct",
     "consultant_id": "11",
-    "tag_list": ["honeymoon", "africa"],
+    "tags": ["honeymoon", "africa"],
     "travelers": [
       {
         "id": "101",
@@ -216,7 +216,7 @@ curl https://connect.safariportal.dev/acc/{account_id}/files/42 \
         "alternative_phone": null,
         "company_name": null,
         "type": "traveler",
-        "tag_list": [],
+        "tags": [],
         "dob": "1985-06-15",
         "anniversary": "2010-08-20",
         "medical_issues": "Penicillin allergy",
@@ -256,7 +256,7 @@ The request body must wrap fields in a `file` object:
 | `travel_region_category_id`  | string                   | Travel region category ID                                |
 | `license_type`               | string                   | License type                                             |
 | `channel`                    | string                   | Acquisition channel                                      |
-| `tag_list`                   | string (comma-separated) | Tags to apply to the file                                |
+| `tags`                       | array of strings         | Tags to apply to the file                                |
 | `sales_consultant_ids[]`     | array of strings         | IDs of sales consultant members                          |
 | `partner_agent_ids[]`        | array of strings         | IDs of partner agent contacts                            |
 | `trip_leader_ids[]`          | array of strings         | IDs of trip leader contacts                              |
@@ -275,7 +275,7 @@ curl -X POST https://connect.safariportal.dev/acc/{account_id}/files \
     "file": {
       "file_name": "Smith Safari 2027",
       "priority": "high",
-      "tag_list": "honeymoon,africa",
+      "tags": ["honeymoon", "africa"],
       "traveler_ids": ["101", "102"]
     }
   }'
@@ -297,7 +297,7 @@ curl -X POST https://connect.safariportal.dev/acc/{account_id}/files \
     "license_type": null,
     "channel": null,
     "consultant_id": null,
-    "tag_list": ["honeymoon", "africa"],
+    "tags": ["honeymoon", "africa"],
     "travelers": [
       {
         "id": "101",
@@ -311,7 +311,7 @@ curl -X POST https://connect.safariportal.dev/acc/{account_id}/files \
         "alternative_phone": null,
         "company_name": null,
         "type": "traveler",
-        "tag_list": [],
+        "tags": [],
         "dob": "1985-06-15",
         "anniversary": "2010-08-20",
         "medical_issues": "Penicillin allergy",
@@ -355,7 +355,7 @@ is not visible to the member, or `422` on validation failure.
 curl -X PATCH https://connect.safariportal.dev/acc/{account_id}/files/42 \
   -H "Authorization: Bearer <access_token>" \
   -H "Content-Type: application/json" \
-  -d '{ "file": { "priority": "medium", "tag_list": "honeymoon,africa,luxury" } }'
+  -d '{ "file": { "priority": "medium", "tags": ["honeymoon", "africa", "luxury"] } }'
 ```
 
 See [Errors](README.md#errors) and [Pagination](README.md#pagination) in the README for

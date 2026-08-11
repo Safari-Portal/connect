@@ -77,6 +77,8 @@ paths:
       responses:
         "201":
           $ref: "#/components/responses/ContactWriteResult"
+        "400":
+          $ref: "#/components/responses/BadRequest"
         "401":
           $ref: "#/components/responses/Unauthorized"
         "403":
@@ -640,6 +642,40 @@ paths:
           $ref: "#/components/responses/Forbidden"
         "404":
           $ref: "#/components/responses/NotFound"
+    post:
+      operationId: createTask
+      summary: Create a task on a file
+      description: >-
+        file_id, name and due_date are required. due_date is YYYY-MM-DD.
+
+
+        assigned_to_id is absent from the example body on purpose: it defaults to the
+        member the token belongs to, and that default is keyed on the field being
+        ABSENT, not blank. Adding it back as "" is a 422, not the default. Add it only
+        with a real user id.
+      security:
+        - oauth2: [tasks:write]
+      parameters:
+        - $ref: "#/components/parameters/AccId"
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/TaskWrite"
+      responses:
+        "201":
+          $ref: "#/components/responses/TaskWriteResult"
+        "400":
+          $ref: "#/components/responses/BadRequest"
+        "401":
+          $ref: "#/components/responses/Unauthorized"
+        "403":
+          $ref: "#/components/responses/Forbidden"
+        "404":
+          $ref: "#/components/responses/NotFound"
+        "422":
+          $ref: "#/components/responses/UnprocessableEntity"
   /acc/{acc_id}/tasks/{id}:
     get:
       operationId: getTask
@@ -840,6 +876,7 @@ components:
             contacts:read: Read contacts
             contacts:write: Create and update contacts
             tasks:read: Read tasks
+            tasks:write: Create tasks
             users:read: Read account users
             financials:read: Read invoices and expenses
             forms:read: Read forms and their submissions
@@ -975,7 +1012,11 @@ components:
           schema:
             $ref: "#/components/schemas/ErrorEnvelope"
     BadRequest:
-      description: Malformed request (e.g. a missing required top-level key)
+      description: >-
+        Malformed request — a query parameter the endpoint cannot interpret, or a write body
+        carrying nothing the resource envelope recognises. A write body is NOT required to
+        carry the envelope key itself: a top-level key matching a column of the resource is
+        folded into the envelope and validated normally (422).
       content:
         application/json:
           schema:
@@ -1073,6 +1114,22 @@ components:
               data:
                 oneOf:
                   - $ref: "#/components/schemas/Contact"
+                  - $ref: "#/components/schemas/ResourceIdentity"
+            required:
+              - data
+    TaskWriteResult:
+      description: >
+        The task. Full representation for a token holding `tasks:read`; otherwise just the id,
+        since echoing the record back is a read.
+      content:
+        application/json:
+          schema:
+            type: object
+            additionalProperties: false
+            properties:
+              data:
+                oneOf:
+                  - $ref: "#/components/schemas/Task"
                   - $ref: "#/components/schemas/ResourceIdentity"
             required:
               - data
@@ -1353,7 +1410,7 @@ components:
             - partner
             - supplier
             - traveler
-        tag_list:
+        tags:
           type: array
           items:
             type: string
@@ -1404,7 +1461,7 @@ components:
         - company_name
         - referred_by
         - type
-        - tag_list
+        - tags
         - city
         - state_code
         - country_code
@@ -1472,12 +1529,11 @@ components:
               type: string
             referred_by_id:
               type: string
-            tag_list:
-              type: string
-              description: >-
-                Comma-separated tags, e.g. "vip, repeat". Wrap a tag that itself contains a
-                comma in quotes: '"Nairobi, Kenya", vip'. Sent as a string, not an array —
-                an array is dropped. Reads return `tag_list` as an array.
+            tags:
+              type: array
+              description: Tags to apply, matching what reads return.
+              items:
+                type: string
             emergency_contacts_attributes:
               type: array
               items:
@@ -1489,6 +1545,62 @@ components:
                     type: string
       required:
         - contact
+    TaskWrite:
+      type: object
+      description: Request body for creating a task.
+      # The example drives the generated Bruno template. assigned_to_id is deliberately
+      # absent — see the createTask operation description.
+      example:
+        task:
+          file_id: ""
+          name: ""
+          due_date: ""
+          note: ""
+          types: []
+          tags: []
+      properties:
+        task:
+          type: object
+          properties:
+            file_id:
+              type: string
+              description: Id of the file (trip) this task belongs to.
+            name:
+              type: string
+            due_date:
+              type: string
+              description: Due date in YYYY-MM-DD form.
+            assigned_to_id:
+              type: string
+              description: Defaults to the authenticated member when omitted.
+            note:
+              type: string
+            types:
+              type: array
+              description: >-
+                Task categories. A closed vocabulary — anything else is rejected. Kept in step
+                with Task::TYPES by Connect::OpenapiDocumentTest.
+              items:
+                type: string
+                enum:
+                  - email
+                  - payments
+                  - check-in
+                  - follow-up
+                  - phone-call
+                  - admin
+                  - feedback
+            tags:
+              type: array
+              description: Tags to apply, matching what reads return.
+              items:
+                type: string
+          required:
+            - file_id
+            - name
+            - due_date
+      required:
+        - task
     Task:
       type: object
       additionalProperties: false
@@ -1785,7 +1897,7 @@ components:
         consultant_id:
           type: string
           nullable: true
-        tag_list:
+        tags:
           type: array
           items:
             type: string
@@ -1814,7 +1926,7 @@ components:
         - license_type
         - channel
         - consultant_id
-        - tag_list
+        - tags
         - start_date
         - end_date
         - created_at
@@ -1872,7 +1984,7 @@ components:
         consultant_id:
           type: string
           nullable: true
-        tag_list:
+        tags:
           type: array
           items:
             type: string
@@ -1905,7 +2017,7 @@ components:
         - license_type
         - channel
         - consultant_id
-        - tag_list
+        - tags
         - start_date
         - end_date
         - created_at
@@ -1930,7 +2042,10 @@ components:
               type: string
             channel:
               type: string
-            tag_list: {}
+            tags:
+              type: array
+              items:
+                type: string
             priority:
               type: string
             traveler_ids:

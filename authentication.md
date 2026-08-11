@@ -17,7 +17,10 @@ GET https://connect.safariportal.dev/.well-known/oauth-authorization-server
   "issuer": "https://connect.safariportal.dev",
   "authorization_endpoint": "https://account.safariportal.app/oauth/authorize",
   "token_endpoint": "https://connect.safariportal.dev/oauth/token",
-  "scopes_supported": ["contacts:read", "contacts:write"],
+  "scopes_supported": [
+    "files:read", "files:write", "contacts:read", "contacts:write",
+    "tasks:read", "tasks:write", "users:read", "financials:read", "forms:read"
+  ],
   "code_challenge_methods_supported": ["S256"],
   "grant_types_supported": ["authorization_code", "refresh_token"]
 }
@@ -121,10 +124,21 @@ Each refresh returns a **new** refresh token; the previous one is invalidated.
 
 ## Scopes
 
-| Scope            | Grants                                  |
-| ---------------- | --------------------------------------- |
-| `contacts:read`  | List, search, and retrieve contacts     |
-| `contacts:write` | Create and update contacts              |
+| Scope             | Grants                                                        |
+| ----------------- | ------------------------------------------------------------- |
+| `files:read`      | List, search, and retrieve [files](files.md), and their stages, categories and events |
+| `files:write`     | Create and update files                                       |
+| `contacts:read`   | List, search, and retrieve [contacts](contacts.md)            |
+| `contacts:write`  | Create and update contacts                                    |
+| `tasks:read`      | List, filter, and retrieve [tasks](tasks.md)                  |
+| `tasks:write`     | Create tasks                                                  |
+| `users:read`      | List and retrieve account [users](users.md)                   |
+| `financials:read` | List and retrieve [invoices](invoices.md) and [expenses](expenses.md) |
+| `forms:read`      | List [forms](forms.md) and their [submissions](form_submissions.md) |
+
+One `financials:read` covers invoices and expenses because no permission state
+distinguishes them — the account permissions they derive from have no
+invoice-versus-expense concept.
 
 A request must carry the scope its endpoint requires (otherwise `403`), and the
 authorizing member must have the corresponding access in the account. More scopes are
