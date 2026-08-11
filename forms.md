@@ -74,7 +74,7 @@ There are no write scopes. This API is read-only. The same `forms:read` scope al
 | Method | Path                            | Scope        | Description             |
 | ------ | ------------------------------- | ------------ | ----------------------- |
 | `GET`  | `/acc/{account_id}/forms`       | `forms:read` | List forms              |
-| `GET`  | `/acc/{account_id}/forms/:id`   | `forms:read` | Retrieve a single form  |
+| `GET`  | `/acc/{account_id}/forms/{id}`   | `forms:read` | Retrieve a single form  |
 
 ## List forms
 
@@ -130,7 +130,7 @@ curl "https://connect.safariportal.dev/acc/{account_id}/forms?page=1&limit=10" \
 ## Retrieve a form
 
 ```
-GET /acc/{account_id}/forms/:id
+GET /acc/{account_id}/forms/{id}
 ```
 
 Requires `forms:read`. Returns the form object. Returns `404` if the form does not exist,

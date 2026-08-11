@@ -142,7 +142,7 @@ without access.
 | Method | Path                               | Scope              | Description          |
 | ------ | ---------------------------------- | ------------------ | -------------------- |
 | `GET`  | `/acc/{account_id}/invoices`       | `financials:read`  | List invoices        |
-| `GET`  | `/acc/{account_id}/invoices/:id`   | `financials:read`  | Retrieve an invoice  |
+| `GET`  | `/acc/{account_id}/invoices/{id}`   | `financials:read`  | Retrieve an invoice  |
 
 ## List invoices
 
@@ -198,7 +198,7 @@ curl "https://connect.safariportal.dev/acc/{account_id}/invoices?page=1&limit=10
 ## Retrieve an invoice
 
 ```
-GET /acc/{account_id}/invoices/:id
+GET /acc/{account_id}/invoices/{id}
 ```
 
 Requires `financials:read`. Returns the invoice with its full payment detail, including

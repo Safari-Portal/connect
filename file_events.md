@@ -60,7 +60,8 @@ over time, so treat unrecognised values gracefully.
 `deleted`, `restored`, `guest_info_can_be_shared`, `personal_info_can_be_saved`,
 `guest_updated_shared_checkbox`, `guest_updated_saved_checkbox`,
 `member_privacy_policy_accepted`, `payment_completed`, `task_completed`, `form_submitted`,
-`guest_info_downloaded`.
+`guest_info_downloaded`, `contact_owner_changed`, `insurance_quote_generated`,
+`insurance_policy_purchased`.
 
 ## Scopes
 

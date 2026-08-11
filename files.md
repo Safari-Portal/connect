@@ -42,6 +42,10 @@ see only their own files; owners and managers see all files in the account.
       "company_name": null,
       "type": "traveler",
       "tags": [],
+      "city": "Austin",
+      "state_code": "TX",
+      "country_code": "US",
+      "country_name": "United States",
       "dob": "1985-06-15",
       "anniversary": "2010-08-20",
       "medical_issues": "Penicillin allergy",
@@ -93,9 +97,9 @@ see only their own files; owners and managers see all files in the account.
 | Method  | Path                              | Scope          | Description         |
 | ------- | --------------------------------- | -------------- | ------------------- |
 | `GET`   | `/acc/{account_id}/files`         | `files:read`   | List / filter files |
-| `GET`   | `/acc/{account_id}/files/:id`     | `files:read`   | Retrieve a file     |
+| `GET`   | `/acc/{account_id}/files/{id}`     | `files:read`   | Retrieve a file     |
 | `POST`  | `/acc/{account_id}/files`         | `files:write`  | Create a file       |
-| `PATCH` | `/acc/{account_id}/files/:id`     | `files:write`  | Update a file       |
+| `PATCH` | `/acc/{account_id}/files/{id}`     | `files:write`  | Update a file       |
 
 ## List files
 
@@ -175,7 +179,7 @@ curl "https://connect.safariportal.dev/acc/{account_id}/files?scope=leads&q=safa
 ## Retrieve a file
 
 ```
-GET /acc/{account_id}/files/:id
+GET /acc/{account_id}/files/{id}
 ```
 
 Requires `files:read`. Returns `404` if the file does not exist, belongs to another
@@ -217,6 +221,10 @@ curl https://connect.safariportal.dev/acc/{account_id}/files/42 \
         "company_name": null,
         "type": "traveler",
         "tags": [],
+        "city": "Austin",
+        "state_code": "TX",
+        "country_code": "US",
+        "country_name": "United States",
         "dob": "1985-06-15",
         "anniversary": "2010-08-20",
         "medical_issues": "Penicillin allergy",
@@ -312,6 +320,10 @@ curl -X POST https://connect.safariportal.dev/acc/{account_id}/files \
         "company_name": null,
         "type": "traveler",
         "tags": [],
+        "city": "Austin",
+        "state_code": "TX",
+        "country_code": "US",
+        "country_name": "United States",
         "dob": "1985-06-15",
         "anniversary": "2010-08-20",
         "medical_issues": "Penicillin allergy",
@@ -344,7 +356,7 @@ The id is always returned, so a write-only client can still reference what it cr
 ## Update a file
 
 ```
-PATCH /acc/{account_id}/files/:id
+PATCH /acc/{account_id}/files/{id}
 ```
 
 Requires `files:write`. Accepts the same fields as [Create a file](#create-a-file).

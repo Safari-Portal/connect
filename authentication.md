@@ -50,10 +50,6 @@ Notes:
   can edit its name, redirect URI, and scopes, or delete it (deleting revokes
   any tokens it issued).
 
-> Self-service **dynamic** client registration (RFC 7591, `POST /oauth/register`)
-> is not available yet — it will be introduced alongside MCP support. For now,
-> register apps through the OAuth Applications screen above.
-
 ## Authorization code + PKCE
 
 PKCE is **required** (`S256` only). Generate a `code_verifier` and its

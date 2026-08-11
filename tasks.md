@@ -69,7 +69,7 @@ alone.
 | Method | Path                             | Scope         | Description         |
 | ------ | -------------------------------- | ------------- | ------------------- |
 | `GET`  | `/acc/{account_id}/tasks`        | `tasks:read`  | List / filter tasks |
-| `GET`  | `/acc/{account_id}/tasks/:id`    | `tasks:read`  | Retrieve a task     |
+| `GET`  | `/acc/{account_id}/tasks/{id}`    | `tasks:read`  | Retrieve a task     |
 | `POST` | `/acc/{account_id}/tasks`        | `tasks:write` | Create a task on a file |
 
 ## List tasks
@@ -140,7 +140,7 @@ curl "https://connect.safariportal.dev/acc/{account_id}/tasks?scope=due-this-wee
 ## Retrieve a task
 
 ```
-GET /acc/{account_id}/tasks/:id
+GET /acc/{account_id}/tasks/{id}
 ```
 
 Requires `tasks:read`. Returns `404` if the task does not exist or does not belong to
@@ -222,7 +222,7 @@ curl -X POST https://connect.safariportal.dev/acc/{account_id}/tasks \
   }'
 ```
 
-**Response `201`** — the full task object, exactly as `GET /tasks/:id` returns it.
+**Response `201`** — the full task object, exactly as `GET /tasks/{id}` returns it.
 
 ### What create returns without `tasks:read`
 

@@ -140,7 +140,7 @@ without access.
 | Method | Path                               | Scope             | Description          |
 | ------ | ---------------------------------- | ----------------- | -------------------- |
 | `GET`  | `/acc/{account_id}/expenses`       | `financials:read` | List expenses        |
-| `GET`  | `/acc/{account_id}/expenses/:id`   | `financials:read` | Retrieve an expense  |
+| `GET`  | `/acc/{account_id}/expenses/{id}`   | `financials:read` | Retrieve an expense  |
 
 ## List expenses
 
@@ -194,7 +194,7 @@ curl "https://connect.safariportal.dev/acc/{account_id}/expenses?page=1&limit=10
 ## Retrieve an expense
 
 ```
-GET /acc/{account_id}/expenses/:id
+GET /acc/{account_id}/expenses/{id}
 ```
 
 Requires `financials:read`. Returns the expense with its `pay_to_id` and the full `payments`

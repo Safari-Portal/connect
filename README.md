@@ -122,10 +122,10 @@ Successful responses wrap the payload in a `data` key. List endpoints also inclu
 
 List endpoints accept:
 
-| Param   | Default | Description                     |
-| ------- | ------- | ------------------------------- |
-| `page`  | `1`     | Page number (1-based)           |
-| `limit` | `25`    | Items per page                  |
+| Param   | Default | Description                                  |
+| ------- | ------- | -------------------------------------------- |
+| `page`  | `1`     | Page number (1-based)                        |
+| `limit` | `25`    | Items per page — clamped to a maximum of `100` |
 
 ### Errors
 

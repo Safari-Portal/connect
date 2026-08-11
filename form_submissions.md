@@ -108,14 +108,14 @@ There are no write scopes. This API is read-only. The same `forms:read` scope al
 
 | Method | Path                                                          | Scope        | Description                     |
 | ------ | ------------------------------------------------------------- | ------------ | ------------------------------- |
-| `GET`  | `/acc/{account_id}/forms/:form_id/submissions`                | `forms:read` | List a form's submissions       |
-| `GET`  | `/acc/{account_id}/contacts/:contact_id/form_submissions`     | `forms:read` | List a contact's submissions    |
-| `GET`  | `/acc/{account_id}/form_submissions/:id`                      | `forms:read` | Retrieve a submission           |
+| `GET`  | `/acc/{account_id}/forms/{form_id}/submissions`                | `forms:read` | List a form's submissions       |
+| `GET`  | `/acc/{account_id}/contacts/{contact_id}/form_submissions`     | `forms:read` | List a contact's submissions    |
+| `GET`  | `/acc/{account_id}/form_submissions/{id}`                      | `forms:read` | Retrieve a submission           |
 
 ## List a form's submissions
 
 ```
-GET /acc/{account_id}/forms/:form_id/submissions
+GET /acc/{account_id}/forms/{form_id}/submissions
 ```
 
 Requires `forms:read`. Returns the form's submissions ordered newest first, each with its nested
@@ -179,7 +179,7 @@ curl "https://connect.safariportal.dev/acc/{account_id}/forms/42/submissions?pag
 ## List a contact's submissions
 
 ```
-GET /acc/{account_id}/contacts/:contact_id/form_submissions
+GET /acc/{account_id}/contacts/{contact_id}/form_submissions
 ```
 
 Requires `forms:read`. Returns the submissions belonging to a single contact, ordered newest
@@ -195,7 +195,7 @@ curl "https://connect.safariportal.dev/acc/{account_id}/contacts/301/form_submis
 ## Retrieve a submission
 
 ```
-GET /acc/{account_id}/form_submissions/:id
+GET /acc/{account_id}/form_submissions/{id}
 ```
 
 Requires `forms:read`. Returns one submission with its full `responses` array. Returns `404` if

@@ -31,6 +31,10 @@ contact list in the product must not be able to page it out through the API.
   "referred_by": { "id": "45", "display_name": "Jane Doe" },
   "type": "traveler",
   "tags": ["vip", "honeymoon"],
+  "city": "Austin",
+  "state_code": "TX",
+  "country_code": "US",
+  "country_name": "United States",
   "dob": "1985-06-15",
   "anniversary": "2010-08-20",
   "medical_issues": "Penicillin allergy",
@@ -42,13 +46,17 @@ contact list in the product must not be able to page it out through the API.
 
 `type` is one of `traveler`, `partner`, `supplier`.
 
+`city`, `state_code`, `country_code` and `country_name` are the coarse location of the
+contact's **primary** address; each is `null` when unset. The street line and postal code are
+encrypted at rest and are neither exposed nor filterable.
+
 ### The traveler profile
 
 `dob`, `anniversary`, `medical_issues` and `dietary_preferences` are the traveler profile.
-`dob` and `anniversary` are `YYYY-MM-DD` or `null` and can be set on write (as `date_of_birth`
-and `anniversary_date`); `medical_issues` and `dietary_preferences` are free text or `null` and
-are **read-only** — nothing in this API can set them. All four are stored encrypted, and the
-same four appear on each entry of a file's [`travelers`](files.md) array.
+All four can be set on write: `dob` and `anniversary` are `YYYY-MM-DD` or `null` (sent as
+`date_of_birth` and `anniversary_date`), and `medical_issues` and `dietary_preferences` are
+free text or `null`. All four are stored encrypted, and the same four appear on each entry of
+a file's [`travelers`](files.md) array.
 
 ### What the write endpoints return
 
@@ -63,6 +71,25 @@ The id is always returned, so a write-only client can still reference what it cr
 `contacts:read` to the grant to get the full contact back instead. The same rule applies to
 [files](files.md).
 
+## Scopes
+
+| Scope            | Endpoints      |
+| ---------------- | -------------- |
+| `contacts:read`  | List, Get      |
+| `contacts:write` | Create, Update |
+
+## Endpoints
+
+| Method  | Path                                 | Scope            | Description            |
+| ------- | ------------------------------------ | ---------------- | ---------------------- |
+| `GET`   | `/acc/{account_id}/contacts`         | `contacts:read`  | List / filter contacts |
+| `GET`   | `/acc/{account_id}/contacts/{id}`    | `contacts:read`  | Retrieve a contact     |
+| `POST`  | `/acc/{account_id}/contacts`         | `contacts:write` | Create a traveler      |
+| `PATCH` | `/acc/{account_id}/contacts/{id}`    | `contacts:write` | Update a traveler      |
+
+A contact's form submissions are listed by the [Form Submissions](form_submissions.md)
+endpoint, which answers to `forms:read` rather than `contacts:read`.
+
 ## List contacts
 
 ```
@@ -74,8 +101,9 @@ Requires `contacts:read`. Returns all contact types for the account, paginated.
 | Query param          | Description                                                                                                                   |
 | -------------------- | ----------------------------------------------------------------------------------------------------------------------------- |
 | `page`               | Page number (default `1`)                                                                                                     |
-| `limit`              | Items per page (default `25`)                                                                                                 |
+| `limit`              | Items per page (default `25`, maximum `100`)                                                                                  |
 | `scope`              | Filter by type: `travelers`, `partners`, or `suppliers`                                                                       |
+| `order`              | Sort order. One of `created-desc` (default), `created-asc`, `name-asc`, `name-desc`, `recent_trip-asc`, `recent_trip-desc`, `contact_person-asc`, `contact_person-desc` (the last two apply to `scope=suppliers` only) |
 | `q`                  | Full-text search                                                                                                              |
 | `tags[]`             | Filter by tag                                                                                                                 |
 | `owner_ids[]`        | Filter by owning member                                                                                                       |
@@ -84,21 +112,27 @@ Requires `contacts:read`. Returns all contact types for the account, paginated.
 | `birthday_window`    | Contacts whose birthday falls in `next_7_days`, `this_week`, or `next_week` (travelers only; a non-traveler `scope` is a 400) |
 | `anniversary_window` | Contacts whose anniversary falls in the same windows (travelers only)                                                         |
 
-When no filters are given, all types are returned. Providing `scope`/`q`/filters
-narrows the results. An unrecognized `scope` falls back to all types rather than
-erroring. `birthday_window`/`anniversary_window` are the opposite: an unrecognized
-window, or a window combined with a non-traveler `scope`, is a `400` — silently
-dropping either would return an unfiltered page that reads as an answer.
+When no filters are given, all types are returned, ordered by name. Providing
+`scope`/`q`/filters narrows the results and switches the default order to `created-desc`;
+`order` on its own is not a filter, so it does not make that switch and an otherwise
+unfiltered list stays ordered by name.
+
+An unrecognized `scope` is dropped rather than rejected, and what you get back then depends
+on whether anything else narrowed the request: on its own it falls back to **all types**, but
+alongside any other filter it falls back to **travelers** — so `?scope=bogus&q=smith` silently
+excludes partners and suppliers. Spell `scope` correctly rather than relying on either.
+
+`birthday_window`/`anniversary_window` are the opposite: an unrecognized window, or a window
+combined with a non-traveler `scope`, is a `400` — silently dropping either would return an
+unfiltered page that reads as an answer.
 
 ```bash
 curl "https://connect.safariportal.dev/acc/{account_id}/contacts?scope=partners&limit=50" \
   -H "Authorization: Bearer <access_token>"
 ```
 
-Contacts carry the coarse location of their **primary** address — `city`, `state_code`,
-`country_code`, and `country_name`. Both filters read that same primary address, so a contact
-is never returned for a country it does not display. The street line and postal code are
-encrypted at rest and are neither exposed nor filterable.
+`country_codes[]` and `cities[]` read the same primary address the contact displays, so a
+contact is never returned for a country it does not show.
 
 Repeat both filters rather than comma-separating them — `country_codes[]=US&country_codes[]=KE`,
 not `country_codes=US,KE`. A comma-separated value is not a shape this API reads, so it is
@@ -114,7 +148,7 @@ curl "https://connect.safariportal.dev/acc/{account_id}/contacts?country_codes[]
 ## Retrieve a contact
 
 ```
-GET /acc/{account_id}/contacts/:id
+GET /acc/{account_id}/contacts/{id}
 ```
 
 Requires `contacts:read`. Returns `404` if the contact does not exist in the account.
@@ -149,9 +183,15 @@ required. Returns `201` with the created contact, or `422` with validation detai
 | `known_traveler_number`        | string |
 | `gender`                       | string |
 | `nationality`                  | string |
+| `nationality_country_code`     | string |
+| `medical_issues`               | string |
+| `dietary_preferences`          | string |
 | `referred_by_id`               | string (contact id) |
 | `tags`                         | array of strings         |
 | `emergency_contacts_attributes`| array of `{ name, phone }` |
+
+`nationality_country_code` is an ISO 3166-1 alpha-2 code (e.g. `BR`) and takes precedence
+over the free-text `nationality` when both are sent.
 
 ```bash
 curl -X POST https://connect.safariportal.dev/acc/{account_id}/contacts \
@@ -170,7 +210,7 @@ curl -X POST https://connect.safariportal.dev/acc/{account_id}/contacts \
 ## Update a contact (traveler)
 
 ```
-PATCH /acc/{account_id}/contacts/:id
+PATCH /acc/{account_id}/contacts/{id}
 ```
 
 Requires `contacts:write`. Accepts the same fields as create. Returns `200` with the
