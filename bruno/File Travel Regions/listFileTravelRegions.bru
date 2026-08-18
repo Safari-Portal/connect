@@ -1,0 +1,18 @@
+meta {
+  name: List the account's file travel regions
+  type: http
+  seq: 1
+}
+get {
+  url: {{baseUrl}}/acc/:acc_id/file_travel_regions
+  body: none
+  auth: inherit
+}
+params:path {
+  acc_id: {{accId}}
+}
+docs {
+  List the account's file travel regions
+
+  Scopes: files:read
+}

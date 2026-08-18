@@ -551,23 +551,17 @@ paths:
           $ref: "#/components/responses/Forbidden"
         "404":
           $ref: "#/components/responses/NotFound"
-  /acc/{acc_id}/file_categories:
+  /acc/{acc_id}/file_sources:
     get:
-      operationId: listFileCategories
-      summary: List the account's file categories
+      operationId: listFileSources
+      summary: List the account's file sources
       security:
         - oauth2: [files:read]
       parameters:
         - $ref: "#/components/parameters/AccId"
-        - name: type
-          in: query
-          required: false
-          description: Filter to a single category type.
-          schema:
-            type: string
       responses:
         "200":
-          description: The categories
+          description: The sources, position-ordered
           content:
             application/json:
               schema:
@@ -577,7 +571,94 @@ paths:
                   data:
                     type: array
                     items:
-                      $ref: "#/components/schemas/FileCategory"
+                      $ref: "#/components/schemas/FileReference"
+                required:
+                  - data
+        "401":
+          $ref: "#/components/responses/Unauthorized"
+        "403":
+          $ref: "#/components/responses/Forbidden"
+        "404":
+          $ref: "#/components/responses/NotFound"
+  /acc/{acc_id}/file_trip_types:
+    get:
+      operationId: listFileTripTypes
+      summary: List the account's file trip types
+      security:
+        - oauth2: [files:read]
+      parameters:
+        - $ref: "#/components/parameters/AccId"
+      responses:
+        "200":
+          description: The trip types, position-ordered
+          content:
+            application/json:
+              schema:
+                type: object
+                additionalProperties: false
+                properties:
+                  data:
+                    type: array
+                    items:
+                      $ref: "#/components/schemas/FileReference"
+                required:
+                  - data
+        "401":
+          $ref: "#/components/responses/Unauthorized"
+        "403":
+          $ref: "#/components/responses/Forbidden"
+        "404":
+          $ref: "#/components/responses/NotFound"
+  /acc/{acc_id}/file_travel_regions:
+    get:
+      operationId: listFileTravelRegions
+      summary: List the account's file travel regions
+      security:
+        - oauth2: [files:read]
+      parameters:
+        - $ref: "#/components/parameters/AccId"
+      responses:
+        "200":
+          description: The travel regions, position-ordered
+          content:
+            application/json:
+              schema:
+                type: object
+                additionalProperties: false
+                properties:
+                  data:
+                    type: array
+                    items:
+                      $ref: "#/components/schemas/FileReference"
+                required:
+                  - data
+        "401":
+          $ref: "#/components/responses/Unauthorized"
+        "403":
+          $ref: "#/components/responses/Forbidden"
+        "404":
+          $ref: "#/components/responses/NotFound"
+  /acc/{acc_id}/file_channels:
+    get:
+      operationId: listFileChannels
+      summary: List the built-in file channel values
+      security:
+        - oauth2: [files:read]
+      parameters:
+        - $ref: "#/components/parameters/AccId"
+      responses:
+        "200":
+          description: The channel values a file's `channel` field can carry
+          content:
+            application/json:
+              schema:
+                type: object
+                additionalProperties: false
+                properties:
+                  data:
+                    type: array
+                    items:
+                      type: string
                 required:
                   - data
         "401":
@@ -1879,15 +1960,45 @@ components:
         stage_id:
           type: string
           nullable: true
-        source_category_id:
-          type: string
+        source:
+          type: object
           nullable: true
-        trip_type_category_id:
-          type: string
+          description: The category recording how the trip was won, or null.
+          additionalProperties: false
+          properties:
+            id:
+              type: string
+            name:
+              type: string
+          required:
+            - id
+            - name
+        trip_type:
+          type: object
           nullable: true
-        travel_region_category_id:
-          type: string
+          description: The category recording the kind of trip, or null.
+          additionalProperties: false
+          properties:
+            id:
+              type: string
+            name:
+              type: string
+          required:
+            - id
+            - name
+        travel_region:
+          type: object
           nullable: true
+          description: The category recording the destination region, or null.
+          additionalProperties: false
+          properties:
+            id:
+              type: string
+            name:
+              type: string
+          required:
+            - id
+            - name
         license_type:
           type: string
           nullable: true
@@ -1920,9 +2031,9 @@ components:
         - status
         - priority
         - stage_id
-        - source_category_id
-        - trip_type_category_id
-        - travel_region_category_id
+        - source
+        - trip_type
+        - travel_region
         - license_type
         - channel
         - consultant_id
@@ -1936,10 +2047,11 @@ components:
       type: object
       description: >
         A single file, as returned by the show, create, and update endpoints. Identical to File
-        plus the expanded `travelers` array, which is present only when the token holds
-        `contacts:read`, since it carries contact data rather than file data. It replaces the
-        `traveler_ids` list that these endpoints used to return; ids are still accepted on
-        write, and remain the way to set a file's travelers.
+        plus the four role reference lists (`sales_consultants`, `partner_agents`,
+        `trip_leaders`, `suppliers`) and the expanded `travelers` array, which is present only
+        when the token holds `contacts:read`, since it carries contact data rather than file
+        data. It replaces the `traveler_ids` list that these endpoints used to return; ids are
+        still accepted on write, and remain the way to set a file's travelers.
 
 
         Deliberately spells out File's fields again rather than composing with `allOf`:
@@ -1966,15 +2078,45 @@ components:
         stage_id:
           type: string
           nullable: true
-        source_category_id:
-          type: string
+        source:
+          type: object
           nullable: true
-        trip_type_category_id:
-          type: string
+          description: The category recording how the trip was won, or null.
+          additionalProperties: false
+          properties:
+            id:
+              type: string
+            name:
+              type: string
+          required:
+            - id
+            - name
+        trip_type:
+          type: object
           nullable: true
-        travel_region_category_id:
-          type: string
+          description: The category recording the kind of trip, or null.
+          additionalProperties: false
+          properties:
+            id:
+              type: string
+            name:
+              type: string
+          required:
+            - id
+            - name
+        travel_region:
+          type: object
           nullable: true
+          description: The category recording the destination region, or null.
+          additionalProperties: false
+          properties:
+            id:
+              type: string
+            name:
+              type: string
+          required:
+            - id
+            - name
         license_type:
           type: string
           nullable: true
@@ -1984,6 +2126,34 @@ components:
         consultant_id:
           type: string
           nullable: true
+        sales_consultants:
+          type: array
+          description: >
+            Team members (users) assigned as sales consultants, as {id, name} references —
+            resolve full records via the users endpoint.
+          items:
+            $ref: "#/components/schemas/FileReference"
+        partner_agents:
+          type: array
+          description: >
+            Partner agent contacts on the file, as {id, name} references — resolve full
+            records via the contacts endpoint. Names carry the company in parentheses when the contact has one.
+          items:
+            $ref: "#/components/schemas/FileReference"
+        trip_leaders:
+          type: array
+          description: >
+            Trip leader contacts on the file, as {id, name} references — resolve full
+            records via the contacts endpoint. Names carry the company in parentheses when the contact has one.
+          items:
+            $ref: "#/components/schemas/FileReference"
+        suppliers:
+          type: array
+          description: >
+            Supplier contacts on the file, as {id, name} references — resolve full
+            records via the contacts endpoint. Names carry the company in parentheses when the contact has one.
+          items:
+            $ref: "#/components/schemas/FileReference"
         tags:
           type: array
           items:
@@ -2011,12 +2181,16 @@ components:
         - status
         - priority
         - stage_id
-        - source_category_id
-        - trip_type_category_id
-        - travel_region_category_id
+        - source
+        - trip_type
+        - travel_region
         - license_type
         - channel
         - consultant_id
+        - sales_consultants
+        - partner_agents
+        - trip_leaders
+        - suppliers
         - tags
         - start_date
         - end_date
@@ -2095,7 +2269,7 @@ components:
         - request_location
         - request_ip
         - created_at
-    FileCategory:
+    FileReference:
       type: object
       additionalProperties: false
       properties:
@@ -2103,12 +2277,9 @@ components:
           type: string
         name:
           type: string
-        type:
-          type: string
       required:
         - id
         - name
-        - type
     FileStage:
       type: object
       additionalProperties: false

@@ -1,0 +1,18 @@
+meta {
+  name: List the built-in file channel values
+  type: http
+  seq: 1
+}
+get {
+  url: {{baseUrl}}/acc/:acc_id/file_channels
+  body: none
+  auth: inherit
+}
+params:path {
+  acc_id: {{accId}}
+}
+docs {
+  List the built-in file channel values
+
+  Scopes: files:read
+}

@@ -55,7 +55,10 @@ change it:
 | [Contacts](contacts.md) | ![read + write](https://img.shields.io/badge/read%20%2B%20write-brightgreen) | `contacts:read`, `contacts:write` | Travelers, partners, and suppliers; filtering on list, writes for travelers only |
 | [Files](files.md) | ![read + write](https://img.shields.io/badge/read%20%2B%20write-brightgreen) | `files:read`, `files:write` | Trips / tour requests, with filtering on list |
 | [File Events](file_events.md) | ![read-only](https://img.shields.io/badge/read--only-blue) | `files:read` | A file's activity timeline |
-| [File Categories](file_categories.md) | ![read-only](https://img.shields.io/badge/read--only-blue) | `files:read` | Category values behind a file's `*_category_id` fields |
+| [File Sources](file_sources.md) | ![read-only](https://img.shields.io/badge/read--only-blue) | `files:read` | Lead source values behind a file's `source` field |
+| [File Trip Types](file_trip_types.md) | ![read-only](https://img.shields.io/badge/read--only-blue) | `files:read` | Trip type values behind a file's `trip_type` field |
+| [File Travel Regions](file_travel_regions.md) | ![read-only](https://img.shields.io/badge/read--only-blue) | `files:read` | Travel region values behind a file's `travel_region` field |
+| [File Channels](file_channels.md) | ![read-only](https://img.shields.io/badge/read--only-blue) | `files:read` | Built-in values behind a file's `channel` field |
 | [File Stages](file_stages.md) | ![read-only](https://img.shields.io/badge/read--only-blue) | `files:read` | Pipeline stages behind a file's `stage_id` |
 | [Itineraries](itineraries.md) | ![read-only](https://img.shields.io/badge/read--only-blue) | `files:read` | A file's or the whole account's itineraries, metadata only (v2 / v3) |
 | [Lookbooks](lookbooks.md) | ![read-only](https://img.shields.io/badge/read--only-blue) | `files:read` | A file's or the whole account's lookbooks, metadata only (v2 / v3) |

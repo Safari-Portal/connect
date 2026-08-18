@@ -21,12 +21,16 @@ see only their own files; owners and managers see all files in the account.
   "status": "pipeline",
   "priority": "high",
   "stage_id": "7",
-  "source_category_id": "3",
-  "trip_type_category_id": "1",
-  "travel_region_category_id": "5",
+  "source": { "id": "3", "name": "Referral" },
+  "trip_type": { "id": "1", "name": "Honeymooner" },
+  "travel_region": { "id": "5", "name": "East Africa" },
   "license_type": "standard",
-  "channel": "direct",
+  "channel": "B2C - Direct Client",
   "consultant_id": "11",
+  "sales_consultants": [{ "id": "11", "name": "Rachel West" }],
+  "partner_agents": [{ "id": "77", "name": "Sarah Johansson (Moody Inc)" }],
+  "trip_leaders": [],
+  "suppliers": [{ "id": "79", "name": "Old Buddy (Bulls and Co)" }],
   "tags": ["honeymoon", "africa"],
   "travelers": [
     {
@@ -71,12 +75,16 @@ see only their own files; owners and managers see all files in the account.
 | `status`                    | string           | Lifecycle status: one of `leads`, `pipeline`, `confirmed`, `completed`, `archived` |
 | `priority`                  | string           | Priority level: one of `na`, `low`, `medium`, `high`, `top`   |
 | `stage_id`                  | string \| null   | ID of the pipeline stage the file is in — resolve via the [File Stages](file_stages.md) endpoint |
-| `source_category_id`        | string \| null   | ID of the lead source category — resolve via the [File Categories](file_categories.md) endpoint |
-| `trip_type_category_id`     | string \| null   | ID of the trip type category — resolve via the [File Categories](file_categories.md) endpoint |
-| `travel_region_category_id` | string \| null   | ID of the travel region category — resolve via the [File Categories](file_categories.md) endpoint |
+| `source`                    | object \| null   | `{id, name}` reference to the lead source, or `null` — see [File Sources](file_sources.md) |
+| `trip_type`                 | object \| null   | `{id, name}` reference to the trip type, or `null` — see [File Trip Types](file_trip_types.md) |
+| `travel_region`             | object \| null   | `{id, name}` reference to the travel region, or `null` — see [File Travel Regions](file_travel_regions.md) |
 | `license_type`              | string \| null   | License type associated with the file                          |
-| `channel`                   | string \| null   | Acquisition channel for the file                               |
+| `channel`                   | string \| null   | Acquisition channel for the file — one of the values listed by [File Channels](file_channels.md) |
 | `consultant_id`             | string \| null   | ID of the primary consultant (a **user** id) assigned to the file — resolve via the [Users](users.md) endpoint |
+| `sales_consultants`         | array of objects | `{id, name}` references to the team members (**user** ids) assigned as sales consultants — resolve via the [Users](users.md) endpoint. `[]` when none are assigned. Returned by show, create and update; the list endpoint never includes it. |
+| `partner_agents`            | array of objects | `{id, name}` references to the partner agent **contacts** on the file — resolve via the [Contacts](contacts.md) endpoint. Names carry the company in parentheses when the contact has one. Returned by show, create and update; the list endpoint never includes it. |
+| `trip_leaders`              | array of objects | `{id, name}` references to the trip leader **contacts** on the file — resolve via the [Contacts](contacts.md) endpoint. Names carry the company in parentheses when the contact has one. Returned by show, create and update; the list endpoint never includes it. |
+| `suppliers`                 | array of objects | `{id, name}` references to the supplier **contacts** on the file — resolve via the [Contacts](contacts.md) endpoint. Names carry the company in parentheses when the contact has one. Returned by show, create and update; the list endpoint never includes it. |
 | `tags`                  | array of strings | Tags applied to the file                                       |
 | `travelers`                 | array of [Contact](contacts.md) objects | The traveler contacts linked to the file, expanded in full. **Only present when your token holds `contacts:read`** — it carries contact data, not file data, so a `files:read`-only token receives no `travelers` key at all (distinct from `[]`, which means the file genuinely has no travelers). Returned by show, create and update; the list endpoint never includes it. |
 | `start_date`                | string (date) \| null | Trip start date (`YYYY-MM-DD`), taken from the confirmed itinerary; `null` until the file is confirmed with dates. This is the value the `start_date-asc` / `start_date-desc` search order sorts on. |
@@ -128,9 +136,9 @@ member, ordered by name. The list response carries no traveler information at al
 | `trip_leader_ids[]`            | array of strings | Filter by trip leader (contact)                                                                   |
 | `priorities[]`                 | array of strings | Filter by priority token (`na`, `low`, `medium`, `high`, `top`)                                   |
 | `tags[]`                       | array of strings | Filter by tag (files must have all supplied tags)                                                 |
-| `source_category_ids[]`        | array of strings | Filter by lead source category                                                                    |
-| `trip_type_category_ids[]`     | array of strings | Filter by trip type category                                                                      |
-| `travel_region_category_ids[]` | array of strings | Filter by travel region category                                                                  |
+| `source_category_ids[]`        | array of strings | Filter by lead source ID — see [File Sources](file_sources.md)                                    |
+| `trip_type_category_ids[]`     | array of strings | Filter by trip type ID — see [File Trip Types](file_trip_types.md)                                |
+| `travel_region_category_ids[]` | array of strings | Filter by travel region ID — see [File Travel Regions](file_travel_regions.md)                    |
 
 ```bash
 curl "https://connect.safariportal.dev/acc/{account_id}/files?scope=leads&q=safari&tags[]=honeymoon" \
@@ -148,11 +156,11 @@ curl "https://connect.safariportal.dev/acc/{account_id}/files?scope=leads&q=safa
       "status": "pipeline",
       "priority": "high",
       "stage_id": "7",
-      "source_category_id": "3",
-      "trip_type_category_id": "1",
-      "travel_region_category_id": "5",
+      "source": { "id": "3", "name": "Referral" },
+      "trip_type": { "id": "1", "name": "Honeymooner" },
+      "travel_region": { "id": "5", "name": "East Africa" },
       "license_type": "standard",
-      "channel": "direct",
+      "channel": "B2C - Direct Client",
       "consultant_id": "11",
       "tags": ["honeymoon", "africa"],
       "start_date": "2027-03-10",
@@ -200,11 +208,11 @@ curl https://connect.safariportal.dev/acc/{account_id}/files/42 \
     "status": "pipeline",
     "priority": "high",
     "stage_id": "7",
-    "source_category_id": "3",
-    "trip_type_category_id": "1",
-    "travel_region_category_id": "5",
+    "source": { "id": "3", "name": "Referral" },
+    "trip_type": { "id": "1", "name": "Honeymooner" },
+    "travel_region": { "id": "5", "name": "East Africa" },
     "license_type": "standard",
-    "channel": "direct",
+    "channel": "B2C - Direct Client",
     "consultant_id": "11",
     "tags": ["honeymoon", "africa"],
     "travelers": [
@@ -259,16 +267,16 @@ The request body must wrap fields in a `file` object:
 | `file_name`                  | string                   | Name / title of the file                                 |
 | `priority`                   | string                   | Priority token: one of `na`, `low`, `medium`, `high`, `top` |
 | `stage_id`                   | string                   | Pipeline stage ID                                        |
-| `source_category_id`         | string                   | Lead source category ID                                  |
-| `trip_type_category_id`      | string                   | Trip type category ID                                    |
-| `travel_region_category_id`  | string                   | Travel region category ID                                |
+| `source_category_id`         | string                   | Lead source ID — look up via [File Sources](file_sources.md) |
+| `trip_type_category_id`      | string                   | Trip type ID — look up via [File Trip Types](file_trip_types.md) |
+| `travel_region_category_id`  | string                   | Travel region ID — look up via [File Travel Regions](file_travel_regions.md) |
 | `license_type`               | string                   | License type                                             |
-| `channel`                    | string                   | Acquisition channel                                      |
+| `channel`                    | string                   | Acquisition channel — one of the values listed by [File Channels](file_channels.md) (otherwise `422`); `null` clears it |
 | `tags`                       | array of strings         | Tags to apply to the file                                |
-| `sales_consultant_ids[]`     | array of strings         | IDs of sales consultant members                          |
-| `partner_agent_ids[]`        | array of strings         | IDs of partner agent contacts                            |
-| `trip_leader_ids[]`          | array of strings         | IDs of trip leader contacts                              |
-| `supplier_ids[]`             | array of strings         | IDs of supplier contacts                                 |
+| `sales_consultant_ids[]`     | array of strings         | IDs of sales consultant members. Echoed back in the `sales_consultants` response field. |
+| `partner_agent_ids[]`        | array of strings         | IDs of partner agent contacts. Echoed back in the `partner_agents` response field. |
+| `trip_leader_ids[]`          | array of strings         | IDs of trip leader contacts. Echoed back in the `trip_leaders` response field. |
+| `supplier_ids[]`             | array of strings         | IDs of supplier contacts. Echoed back in the `suppliers` response field. |
 | `traveler_ids[]`             | array of strings         | Traveler contacts to link. Must belong to your account (otherwise `422`). |
 
 > **`traveler_ids` uses replace semantics.** The supplied array becomes the file's
@@ -299,9 +307,9 @@ curl -X POST https://connect.safariportal.dev/acc/{account_id}/files \
     "status": "leads",
     "priority": "high",
     "stage_id": null,
-    "source_category_id": null,
-    "trip_type_category_id": null,
-    "travel_region_category_id": null,
+    "source": null,
+    "trip_type": null,
+    "travel_region": null,
     "license_type": null,
     "channel": null,
     "consultant_id": null,

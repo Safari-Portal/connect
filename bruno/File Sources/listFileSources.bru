@@ -1,0 +1,18 @@
+meta {
+  name: List the account's file sources
+  type: http
+  seq: 1
+}
+get {
+  url: {{baseUrl}}/acc/:acc_id/file_sources
+  body: none
+  auth: inherit
+}
+params:path {
+  acc_id: {{accId}}
+}
+docs {
+  List the account's file sources
+
+  Scopes: files:read
+}
