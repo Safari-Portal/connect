@@ -47,6 +47,8 @@ paths:
         - $ref: "#/components/parameters/AnniversaryWindow"
         - $ref: "#/components/parameters/ContactCountryCodes"
         - $ref: "#/components/parameters/ContactCities"
+        - $ref: "#/components/parameters/ContactLeadSources"
+        - $ref: "#/components/parameters/ContactOwnerIds"
         - $ref: "#/components/parameters/Order"
         - $ref: "#/components/parameters/Page"
         - $ref: "#/components/parameters/Limit"
@@ -178,6 +180,33 @@ paths:
           $ref: "#/components/responses/NotFound"
         "422":
           $ref: "#/components/responses/UnprocessableEntity"
+    delete:
+      operationId: deleteContact
+      summary: Delete a contact
+      description: >-
+        Permanently deletes the contact. Partners and suppliers need the member's permission to
+        manage them, and a member restricted to their own contacts can delete only those. A contact who is the sole recipient of an invoice with payments cannot be
+        deleted (409).
+      security:
+        - oauth2: [contacts:delete]
+      parameters:
+        - $ref: "#/components/parameters/AccId"
+        - name: id
+          in: path
+          required: true
+          schema:
+            type: string
+      responses:
+        "204":
+          description: Deleted
+        "401":
+          $ref: "#/components/responses/Unauthorized"
+        "403":
+          $ref: "#/components/responses/Forbidden"
+        "404":
+          $ref: "#/components/responses/NotFound"
+        "409":
+          $ref: "#/components/responses/Conflict"
   /acc/{acc_id}/forms:
     get:
       operationId: listForms
@@ -425,6 +454,33 @@ paths:
           $ref: "#/components/responses/NotFound"
         "422":
           $ref: "#/components/responses/UnprocessableEntity"
+    delete:
+      operationId: deleteFile
+      summary: Delete a file
+      description: >-
+        Soft-deletes the file with its itineraries, lookbooks, guest portals and proposals. It can
+        be restored in Safari Portal from Recently Deleted during the retention period. A file
+        with pending or paid payments cannot be deleted (409).
+      security:
+        - oauth2: [files:delete]
+      parameters:
+        - $ref: "#/components/parameters/AccId"
+        - name: id
+          in: path
+          required: true
+          schema:
+            type: string
+      responses:
+        "204":
+          description: Deleted
+        "401":
+          $ref: "#/components/responses/Unauthorized"
+        "403":
+          $ref: "#/components/responses/Forbidden"
+        "404":
+          $ref: "#/components/responses/NotFound"
+        "409":
+          $ref: "#/components/responses/Conflict"
   /acc/{acc_id}/files/{file_id}/events:
     get:
       operationId: listFileEvents
@@ -545,6 +601,39 @@ paths:
       responses:
         "200":
           $ref: "#/components/responses/LookbookShow"
+        "401":
+          $ref: "#/components/responses/Unauthorized"
+        "403":
+          $ref: "#/components/responses/Forbidden"
+        "404":
+          $ref: "#/components/responses/NotFound"
+  /acc/{acc_id}/contact_custom_fields:
+    get:
+      operationId: listContactCustomFields
+      summary: List the account's traveler custom fields
+      description: >
+        The custom fields the account added to its Traveler contacts, in the order the contact
+        profile shows them. Use the handles and options here to write values through
+        `custom_fields` on createContact and updateContact.
+      security:
+        - oauth2: [contacts:read]
+      parameters:
+        - $ref: "#/components/parameters/AccId"
+      responses:
+        "200":
+          description: The custom fields, in profile display order
+          content:
+            application/json:
+              schema:
+                type: object
+                additionalProperties: false
+                properties:
+                  data:
+                    type: array
+                    items:
+                      $ref: "#/components/schemas/ContactCustomField"
+                required:
+                  - data
         "401":
           $ref: "#/components/responses/Unauthorized"
         "403":
@@ -954,8 +1043,10 @@ components:
           scopes:
             files:read: Read files and their events, categories, and stages
             files:write: Create and update files
+            files:delete: Delete files
             contacts:read: Read contacts
             contacts:write: Create and update contacts
+            contacts:delete: Delete contacts
             tasks:read: Read tasks
             tasks:write: Create tasks
             users:read: Read account users
@@ -1054,6 +1145,37 @@ components:
         type: array
         items:
           type: string
+    ContactLeadSources:
+      name: "original_lead_sources[]"
+      in: query
+      required: false
+      description: >
+        Filter to contacts whose original lead source is any of the given values. Values are the
+        account's file source names (`Digital Ads (PPC)`), matched exactly. The legacy keys
+        (`referral`, `digital_ads`, …) and old labels (`Digital ads (PPC)`) are accepted as
+        aliases for the default source names.
+        Repeat the parameter for multiple values.
+      style: form
+      explode: true
+      schema:
+        type: array
+        items:
+          type: string
+    ContactOwnerIds:
+      name: "owner_ids[]"
+      in: query
+      required: false
+      description: >
+        Filter to contacts owned by any of these member ids (a contact matches through any of
+        its owners, not only the primary one). The literal `none` matches contacts that have no
+        owner; combined with member ids the result is the union. Repeat the parameter for
+        multiple values.
+      style: form
+      explode: true
+      schema:
+        type: array
+        items:
+          type: string
     ContactCities:
       name: "cities[]"
       in: query
@@ -1088,6 +1210,12 @@ components:
             $ref: "#/components/schemas/ErrorEnvelope"
     UnprocessableEntity:
       description: Validation failed
+      content:
+        application/json:
+          schema:
+            $ref: "#/components/schemas/ErrorEnvelope"
+    Conflict:
+      description: The record's current state forbids the request (`description` says why)
       content:
         application/json:
           schema:
@@ -1525,6 +1653,13 @@ components:
         dietary_preferences:
           type: string
           nullable: true
+        custom_fields:
+          type: array
+          description: >
+            Every custom field of the account with this contact's value, in profile display order.
+            Travelers only: the key is absent on partners and suppliers.
+          items:
+            $ref: "#/components/schemas/ContactCustomFieldValue"
         created_at:
           type: string
         updated_at:
@@ -1553,6 +1688,68 @@ components:
         - dietary_preferences
         - created_at
         - updated_at
+    ContactCustomFieldValue:
+      type: object
+      additionalProperties: false
+      properties:
+        handle:
+          type: string
+          description: The custom field handle, as listed by listContactCustomFields.
+        name:
+          type: string
+        type:
+          type: string
+          enum: [text, date, select]
+        category:
+          type: string
+          enum: [personal_information, general, health_dietary, preferences]
+        value:
+          description: >
+            A string for text and single-select fields, a YYYY-MM-DD string for date fields, and
+            a list of options for multi-select fields (empty when none is chosen). Null when not
+            recorded.
+          oneOf:
+            - type: string
+              nullable: true
+            - type: array
+              items:
+                type: string
+      required:
+        - handle
+        - name
+        - type
+        - category
+        - value
+    ContactCustomField:
+      type: object
+      additionalProperties: false
+      properties:
+        handle:
+          type: string
+          description: Stable identifier derived from the name when the field is created, e.g. "wedding_date". Unique in the account and unchanged by a rename.
+        name:
+          type: string
+        type:
+          type: string
+          enum: [text, date, select]
+        category:
+          type: string
+          enum: [personal_information, general, health_dietary, preferences]
+        multi_select:
+          type: boolean
+          description: True when a select field takes several options.
+        options:
+          type: array
+          description: The allowed values of a select field. Empty for text and date fields.
+          items:
+            type: string
+      required:
+        - handle
+        - name
+        - type
+        - category
+        - multi_select
+        - options
     ResourceIdentity:
       type: object
       description: >
@@ -1624,6 +1821,31 @@ components:
                     type: string
                   phone:
                     type: string
+            custom_fields:
+              type: array
+              example: []
+              description: >
+                Custom field values to set, travelers only. Fields left out keep their value;
+                null, "" or [] clears one. Dates are YYYY-MM-DD, select values must be one of
+                the field's options, and a multi-select field takes a list. Any invalid entry
+                rejects the whole request with 422. Needs a plan that includes custom profile
+                fields (403 otherwise).
+              items:
+                type: object
+                properties:
+                  handle:
+                    type: string
+                    description: The custom field handle, from listContactCustomFields.
+                  value:
+                    oneOf:
+                      - type: string
+                        nullable: true
+                      - type: array
+                        items:
+                          type: string
+                required:
+                  - handle
+                  - value
       required:
         - contact
     TaskWrite:
@@ -1778,6 +2000,7 @@ components:
         total_amount:
           type: number
           nullable: true
+          description: Invoice total as billed, before refunds.
         created_at:
           type: string
         updated_at:
@@ -1812,6 +2035,7 @@ components:
         total_amount:
           type: number
           nullable: true
+          description: Invoice total as billed, before refunds.
         created_at:
           type: string
         updated_at:
@@ -1822,9 +2046,11 @@ components:
         amount_paid:
           type: number
           nullable: true
+          description: Paid receivables less refunds already paid out. Negative when refunds exceed receipts.
         balance_due:
           type: number
           nullable: true
+          description: Outstanding balance less refunds still owed. Negative when a refund is owed to the client.
         payments:
           type: array
           items:
@@ -2018,6 +2244,14 @@ components:
         end_date:
           type: string
           nullable: true
+        estimated_start_date:
+          type: string
+          nullable: true
+          description: The planned trip start the team entered while organizing the file, or null. It is kept (and stays editable) after confirmation; the confirmed trip's dates are start_date and end_date.
+        estimated_end_date:
+          type: string
+          nullable: true
+          description: The planned trip end the team entered while organizing the file, or null. Kept after confirmation, like estimated_start_date.
         created_at:
           type: string
         confirmed_at:
@@ -2040,6 +2274,8 @@ components:
         - tags
         - start_date
         - end_date
+        - estimated_start_date
+        - estimated_end_date
         - created_at
         - confirmed_at
         - updated_at
@@ -2168,6 +2404,14 @@ components:
         end_date:
           type: string
           nullable: true
+        estimated_start_date:
+          type: string
+          nullable: true
+          description: The planned trip start the team entered while organizing the file, or null. It is kept (and stays editable) after confirmation; the confirmed trip's dates are start_date and end_date.
+        estimated_end_date:
+          type: string
+          nullable: true
+          description: The planned trip end the team entered while organizing the file, or null. Kept after confirmation, like estimated_start_date.
         created_at:
           type: string
         confirmed_at:
@@ -2194,6 +2438,8 @@ components:
         - tags
         - start_date
         - end_date
+        - estimated_start_date
+        - estimated_end_date
         - created_at
         - confirmed_at
         - updated_at
@@ -2237,6 +2483,16 @@ components:
             supplier_ids:
               type: array
               items: {}
+            estimated_start_date:
+              type: string
+              nullable: true
+              example: "2027-03-08"
+              description: Planned trip start (YYYY-MM-DD, otherwise 422). The file must end up with both estimated dates or neither (otherwise 422); on update an omitted date keeps its stored value, so clear them by sending both as null.
+            estimated_end_date:
+              type: string
+              nullable: true
+              example: "2027-03-22"
+              description: Planned trip end (YYYY-MM-DD, otherwise 422), on or after estimated_start_date. Same both-or-neither rule as estimated_start_date.
       required:
         - file
     FileEvent:

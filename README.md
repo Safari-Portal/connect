@@ -48,12 +48,14 @@ change it:
 
 - ![read-only](https://img.shields.io/badge/read--only-blue) — `GET` only; nothing in this API creates or updates it.
 - ![read + write](https://img.shields.io/badge/read%20%2B%20write-brightgreen) — also creates or updates, via `POST` / `PATCH`.
+- ![read + write + delete](https://img.shields.io/badge/read%20%2B%20write%20%2B%20delete-orange) — also deletes, via `DELETE`.
 
 | Resource | Access | Scope | Covers |
 | -------- | ------ | ----- | ------ |
 | [Accounts](accounts.md) | ![read-only](https://img.shields.io/badge/read--only-blue) | — | The accounts your token can act on — start here to get `{account_id}` |
-| [Contacts](contacts.md) | ![read + write](https://img.shields.io/badge/read%20%2B%20write-brightgreen) | `contacts:read`, `contacts:write` | Travelers, partners, and suppliers; filtering on list, writes for travelers only |
-| [Files](files.md) | ![read + write](https://img.shields.io/badge/read%20%2B%20write-brightgreen) | `files:read`, `files:write` | Trips / tour requests, with filtering on list |
+| [Contacts](contacts.md) | ![read + write + delete](https://img.shields.io/badge/read%20%2B%20write%20%2B%20delete-orange) | `contacts:read`, `contacts:write`, `contacts:delete` | Travelers, partners, and suppliers; filtering on list, create/update for travelers only, delete for any type |
+| [Contact Custom Fields](contact_custom_fields.md) | ![read-only](https://img.shields.io/badge/read--only-blue) | `contacts:read` | Custom fields behind a traveler's `custom_fields` |
+| [Files](files.md) | ![read + write + delete](https://img.shields.io/badge/read%20%2B%20write%20%2B%20delete-orange) | `files:read`, `files:write`, `files:delete` | Trips / tour requests, with filtering on list |
 | [File Events](file_events.md) | ![read-only](https://img.shields.io/badge/read--only-blue) | `files:read` | A file's activity timeline |
 | [File Sources](file_sources.md) | ![read-only](https://img.shields.io/badge/read--only-blue) | `files:read` | Lead source values behind a file's `source` field |
 | [File Trip Types](file_trip_types.md) | ![read-only](https://img.shields.io/badge/read--only-blue) | `files:read` | Trip type values behind a file's `trip_type` field |
@@ -149,4 +151,5 @@ Errors use a consistent envelope and the matching HTTP status code:
 | `401`  | Missing, expired, or invalid access token (`WWW-Authenticate: Bearer` is returned)  |
 | `403`  | The token lacks the required scope, or is bound to a different account               |
 | `404`  | The resource or account does not exist, or is not accessible to your token           |
+| `409`  | The request is valid but the record's current state forbids it (`description` says why) |
 | `422`  | The request body failed validation (`description` lists the reasons)                |

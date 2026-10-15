@@ -1,0 +1,20 @@
+meta {
+  name: List the account's traveler custom fields
+  type: http
+  seq: 1
+}
+get {
+  url: {{baseUrl}}/acc/:acc_id/contact_custom_fields
+  body: none
+  auth: inherit
+}
+params:path {
+  acc_id: {{accId}}
+}
+docs {
+  List the account's traveler custom fields
+
+  The custom fields the account added to its Traveler contacts, in the order the contact profile shows them. Use the handles and options here to write values through `custom_fields` on createContact and updateContact.
+
+  Scopes: contacts:read
+}

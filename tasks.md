@@ -90,7 +90,7 @@ ordered by due date ascending. Supplying any of the filters below narrows the re
 | `scope`              | string           | Due-date / completion window. One of `overdue`, `due-today`, `due-this-week`, `upcoming`, `completed`, `tbd`, `active-tasks`. When any filter other than `scope` is supplied without a `scope`, it defaults to `overdue`. |
 | `completion`         | string           | Completion filter. One of `done`, `not_done`.                                                                                                         |
 | `order`              | string           | Sort order. One of `due-date-asc` (default), `due-date-desc`, `assigned-to-asc`, `assigned-to-desc`, `file-asc`, `file-desc`.                       |
-| `assigned_to_ids[]`  | array of strings | Filter by assigned user ID.                                                                                                                           |
+| `assigned_to_ids[]`  | array of strings | Filter by assigned user ID. Matches tasks where the user is any of the assignees; `assigned_to_id` in the response is the main assignee.             |
 | `file_ids[]`         | array of strings | Filter by file (tour request) ID.                                                                                                                     |
 | `types[]`            | array of strings | Filter by task type. Valid values: `email`, `payments`, `check-in`, `follow-up`, `phone-call`, `admin`, `feedback`. Tasks matching any supplied type are returned. |
 | `tags[]`             | array of strings | Filter by tag.                                                                                                                                        |

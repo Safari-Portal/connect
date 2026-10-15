@@ -1,0 +1,21 @@
+meta {
+  name: Delete a file
+  type: http
+  seq: 10
+}
+delete {
+  url: {{baseUrl}}/acc/:acc_id/files/:id
+  body: none
+  auth: inherit
+}
+params:path {
+  acc_id: {{accId}}
+  id: 
+}
+docs {
+  Delete a file
+
+  Soft-deletes the file with its itineraries, lookbooks, guest portals and proposals. It can be restored in Safari Portal from Recently Deleted during the retention period. A file with pending or paid payments cannot be deleted (409).
+
+  Scopes: files:delete
+}

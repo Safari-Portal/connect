@@ -60,6 +60,8 @@ see only their own files; owners and managers see all files in the account.
   ],
   "start_date": "2027-03-10",
   "end_date": "2027-03-24",
+  "estimated_start_date": "2027-03-08",
+  "estimated_end_date": "2027-03-22",
   "created_at": "2026-06-01T08:00:00.000Z",
   "confirmed_at": "2026-08-14T16:45:00.000Z",
   "updated_at": "2026-06-15T12:30:00.000Z"
@@ -89,6 +91,8 @@ see only their own files; owners and managers see all files in the account.
 | `travelers`                 | array of [Contact](contacts.md) objects | The traveler contacts linked to the file, expanded in full. **Only present when your token holds `contacts:read`** — it carries contact data, not file data, so a `files:read`-only token receives no `travelers` key at all (distinct from `[]`, which means the file genuinely has no travelers). Returned by show, create and update; the list endpoint never includes it. |
 | `start_date`                | string (date) \| null | Trip start date (`YYYY-MM-DD`), taken from the confirmed itinerary; `null` until the file is confirmed with dates. This is the value the `start_date-asc` / `start_date-desc` search order sorts on. |
 | `end_date`                  | string (date) \| null | Trip end date (`YYYY-MM-DD`), taken from the confirmed itinerary; `null` until the file is confirmed with dates |
+| `estimated_start_date`      | string (date) \| null | Planned trip start (`YYYY-MM-DD`) the team entered while the file was a lead or in planning; `null` when not set. Kept, and still editable, after confirmation, so read `start_date` for the confirmed trip. This is the value the `estimated_start_date-asc` / `estimated_start_date-desc` search order sorts on. |
+| `estimated_end_date`        | string (date) \| null | Planned trip end (`YYYY-MM-DD`); `null` when not set. Always set together with `estimated_start_date`, on or after it. |
 | `created_at`                | string (ISO 8601)| When the file was created                                      |
 | `confirmed_at`              | string (ISO 8601) \| null | When the file was confirmed; `null` while it is still a lead or in the pipeline. Together with `created_at` this brackets the file's time to confirm. |
 | `updated_at`                | string (ISO 8601)| When the file was last updated                                 |
@@ -99,15 +103,17 @@ see only their own files; owners and managers see all files in the account.
 | -------------- | ----------------------------- |
 | `files:read`   | List, Get                     |
 | `files:write`  | Create, Update                |
+| `files:delete` | Delete                        |
 
 ## Endpoints
 
-| Method  | Path                              | Scope          | Description         |
-| ------- | --------------------------------- | -------------- | ------------------- |
-| `GET`   | `/acc/{account_id}/files`         | `files:read`   | List / filter files |
-| `GET`   | `/acc/{account_id}/files/{id}`     | `files:read`   | Retrieve a file     |
-| `POST`  | `/acc/{account_id}/files`         | `files:write`  | Create a file       |
-| `PATCH` | `/acc/{account_id}/files/{id}`     | `files:write`  | Update a file       |
+| Method   | Path                              | Scope          | Description         |
+| -------- | --------------------------------- | -------------- | ------------------- |
+| `GET`    | `/acc/{account_id}/files`         | `files:read`   | List / filter files |
+| `GET`    | `/acc/{account_id}/files/{id}`     | `files:read`   | Retrieve a file     |
+| `POST`   | `/acc/{account_id}/files`         | `files:write`  | Create a file       |
+| `PATCH`  | `/acc/{account_id}/files/{id}`     | `files:write`  | Update a file       |
+| `DELETE` | `/acc/{account_id}/files/{id}`    | `files:delete` | Delete a file       |
 
 ## List files
 
@@ -127,7 +133,7 @@ member, ordered by name. The list response carries no traveler information at al
 | `limit`                        | integer          | Items per page (default `25`, maximum `100`)                                                       |
 | `scope`                        | string           | Lifecycle stage to filter within. One of `leads`, `planning`, `confirmed`, `traveling`, `completed`, `archived`, `deleted`. When any filter other than `scope` is supplied without a `scope`, it defaults to `planning`. |
 | `q`                            | string           | Full-text search across file name, linked itineraries, lookbooks, portals, and dashboards         |
-| `order`                        | string           | Sort order. One of `created-desc` (default), `created-asc`, `file_name-asc`, `file_name-desc`, `priority-asc`, `priority-desc`, `start_date-asc`, `start_date-desc` |
+| `order`                        | string           | Sort order. One of `created-desc` (default), `created-asc`, `file_name-asc`, `file_name-desc`, `priority-asc`, `priority-desc`, `start_date-asc`, `start_date-desc`, `estimated_start_date-asc`, `estimated_start_date-desc` |
 | `stage_id`                     | string           | Filter by pipeline stage ID                                                                       |
 | `consultant_ids[]`             | array of strings | Filter by primary consultant                                                                      |
 | `sales_consultant_ids[]`       | array of strings | Filter by sales consultant (member)                                                               |
@@ -165,6 +171,8 @@ curl "https://connect.safariportal.dev/acc/{account_id}/files?scope=leads&q=safa
       "tags": ["honeymoon", "africa"],
       "start_date": "2027-03-10",
       "end_date": "2027-03-24",
+      "estimated_start_date": "2027-03-08",
+      "estimated_end_date": "2027-03-22",
       "created_at": "2026-06-01T08:00:00.000Z",
       "confirmed_at": "2026-08-14T16:45:00.000Z",
       "updated_at": "2026-06-15T12:30:00.000Z"
@@ -243,6 +251,8 @@ curl https://connect.safariportal.dev/acc/{account_id}/files/42 \
     ],
     "start_date": "2027-03-10",
     "end_date": "2027-03-24",
+    "estimated_start_date": "2027-03-08",
+    "estimated_end_date": "2027-03-22",
     "created_at": "2026-06-01T08:00:00.000Z",
     "confirmed_at": "2026-08-14T16:45:00.000Z",
     "updated_at": "2026-06-15T12:30:00.000Z"
@@ -278,6 +288,8 @@ The request body must wrap fields in a `file` object:
 | `trip_leader_ids[]`          | array of strings         | IDs of trip leader contacts. Echoed back in the `trip_leaders` response field. |
 | `supplier_ids[]`             | array of strings         | IDs of supplier contacts. Echoed back in the `suppliers` response field. |
 | `traveler_ids[]`             | array of strings         | Traveler contacts to link. Must belong to your account (otherwise `422`). |
+| `estimated_start_date`       | string (date) \| null   | Planned trip start (`YYYY-MM-DD`, otherwise `422`). The file must end up with both estimated dates or neither (otherwise `422`). On update an omitted date keeps its stored value, so clear them by sending both as `null`. |
+| `estimated_end_date`         | string (date) \| null   | Planned trip end (`YYYY-MM-DD`, otherwise `422`), on or after `estimated_start_date` (otherwise `422`). Same both-or-neither rule. |
 
 > **`traveler_ids` uses replace semantics.** The supplied array becomes the file's
 > complete traveler set: contacts not listed are unlinked, new ones are added. Send `[]`
@@ -292,6 +304,8 @@ curl -X POST https://connect.safariportal.dev/acc/{account_id}/files \
       "file_name": "Smith Safari 2027",
       "priority": "high",
       "tags": ["honeymoon", "africa"],
+      "estimated_start_date": "2027-03-08",
+      "estimated_end_date": "2027-03-22",
       "traveler_ids": ["101", "102"]
     }
   }'
@@ -342,6 +356,8 @@ curl -X POST https://connect.safariportal.dev/acc/{account_id}/files \
     ],
     "start_date": null,
     "end_date": null,
+    "estimated_start_date": "2027-03-08",
+    "estimated_end_date": "2027-03-22",
     "created_at": "2026-06-25T09:00:00.000Z",
     "confirmed_at": null,
     "updated_at": "2026-06-25T09:00:00.000Z"
@@ -376,6 +392,23 @@ curl -X PATCH https://connect.safariportal.dev/acc/{account_id}/files/42 \
   -H "Authorization: Bearer <access_token>" \
   -H "Content-Type: application/json" \
   -d '{ "file": { "priority": "medium", "tags": ["honeymoon", "africa", "luxury"] } }'
+```
+
+## Delete a file
+
+```
+DELETE /acc/{account_id}/files/{id}
+```
+
+Requires `files:delete`. Deletes the file with its itineraries, lookbooks, guest portals and
+proposals. The delete is soft: the file can be restored in Safari Portal from **Recently
+Deleted** during the retention period. Returns `204` with no body, `404` if the file does not
+exist in the account, is not visible to the member, or is already deleted, or `409` if the file
+has pending or paid payments.
+
+```bash
+curl -X DELETE https://connect.safariportal.dev/acc/{account_id}/files/42 \
+  -H "Authorization: Bearer <access_token>"
 ```
 
 See [Errors](README.md#errors) and [Pagination](README.md#pagination) in the README for

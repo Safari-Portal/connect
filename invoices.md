@@ -11,7 +11,9 @@ account you are an agent member of; an account you are not a member of returns `
 invoice does not exist in that account, or is not visible to the member, the endpoint
 returns `404`. Visibility is governed by the member's financials permissions: consultants
 with no financials access see an empty list and get `404` on individual lookups; owners
-and managers with full financials access see all invoices in the account.
+and managers with full financials access see all invoices in the account. An invoice
+without a payment processor and an enabled payment method cannot be shared yet, so it is
+left out of the list and returns `404` until payments are set up.
 
 > **Money values.** All monetary amounts in this API — `total_amount`, `amount_paid`,
 > `balance_due`, and `amount` on individual payments — are integers in **minor units
@@ -84,7 +86,7 @@ The retrieve endpoint returns everything above plus four additional fields:
 | `status`            | string            | One of `draft`, `not_paid`, `partially_paid`, `paid_in_full`, `voided`                      |
 | `file_id`           | string            | ID of the file (trip / tour request) this invoice belongs to — resolve via the [Files](files.md) endpoint |
 | `currency`          | string            | ISO 4217 currency code (e.g. `"USD"`)                                                       |
-| `total_amount`      | integer \| null   | Invoice total in minor units (cents). May be `null` on a draft with no payments yet.        |
+| `total_amount`      | integer \| null   | Invoice total as billed, before refunds, in minor units (cents). May be `null` on a draft with no payments yet. |
 | `created_at`        | string (ISO 8601) | When the invoice was created                                                                 |
 | `updated_at`        | string (ISO 8601) | When the invoice was last updated                                                            |
 
@@ -93,13 +95,15 @@ The following four fields are **only present on the retrieve (show) endpoint**:
 | Field                | Type              | Description                                                                                                    |
 | -------------------- | ----------------- | -------------------------------------------------------------------------------------------------------------- |
 | `primary_contact_id` | string \| null    | ID of the primary customer contact — resolve via the [Contacts](contacts.md) endpoint                         |
-| `amount_paid`        | integer           | Sum of all paid receivables in minor units (cents)                                                             |
-| `balance_due`        | integer           | Outstanding balance in minor units (cents)                                                                     |
+| `amount_paid`        | integer           | Paid receivables less refunds already paid out, in minor units (cents). Negative if refunds exceed receipts.   |
+| `balance_due`        | integer           | Outstanding balance in minor units (cents). Negative when an unpaid refund is owed to the client. Zero can also mean an unpaid receivable and an unpaid refund of the same size cancelling out, not only that nothing is outstanding.              |
 | `payments`           | array             | The invoice's payments — see [Payment object](#payment-object) below                                          |
 
 > **Arithmetic note.** Do not treat `amount_paid + balance_due = total_amount` as a
 > closed identity. On discounted invoices, `amount_paid` is the raw paid total while
 > `balance_due` is discount-aware, so the three values need not sum consistently.
+> Refunds split the same way: one already paid out nets off `amount_paid`, one still
+> owed nets off `balance_due`. Either field can go negative.
 
 ### Payment object
 

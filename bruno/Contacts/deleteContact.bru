@@ -1,0 +1,21 @@
+meta {
+  name: Delete a contact
+  type: http
+  seq: 6
+}
+delete {
+  url: {{baseUrl}}/acc/:acc_id/contacts/:id
+  body: none
+  auth: inherit
+}
+params:path {
+  acc_id: {{accId}}
+  id: 
+}
+docs {
+  Delete a contact
+
+  Permanently deletes the contact. Partners and suppliers need the member's permission to manage them, and a member restricted to their own contacts can delete only those. A contact who is the sole recipient of an invoice with payments cannot be deleted (409).
+
+  Scopes: contacts:delete
+}

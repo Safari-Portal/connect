@@ -43,7 +43,7 @@ The list and retrieve endpoints return the same form object:
 | `id`           | string            | Unique identifier for the form — used in all Connect API URLs                                        |
 | `sqid`         | string            | The form's public / embed key (`wfm_…`); build share and embed URLs from it                          |
 | `name`         | string            | Form name                                                                                           |
-| `category`     | string            | One of `guest_form`, `lead_form`, `trip_planning`, `feedback_form`, `waivers`, `other`              |
+| `category`     | string            | One of `guest_form`, `lead_form`, `trip_planning`, `feedback_form`, `waivers`, `card_authorization`, `other`              |
 | `tags`         | array of strings  | Free-form tags applied to the form                                                                  |
 | `published`    | boolean           | `true` once the form has been published; `false` for a draft                                        |
 | `published_at` | string (ISO 8601) \| null | When the form was published, or `null` if it is still a draft                              |

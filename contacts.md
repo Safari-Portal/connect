@@ -2,7 +2,7 @@
 
 Contacts are the people and organizations in an account: **travelers**, **partners**,
 and **suppliers**. The `type` field distinguishes them. Read endpoints return all
-types; write endpoints currently support **travelers** only.
+types; create and update currently support **travelers** only; delete supports any type.
 
 All endpoints are nested under `/acc/{account_id}/`. The `{account_id}` must be an
 account you are an agent member of; an account you are not a member of returns `404`, and a token bound to a different account returns `403`. If a
@@ -39,6 +39,11 @@ contact list in the product must not be able to page it out through the API.
   "anniversary": "2010-08-20",
   "medical_issues": "Penicillin allergy",
   "dietary_preferences": "Vegetarian, no nuts",
+  "custom_fields": [
+    { "handle": "wedding_date", "name": "Wedding Date", "type": "date", "category": "general", "value": "2026-12-01" },
+    { "handle": "travel_style", "name": "Travel Style", "type": "select", "category": "preferences", "value": ["Luxury"] },
+    { "handle": "blood_type", "name": "Blood Type", "type": "text", "category": "health_dietary", "value": null }
+  ],
   "created_at": "2026-06-24T10:00:00.000Z",
   "updated_at": "2026-06-24T10:00:00.000Z"
 }
@@ -58,6 +63,25 @@ All four can be set on write: `dob` and `anniversary` are `YYYY-MM-DD` or `null`
 free text or `null`. All four are stored encrypted, and the same four appear on each entry of
 a file's [`travelers`](files.md) array.
 
+### Custom fields
+
+`custom_fields` lists every custom field the account added to its Traveler contacts, in the
+order the contact profile shows them, with this contact's value. A field with no value is still
+listed: `value` is `null`, or `[]` for a multi-select field. Partners and suppliers have no
+`custom_fields` key at all, because custom fields apply to travelers only.
+
+| Field      | Type                  | Description                                                                       |
+| ---------- | --------------------- | --------------------------------------------------------------------------------- |
+| `handle`   | string                | The custom field handle, e.g. `wedding_date`. Stable when the field is renamed    |
+| `name`     | string                | The field name shown on the profile                                               |
+| `type`     | string                | `text`, `date` or `select`                                                        |
+| `category` | string                | `personal_information`, `general`, `health_dietary` or `preferences`              |
+| `value`    | string, array or null | Text or option as a string, a date as `YYYY-MM-DD`, a multi-select as a list     |
+
+To list the fields with their options (for example, before writing a value), use
+[Contact Custom Fields](contact_custom_fields.md). The same `custom_fields` array appears on
+each entry of a file's [`travelers`](files.md) array.
+
 ### What the write endpoints return
 
 Create and update answer to `contacts:write`, and echoing a record back is a **read**. A token
@@ -73,19 +97,21 @@ The id is always returned, so a write-only client can still reference what it cr
 
 ## Scopes
 
-| Scope            | Endpoints      |
-| ---------------- | -------------- |
-| `contacts:read`  | List, Get      |
-| `contacts:write` | Create, Update |
+| Scope             | Endpoints      |
+| ----------------- | -------------- |
+| `contacts:read`   | List, Get      |
+| `contacts:write`  | Create, Update |
+| `contacts:delete` | Delete         |
 
 ## Endpoints
 
-| Method  | Path                                 | Scope            | Description            |
-| ------- | ------------------------------------ | ---------------- | ---------------------- |
-| `GET`   | `/acc/{account_id}/contacts`         | `contacts:read`  | List / filter contacts |
-| `GET`   | `/acc/{account_id}/contacts/{id}`    | `contacts:read`  | Retrieve a contact     |
-| `POST`  | `/acc/{account_id}/contacts`         | `contacts:write` | Create a traveler      |
-| `PATCH` | `/acc/{account_id}/contacts/{id}`    | `contacts:write` | Update a traveler      |
+| Method   | Path                                 | Scope             | Description            |
+| -------- | ------------------------------------ | ----------------- | ---------------------- |
+| `GET`    | `/acc/{account_id}/contacts`         | `contacts:read`   | List / filter contacts |
+| `GET`    | `/acc/{account_id}/contacts/{id}`    | `contacts:read`   | Retrieve a contact     |
+| `POST`   | `/acc/{account_id}/contacts`         | `contacts:write`  | Create a traveler      |
+| `PATCH`  | `/acc/{account_id}/contacts/{id}`    | `contacts:write`  | Update a traveler      |
+| `DELETE` | `/acc/{account_id}/contacts/{id}`    | `contacts:delete` | Delete a contact       |
 
 A contact's form submissions are listed by the [Form Submissions](form_submissions.md)
 endpoint, which answers to `forms:read` rather than `contacts:read`.
@@ -106,7 +132,7 @@ Requires `contacts:read`. Returns all contact types for the account, paginated.
 | `order`              | Sort order. One of `created-desc` (default), `created-asc`, `name-asc`, `name-desc`, `recent_trip-asc`, `recent_trip-desc`, `contact_person-asc`, `contact_person-desc` (the last two apply to `scope=suppliers` only) |
 | `q`                  | Full-text search                                                                                                              |
 | `tags[]`             | Filter by tag                                                                                                                 |
-| `owner_ids[]`        | Filter by owning member                                                                                                       |
+| `owner_ids[]`        | Filter by owning member id (any of a contact's owners). `none` matches contacts with no owner; combined with ids it returns the union |
 | `country_codes[]`    | Filter by primary-address country (ISO 3166-1 alpha-2, e.g. `US`)                                                             |
 | `cities[]`           | Filter by primary-address city (case-insensitive, exact match)                                                                |
 | `birthday_window`    | Contacts whose birthday falls in `next_7_days`, `this_week`, or `next_week` (travelers only; a non-traveler `scope` is a 400) |
@@ -189,9 +215,27 @@ required. Returns `201` with the created contact, or `422` with validation detai
 | `referred_by_id`               | string (contact id) |
 | `tags`                         | array of strings         |
 | `emergency_contacts_attributes`| array of `{ name, phone }` |
+| `custom_fields`                | array of `{ handle, value }` |
 
 `nationality_country_code` is an ISO 3166-1 alpha-2 code (e.g. `BR`) and takes precedence
 over the free-text `nationality` when both are sent.
+
+`custom_fields` sets custom field values. Each entry names a field by its
+[handle](contact_custom_fields.md) and gives its value:
+
+- **text**: a string.
+- **date**: a `YYYY-MM-DD` string.
+- **select**: one of the field's `options`, as a string. A multi-select field takes a list of
+  options instead.
+- `null`, `""` or `[]` clears the value.
+
+Fields you leave out keep their value, and an empty `custom_fields` list changes nothing. A handle
+listed twice in the same request is a `422`. Changing only custom fields does not change the
+contact's `updated_at`. If any
+entry is invalid (unknown handle, no `value` key, a value that is not a string, a date in another
+format, an option the field does not have, a list on a single-value field), the request returns `422` naming the field, and nothing
+is saved. Writing custom fields needs an account plan that
+includes custom profile fields; without it the request returns `403`. Reading them does not.
 
 ```bash
 curl -X POST https://connect.safariportal.dev/acc/{account_id}/contacts \
@@ -222,4 +266,37 @@ curl -X PATCH https://connect.safariportal.dev/acc/{account_id}/contacts/123 \
   -H "Authorization: Bearer <access_token>" \
   -H "Content-Type: application/json" \
   -d '{ "contact": { "preferred_name": "Janie" } }'
+```
+
+Set one custom field and clear another:
+
+```bash
+curl -X PATCH https://connect.safariportal.dev/acc/{account_id}/contacts/123 \
+  -H "Authorization: Bearer <access_token>" \
+  -H "Content-Type: application/json" \
+  -d '{
+    "contact": {
+      "custom_fields": [
+        { "handle": "wedding_date", "value": "2026-12-01" },
+        { "handle": "blood_type", "value": null }
+      ]
+    }
+  }'
+```
+
+## Delete a contact
+
+```
+DELETE /acc/{account_id}/contacts/{id}
+```
+
+Requires `contacts:delete`. Deletes any contact type: partners and suppliers need the member's
+permission to manage them, and a member restricted to their own contacts can delete only those
+(otherwise `403`). The delete is **permanent**. Returns `204` with no
+body, `404` if the contact does not exist in the account, or `409` if the contact is the sole
+recipient of an invoice with payments.
+
+```bash
+curl -X DELETE https://connect.safariportal.dev/acc/{account_id}/contacts/123 \
+  -H "Authorization: Bearer <access_token>"
 ```

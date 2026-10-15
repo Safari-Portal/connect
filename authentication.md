@@ -18,7 +18,7 @@ GET https://connect.safariportal.dev/.well-known/oauth-authorization-server
   "authorization_endpoint": "https://account.safariportal.app/oauth/authorize",
   "token_endpoint": "https://connect.safariportal.dev/oauth/token",
   "scopes_supported": [
-    "files:read", "files:write", "contacts:read", "contacts:write",
+    "files:read", "files:write", "files:delete", "contacts:read", "contacts:write", "contacts:delete",
     "tasks:read", "tasks:write", "users:read", "financials:read", "forms:read"
   ],
   "code_challenge_methods_supported": ["S256"],
@@ -70,13 +70,13 @@ The user signs in (if needed), selects which account to authorize, and approves 
 requested scopes. They are redirected back to your `redirect_uri` with `code` and
 `state`.
 
-**Write scopes are declinable.** Any `:write` scope you request is offered as a
-separate, unticked checkbox on the consent screen, and is dropped from the grant
+**Write and delete scopes are declinable.** Any `:write` or `:delete` scope you request is
+offered as a separate, unticked checkbox on the consent screen, and is dropped from the grant
 unless the user ticks it — so a token may come back holding only the `:read` scopes
 you asked for. Read the `scope` in the token response to find out: when it is narrower
 than what you requested, the user declined, and the right move is to offer a
-re-authorize rather than to retry the write and read the `403`. If you requested write
-scopes *only* and the user declines, no grant is minted at all: the callback carries
+re-authorize rather than to retry the write and read the `403`. If you requested write or
+delete scopes *only* and the user declines, no grant is minted at all: the callback carries
 `error=access_denied`.
 
 Exchange the code for tokens on the token endpoint:
@@ -124,8 +124,10 @@ Each refresh returns a **new** refresh token; the previous one is invalidated.
 | ----------------- | ------------------------------------------------------------- |
 | `files:read`      | List, search, and retrieve [files](files.md), and their stages, categories and events |
 | `files:write`     | Create and update files                                       |
-| `contacts:read`   | List, search, and retrieve [contacts](contacts.md)            |
+| `files:delete`    | Delete files (restorable in Safari Portal during the retention period) |
+| `contacts:read`   | List, search, and retrieve [contacts](contacts.md), and their custom fields |
 | `contacts:write`  | Create and update contacts                                    |
+| `contacts:delete` | Permanently delete contacts                                   |
 | `tasks:read`      | List, filter, and retrieve [tasks](tasks.md)                  |
 | `tasks:write`     | Create tasks                                                  |
 | `users:read`      | List and retrieve account [users](users.md)                   |
