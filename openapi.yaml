@@ -505,6 +505,90 @@ paths:
           $ref: "#/components/responses/Forbidden"
         "404":
           $ref: "#/components/responses/NotFound"
+  /acc/{acc_id}/files/{file_id}/notes:
+    get:
+      operationId: listFileNotes
+      summary: List a file's notes
+      security:
+        - oauth2: [files:read]
+      parameters:
+        - $ref: "#/components/parameters/AccId"
+        - name: file_id
+          in: path
+          required: true
+          schema:
+            type: string
+        - $ref: "#/components/parameters/Page"
+        - $ref: "#/components/parameters/Limit"
+      responses:
+        "200":
+          $ref: "#/components/responses/FileNoteList"
+        "401":
+          $ref: "#/components/responses/Unauthorized"
+        "403":
+          $ref: "#/components/responses/Forbidden"
+        "404":
+          $ref: "#/components/responses/NotFound"
+    post:
+      operationId: createFileNote
+      summary: Add a note to a file
+      description: >-
+        The note is authored by the member the token belongs to.
+      security:
+        - oauth2: [files:write]
+      parameters:
+        - $ref: "#/components/parameters/AccId"
+        - name: file_id
+          in: path
+          required: true
+          schema:
+            type: string
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/FileNoteWrite"
+      responses:
+        "201":
+          $ref: "#/components/responses/FileNoteWriteResult"
+        "400":
+          $ref: "#/components/responses/BadRequest"
+        "401":
+          $ref: "#/components/responses/Unauthorized"
+        "403":
+          $ref: "#/components/responses/Forbidden"
+        "404":
+          $ref: "#/components/responses/NotFound"
+        "422":
+          $ref: "#/components/responses/UnprocessableEntity"
+  /acc/{acc_id}/files/{file_id}/notes/{id}:
+    get:
+      operationId: getFileNote
+      summary: Retrieve a single file note
+      security:
+        - oauth2: [files:read]
+      parameters:
+        - $ref: "#/components/parameters/AccId"
+        - name: file_id
+          in: path
+          required: true
+          schema:
+            type: string
+        - name: id
+          in: path
+          required: true
+          schema:
+            type: string
+      responses:
+        "200":
+          $ref: "#/components/responses/FileNoteShow"
+        "401":
+          $ref: "#/components/responses/Unauthorized"
+        "403":
+          $ref: "#/components/responses/Forbidden"
+        "404":
+          $ref: "#/components/responses/NotFound"
   /acc/{acc_id}/files/{file_id}/itineraries:
     get:
       operationId: listFileItineraries
@@ -1041,8 +1125,8 @@ components:
           authorizationUrl: https://account.safariportal.app/oauth/authorize
           tokenUrl: https://connect.safariportal.dev/oauth/token
           scopes:
-            files:read: Read files and their events, categories, and stages
-            files:write: Create and update files
+            files:read: Read files and their events, notes, categories, and stages
+            files:write: Create and update files, and add notes to them
             files:delete: Delete files
             contacts:read: Read contacts
             contacts:write: Create and update contacts
@@ -1392,6 +1476,51 @@ components:
             required:
               - data
               - meta
+    FileNoteList:
+      description: A page of file notes
+      content:
+        application/json:
+          schema:
+            type: object
+            additionalProperties: false
+            properties:
+              data:
+                type: array
+                items:
+                  $ref: "#/components/schemas/FileNote"
+              meta:
+                $ref: "#/components/schemas/PaginationMeta"
+            required:
+              - data
+              - meta
+    FileNoteShow:
+      description: The file note
+      content:
+        application/json:
+          schema:
+            type: object
+            additionalProperties: false
+            properties:
+              data:
+                $ref: "#/components/schemas/FileNote"
+            required:
+              - data
+    FileNoteWriteResult:
+      description: >
+        The note. Full representation for a token holding `files:read`; otherwise just the id,
+        since echoing the record back is a read.
+      content:
+        application/json:
+          schema:
+            type: object
+            additionalProperties: false
+            properties:
+              data:
+                oneOf:
+                  - $ref: "#/components/schemas/FileNote"
+                  - $ref: "#/components/schemas/ResourceIdentity"
+            required:
+              - data
     ItineraryShow:
       description: The itinerary
       content:
@@ -2525,6 +2654,48 @@ components:
         - request_location
         - request_ip
         - created_at
+    FileNote:
+      type: object
+      additionalProperties: false
+      properties:
+        id:
+          type: string
+        file_id:
+          type: string
+        content:
+          type: string
+          description: HTML from the in-app rich-text editor; notes created through the API hold whatever was sent.
+        author_id:
+          type: string
+          description: User id of the team member who wrote the note.
+        created_at:
+          type: string
+        updated_at:
+          type: string
+      required:
+        - id
+        - file_id
+        - content
+        - author_id
+        - created_at
+        - updated_at
+    FileNoteWrite:
+      type: object
+      description: Request body for adding a note to a file.
+      example:
+        note:
+          content: ""
+      properties:
+        note:
+          type: object
+          properties:
+            content:
+              type: string
+              description: HTML or plain text, stored as sent.
+          required:
+            - content
+      required:
+        - note
     FileReference:
       type: object
       additionalProperties: false

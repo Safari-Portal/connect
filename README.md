@@ -57,6 +57,7 @@ change it:
 | [Contact Custom Fields](contact_custom_fields.md) | ![read-only](https://img.shields.io/badge/read--only-blue) | `contacts:read` | Custom fields behind a traveler's `custom_fields` |
 | [Files](files.md) | ![read + write + delete](https://img.shields.io/badge/read%20%2B%20write%20%2B%20delete-orange) | `files:read`, `files:write`, `files:delete` | Trips / tour requests, with filtering on list |
 | [File Events](file_events.md) | ![read-only](https://img.shields.io/badge/read--only-blue) | `files:read` | A file's activity timeline |
+| [File Notes](file_notes.md) | ![read + write](https://img.shields.io/badge/read%20%2B%20write-brightgreen) | `files:read`, `files:write` | A file's internal team notes; add a note to a file |
 | [File Sources](file_sources.md) | ![read-only](https://img.shields.io/badge/read--only-blue) | `files:read` | Lead source values behind a file's `source` field |
 | [File Trip Types](file_trip_types.md) | ![read-only](https://img.shields.io/badge/read--only-blue) | `files:read` | Trip type values behind a file's `trip_type` field |
 | [File Travel Regions](file_travel_regions.md) | ![read-only](https://img.shields.io/badge/read--only-blue) | `files:read` | Travel region values behind a file's `travel_region` field |

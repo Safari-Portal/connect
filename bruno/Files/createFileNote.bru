@@ -1,0 +1,28 @@
+meta {
+  name: Add a note to a file
+  type: http
+  seq: 9
+}
+post {
+  url: {{baseUrl}}/acc/:acc_id/files/:file_id/notes
+  body: json
+  auth: inherit
+}
+params:path {
+  acc_id: {{accId}}
+  file_id: 
+}
+body:json {
+  {
+    "note": {
+      "content": ""
+    }
+  }
+}
+docs {
+  Add a note to a file
+
+  The note is authored by the member the token belongs to.
+
+  Scopes: files:write
+}

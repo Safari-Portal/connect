@@ -122,8 +122,8 @@ Each refresh returns a **new** refresh token; the previous one is invalidated.
 
 | Scope             | Grants                                                        |
 | ----------------- | ------------------------------------------------------------- |
-| `files:read`      | List, search, and retrieve [files](files.md), and their stages, categories and events |
-| `files:write`     | Create and update files                                       |
+| `files:read`      | List, search, and retrieve [files](files.md), and their stages, categories, events and notes |
+| `files:write`     | Create and update files, and add [notes](file_notes.md) to them |
 | `files:delete`    | Delete files (restorable in Safari Portal during the retention period) |
 | `contacts:read`   | List, search, and retrieve [contacts](contacts.md), and their custom fields |
 | `contacts:write`  | Create and update contacts                                    |
