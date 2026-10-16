@@ -82,7 +82,7 @@ see only their own files; owners and managers see all files in the account.
 | `travel_region`             | object \| null   | `{id, name}` reference to the travel region, or `null` — see [File Travel Regions](file_travel_regions.md) |
 | `license_type`              | string \| null   | License type associated with the file                          |
 | `channel`                   | string \| null   | Acquisition channel for the file — one of the values listed by [File Channels](file_channels.md) |
-| `consultant_id`             | string \| null   | ID of the primary consultant (a **user** id) assigned to the file — resolve via the [Users](users.md) endpoint |
+| `consultant_id`             | string \| null   | ID of the primary consultant — the file owner (a **user** id) — resolve via the [Users](users.md) endpoint |
 | `sales_consultants`         | array of objects | `{id, name}` references to the team members (**user** ids) assigned as sales consultants — resolve via the [Users](users.md) endpoint. `[]` when none are assigned. Returned by show, create and update; the list endpoint never includes it. |
 | `partner_agents`            | array of objects | `{id, name}` references to the partner agent **contacts** on the file — resolve via the [Contacts](contacts.md) endpoint. Names carry the company in parentheses when the contact has one. Returned by show, create and update; the list endpoint never includes it. |
 | `trip_leaders`              | array of objects | `{id, name}` references to the trip leader **contacts** on the file — resolve via the [Contacts](contacts.md) endpoint. Names carry the company in parentheses when the contact has one. Returned by show, create and update; the list endpoint never includes it. |
@@ -283,6 +283,7 @@ The request body must wrap fields in a `file` object:
 | `license_type`               | string                   | License type                                             |
 | `channel`                    | string                   | Acquisition channel — one of the values listed by [File Channels](file_channels.md) (otherwise `422`); `null` clears it |
 | `tags`                       | array of strings         | Tags to apply to the file                                |
+| `consultant_id`              | string                   | The file owner (a **user** id — look up via [Users](users.md)). Must be an active team member of the account, otherwise `422`; `null` is rejected. Defaults to the caller on create. Changing it on update hands the file over exactly like **Change File Owner** in the app: the guest portal and chat channels move to the new owner and the activity log records it. |
 | `sales_consultant_ids[]`     | array of strings         | IDs of sales consultant members. Echoed back in the `sales_consultants` response field. |
 | `partner_agent_ids[]`        | array of strings         | IDs of partner agent contacts. Echoed back in the `partner_agents` response field. |
 | `trip_leader_ids[]`          | array of strings         | IDs of trip leader contacts. Echoed back in the `trip_leaders` response field. |

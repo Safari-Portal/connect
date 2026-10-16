@@ -2597,6 +2597,11 @@ components:
                 type: string
             priority:
               type: string
+            consultant_id:
+              oneOf:
+                - type: string
+                - type: integer
+              description: The file owner, a user id from the Users endpoint. Must be an active team member of the account (otherwise 422); null is rejected.
             traveler_ids:
               type: array
               items: {}
