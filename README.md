@@ -41,36 +41,99 @@ curl https://connect.safariportal.dev/acc/{account_id}/contacts \
   -H "Authorization: Bearer <access_token>"
 ```
 
-## Resources
+## Endpoints
 
-Every resource is readable over `GET`. The **Access** badge says whether the API can also
-change it:
+Every path below is relative to `https://connect.safariportal.dev/acc/{account_id}`. Each
+description links to the full reference for that endpoint.
 
-- ![read-only](https://img.shields.io/badge/read--only-blue) — `GET` only; nothing in this API creates or updates it.
-- ![read + write](https://img.shields.io/badge/read%20%2B%20write-brightgreen) — also creates or updates, via `POST` / `PATCH`.
-- ![read + write + delete](https://img.shields.io/badge/read%20%2B%20write%20%2B%20delete-orange) — also deletes, via `DELETE`.
+> **Start here:** ![GET](https://img.shields.io/badge/GET-0969da) `/accounts` lists the
+> accounts your token can act on (no scope needed). Use the returned `id` as `{account_id}` —
+> see [Accounts](accounts.md#list-accounts).
 
-| Resource | Access | Scope | Covers |
-| -------- | ------ | ----- | ------ |
-| [Accounts](accounts.md) | ![read-only](https://img.shields.io/badge/read--only-blue) | — | The accounts your token can act on — start here to get `{account_id}` |
-| [Contacts](contacts.md) | ![read + write + delete](https://img.shields.io/badge/read%20%2B%20write%20%2B%20delete-orange) | `contacts:read`, `contacts:write`, `contacts:delete` | Travelers, partners, and suppliers; filtering on list, create/update for travelers only, delete for any type |
-| [Contact Custom Fields](contact_custom_fields.md) | ![read-only](https://img.shields.io/badge/read--only-blue) | `contacts:read` | Custom fields behind a traveler's `custom_fields` |
-| [Files](files.md) | ![read + write + delete](https://img.shields.io/badge/read%20%2B%20write%20%2B%20delete-orange) | `files:read`, `files:write`, `files:delete` | Trips / tour requests, with filtering on list |
-| [File Events](file_events.md) | ![read-only](https://img.shields.io/badge/read--only-blue) | `files:read` | A file's activity timeline |
-| [File Notes](file_notes.md) | ![read + write](https://img.shields.io/badge/read%20%2B%20write-brightgreen) | `files:read`, `files:write` | A file's internal team notes; add a note to a file |
-| [File Sources](file_sources.md) | ![read-only](https://img.shields.io/badge/read--only-blue) | `files:read` | Lead source values behind a file's `source` field |
-| [File Trip Types](file_trip_types.md) | ![read-only](https://img.shields.io/badge/read--only-blue) | `files:read` | Trip type values behind a file's `trip_type` field |
-| [File Travel Regions](file_travel_regions.md) | ![read-only](https://img.shields.io/badge/read--only-blue) | `files:read` | Travel region values behind a file's `travel_region` field |
-| [File Channels](file_channels.md) | ![read-only](https://img.shields.io/badge/read--only-blue) | `files:read` | Built-in values behind a file's `channel` field |
-| [File Stages](file_stages.md) | ![read-only](https://img.shields.io/badge/read--only-blue) | `files:read` | Pipeline stages behind a file's `stage_id` |
-| [Itineraries](itineraries.md) | ![read-only](https://img.shields.io/badge/read--only-blue) | `files:read` | A file's or the whole account's itineraries, metadata only (v2 / v3) |
-| [Lookbooks](lookbooks.md) | ![read-only](https://img.shields.io/badge/read--only-blue) | `files:read` | A file's or the whole account's lookbooks, metadata only (v2 / v3) |
-| [Forms](forms.md) | ![read-only](https://img.shields.io/badge/read--only-blue) | `forms:read` | The account's forms |
-| [Form Submissions](form_submissions.md) | ![read-only](https://img.shields.io/badge/read--only-blue) | `forms:read` | Submissions, per form or per contact |
-| [Invoices](invoices.md) | ![read-only](https://img.shields.io/badge/read--only-blue) | `financials:read` | Invoices with their payments |
-| [Expenses](expenses.md) | ![read-only](https://img.shields.io/badge/read--only-blue) | `financials:read` | Expenses with their outgoing payments |
-| [Tasks](tasks.md) | ![read + write](https://img.shields.io/badge/read%20%2B%20write-brightgreen) | `tasks:read`, `tasks:write` | Tasks, with filtering on list; create a task on a file |
-| [Users](users.md) | ![read-only](https://img.shields.io/badge/read--only-blue) | `users:read` | The account's team members — resolve user ids to names |
+### Contacts ![read + write + delete](https://img.shields.io/badge/read%20%2B%20write%20%2B%20delete-orange)
+
+| Method | Endpoint | Scope | Description |
+| ------ | -------- | ----- | ----------- |
+| ![GET](https://img.shields.io/badge/GET-0969da) | `/contacts` | `contacts:read` | [List / filter contacts](contacts.md#list-contacts) |
+| ![GET](https://img.shields.io/badge/GET-0969da) | `/contacts/{id}` | `contacts:read` | [Retrieve a contact](contacts.md#retrieve-a-contact) |
+| ![POST](https://img.shields.io/badge/POST-1a7f37) | `/contacts` | `contacts:write` | [Create a traveler](contacts.md#create-a-contact-traveler) |
+| ![PATCH](https://img.shields.io/badge/PATCH-9a6700) | `/contacts/{id}` | `contacts:write` | [Update a traveler](contacts.md#update-a-contact-traveler) |
+| ![DELETE](https://img.shields.io/badge/DELETE-cf222e) | `/contacts/{id}` | `contacts:delete` | [Delete a contact](contacts.md#delete-a-contact) |
+
+### Files ![read + write + delete](https://img.shields.io/badge/read%20%2B%20write%20%2B%20delete-orange)
+
+| Method | Endpoint | Scope | Description |
+| ------ | -------- | ----- | ----------- |
+| ![GET](https://img.shields.io/badge/GET-0969da) | `/files` | `files:read` | [List / filter files](files.md#list-files) |
+| ![GET](https://img.shields.io/badge/GET-0969da) | `/files/{id}` | `files:read` | [Retrieve a file](files.md#retrieve-a-file) |
+| ![POST](https://img.shields.io/badge/POST-1a7f37) | `/files` | `files:write` | [Create a file (as a lead)](files.md#create-a-file) |
+| ![PATCH](https://img.shields.io/badge/PATCH-9a6700) | `/files/{id}` | `files:write` | [Update a file](files.md#update-a-file) |
+| ![DELETE](https://img.shields.io/badge/DELETE-cf222e) | `/files/{id}` | `files:delete` | [Delete a file](files.md#delete-a-file) |
+| ![GET](https://img.shields.io/badge/GET-0969da) | `/files/{file_id}/events` | `files:read` | [List a file's events](file_events.md#list-a-files-events) |
+| ![GET](https://img.shields.io/badge/GET-0969da) | `/files/{file_id}/notes` | `files:read` | [List a file's notes](file_notes.md#list-a-files-notes) |
+| ![GET](https://img.shields.io/badge/GET-0969da) | `/files/{file_id}/notes/{id}` | `files:read` | [Retrieve a file note](file_notes.md#retrieve-a-note) |
+| ![POST](https://img.shields.io/badge/POST-1a7f37) | `/files/{file_id}/notes` | `files:write` | [Add a note to a file](file_notes.md#add-a-note-to-a-file) |
+
+### Itineraries ![read-only](https://img.shields.io/badge/read--only-blue)
+
+| Method | Endpoint | Scope | Description |
+| ------ | -------- | ----- | ----------- |
+| ![GET](https://img.shields.io/badge/GET-0969da) | `/itineraries` | `files:read` | [List published itineraries, by country](itineraries.md#list-the-accounts-itineraries) |
+| ![GET](https://img.shields.io/badge/GET-0969da) | `/files/{file_id}/itineraries` | `files:read` | [List a file's itineraries](itineraries.md#list-a-files-itineraries) |
+| ![GET](https://img.shields.io/badge/GET-0969da) | `/files/{file_id}/itineraries/{id}` | `files:read` | [Retrieve an itinerary](itineraries.md#retrieve-a-single-itinerary) |
+
+### Lookbooks ![read-only](https://img.shields.io/badge/read--only-blue)
+
+| Method | Endpoint | Scope | Description |
+| ------ | -------- | ----- | ----------- |
+| ![GET](https://img.shields.io/badge/GET-0969da) | `/lookbooks` | `files:read` | [List published lookbooks, by country](lookbooks.md#list-the-accounts-lookbooks) |
+| ![GET](https://img.shields.io/badge/GET-0969da) | `/files/{file_id}/lookbooks` | `files:read` | [List a file's lookbooks](lookbooks.md#list-a-files-lookbooks) |
+| ![GET](https://img.shields.io/badge/GET-0969da) | `/files/{file_id}/lookbooks/{id}` | `files:read` | [Retrieve a lookbook](lookbooks.md#retrieve-a-single-lookbook) |
+
+### Forms ![read-only](https://img.shields.io/badge/read--only-blue)
+
+| Method | Endpoint | Scope | Description |
+| ------ | -------- | ----- | ----------- |
+| ![GET](https://img.shields.io/badge/GET-0969da) | `/forms` | `forms:read` | [List forms](forms.md#list-forms) |
+| ![GET](https://img.shields.io/badge/GET-0969da) | `/forms/{id}` | `forms:read` | [Retrieve a form](forms.md#retrieve-a-form) |
+| ![GET](https://img.shields.io/badge/GET-0969da) | `/forms/{form_id}/submissions` | `forms:read` | [List a form's submissions](form_submissions.md#list-a-forms-submissions) |
+| ![GET](https://img.shields.io/badge/GET-0969da) | `/form_submissions/{id}` | `forms:read` | [Retrieve a submission](form_submissions.md#retrieve-a-submission) |
+| ![GET](https://img.shields.io/badge/GET-0969da) | `/contacts/{contact_id}/form_submissions` | `forms:read` | [List a contact's submissions](form_submissions.md#list-a-contacts-submissions) |
+
+### Financials ![read-only](https://img.shields.io/badge/read--only-blue)
+
+| Method | Endpoint | Scope | Description |
+| ------ | -------- | ----- | ----------- |
+| ![GET](https://img.shields.io/badge/GET-0969da) | `/invoices` | `financials:read` | [List invoices](invoices.md#list-invoices) |
+| ![GET](https://img.shields.io/badge/GET-0969da) | `/invoices/{id}` | `financials:read` | [Retrieve an invoice with payments](invoices.md#retrieve-an-invoice) |
+| ![GET](https://img.shields.io/badge/GET-0969da) | `/expenses` | `financials:read` | [List expenses](expenses.md#list-expenses) |
+| ![GET](https://img.shields.io/badge/GET-0969da) | `/expenses/{id}` | `financials:read` | [Retrieve an expense with payments](expenses.md#retrieve-an-expense) |
+
+### Tasks ![read + write](https://img.shields.io/badge/read%20%2B%20write-brightgreen)
+
+| Method | Endpoint | Scope | Description |
+| ------ | -------- | ----- | ----------- |
+| ![GET](https://img.shields.io/badge/GET-0969da) | `/tasks` | `tasks:read` | [List / filter tasks](tasks.md#list-tasks) |
+| ![GET](https://img.shields.io/badge/GET-0969da) | `/tasks/{id}` | `tasks:read` | [Retrieve a task](tasks.md#retrieve-a-task) |
+| ![POST](https://img.shields.io/badge/POST-1a7f37) | `/tasks` | `tasks:write` | [Create a task on a file](tasks.md#create-a-task) |
+
+### Users ![read-only](https://img.shields.io/badge/read--only-blue)
+
+| Method | Endpoint | Scope | Description |
+| ------ | -------- | ----- | ----------- |
+| ![GET](https://img.shields.io/badge/GET-0969da) | `/users` | `users:read` | [List team members](users.md#list-users) |
+| ![GET](https://img.shields.io/badge/GET-0969da) | `/users/{id}` | `users:read` | [Retrieve a team member](users.md#retrieve-a-user) |
+
+### Lookups ![read-only](https://img.shields.io/badge/read--only-blue)
+
+| Method | Endpoint | Scope | Description |
+| ------ | -------- | ----- | ----------- |
+| ![GET](https://img.shields.io/badge/GET-0969da) | `/contact_custom_fields` | `contacts:read` | [Traveler custom fields](contact_custom_fields.md#list-custom-fields) |
+| ![GET](https://img.shields.io/badge/GET-0969da) | `/file_sources` | `files:read` | [Lead sources](file_sources.md#list-sources) |
+| ![GET](https://img.shields.io/badge/GET-0969da) | `/file_trip_types` | `files:read` | [Trip types](file_trip_types.md#list-trip-types) |
+| ![GET](https://img.shields.io/badge/GET-0969da) | `/file_travel_regions` | `files:read` | [Travel regions](file_travel_regions.md#list-travel-regions) |
+| ![GET](https://img.shields.io/badge/GET-0969da) | `/file_channels` | `files:read` | [Built-in channels](file_channels.md#list-channels) |
+| ![GET](https://img.shields.io/badge/GET-0969da) | `/file_stages` | `files:read` | [Pipeline stages](file_stages.md#list-stages) |
 
 A token must carry the scope an endpoint requires, and the authorizing member must hold the
 matching permission in the account — see [Authentication](authentication.md#scopes). Write

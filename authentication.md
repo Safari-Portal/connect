@@ -140,7 +140,7 @@ invoice-versus-expense concept.
 
 `GET /accounts` needs no scope — only a valid token. Every other endpoint must carry the
 scope it requires (otherwise `403`), and the authorizing member must have the corresponding
-access in the account. See [Resources](README.md#resources) for the scope each one takes.
+access in the account. See [Endpoints](README.md#endpoints) for the scope each one takes.
 
 More scopes are added as new resources ship; read `scopes_supported` from the discovery
 document rather than hard-coding this list.
