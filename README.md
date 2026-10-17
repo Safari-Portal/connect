@@ -50,7 +50,7 @@ description links to the full reference for that endpoint.
 > accounts your token can act on (no scope needed). Use the returned `id` as `{account_id}` —
 > see [Accounts](accounts.md#list-accounts).
 
-### Contacts ![read + write + delete](https://img.shields.io/badge/read%20%2B%20write%20%2B%20delete-orange)
+### Contacts
 
 | Method | Endpoint | Scope | Description |
 | ------ | -------- | ----- | ----------- |
@@ -60,7 +60,7 @@ description links to the full reference for that endpoint.
 | ![PATCH](https://img.shields.io/badge/PATCH-9a6700) | `/contacts/{id}` | `contacts:write` | [Update a traveler](contacts.md#update-a-contact-traveler) |
 | ![DELETE](https://img.shields.io/badge/DELETE-cf222e) | `/contacts/{id}` | `contacts:delete` | [Delete a contact](contacts.md#delete-a-contact) |
 
-### Files ![read + write + delete](https://img.shields.io/badge/read%20%2B%20write%20%2B%20delete-orange)
+### Files
 
 | Method | Endpoint | Scope | Description |
 | ------ | -------- | ----- | ----------- |
@@ -74,7 +74,7 @@ description links to the full reference for that endpoint.
 | ![GET](https://img.shields.io/badge/GET-0969da) | `/files/{file_id}/notes/{id}` | `files:read` | [Retrieve a file note](file_notes.md#retrieve-a-note) |
 | ![POST](https://img.shields.io/badge/POST-1a7f37) | `/files/{file_id}/notes` | `files:write` | [Add a note to a file](file_notes.md#add-a-note-to-a-file) |
 
-### Itineraries ![read-only](https://img.shields.io/badge/read--only-blue)
+### Itineraries
 
 | Method | Endpoint | Scope | Description |
 | ------ | -------- | ----- | ----------- |
@@ -82,7 +82,7 @@ description links to the full reference for that endpoint.
 | ![GET](https://img.shields.io/badge/GET-0969da) | `/files/{file_id}/itineraries` | `files:read` | [List a file's itineraries](itineraries.md#list-a-files-itineraries) |
 | ![GET](https://img.shields.io/badge/GET-0969da) | `/files/{file_id}/itineraries/{id}` | `files:read` | [Retrieve an itinerary](itineraries.md#retrieve-a-single-itinerary) |
 
-### Lookbooks ![read-only](https://img.shields.io/badge/read--only-blue)
+### Lookbooks
 
 | Method | Endpoint | Scope | Description |
 | ------ | -------- | ----- | ----------- |
@@ -90,7 +90,7 @@ description links to the full reference for that endpoint.
 | ![GET](https://img.shields.io/badge/GET-0969da) | `/files/{file_id}/lookbooks` | `files:read` | [List a file's lookbooks](lookbooks.md#list-a-files-lookbooks) |
 | ![GET](https://img.shields.io/badge/GET-0969da) | `/files/{file_id}/lookbooks/{id}` | `files:read` | [Retrieve a lookbook](lookbooks.md#retrieve-a-single-lookbook) |
 
-### Forms ![read-only](https://img.shields.io/badge/read--only-blue)
+### Forms
 
 | Method | Endpoint | Scope | Description |
 | ------ | -------- | ----- | ----------- |
@@ -100,7 +100,7 @@ description links to the full reference for that endpoint.
 | ![GET](https://img.shields.io/badge/GET-0969da) | `/form_submissions/{id}` | `forms:read` | [Retrieve a submission](form_submissions.md#retrieve-a-submission) |
 | ![GET](https://img.shields.io/badge/GET-0969da) | `/contacts/{contact_id}/form_submissions` | `forms:read` | [List a contact's submissions](form_submissions.md#list-a-contacts-submissions) |
 
-### Financials ![read-only](https://img.shields.io/badge/read--only-blue)
+### Financials
 
 | Method | Endpoint | Scope | Description |
 | ------ | -------- | ----- | ----------- |
@@ -109,7 +109,7 @@ description links to the full reference for that endpoint.
 | ![GET](https://img.shields.io/badge/GET-0969da) | `/expenses` | `financials:read` | [List expenses](expenses.md#list-expenses) |
 | ![GET](https://img.shields.io/badge/GET-0969da) | `/expenses/{id}` | `financials:read` | [Retrieve an expense with payments](expenses.md#retrieve-an-expense) |
 
-### Tasks ![read + write](https://img.shields.io/badge/read%20%2B%20write-brightgreen)
+### Tasks
 
 | Method | Endpoint | Scope | Description |
 | ------ | -------- | ----- | ----------- |
@@ -117,14 +117,14 @@ description links to the full reference for that endpoint.
 | ![GET](https://img.shields.io/badge/GET-0969da) | `/tasks/{id}` | `tasks:read` | [Retrieve a task](tasks.md#retrieve-a-task) |
 | ![POST](https://img.shields.io/badge/POST-1a7f37) | `/tasks` | `tasks:write` | [Create a task on a file](tasks.md#create-a-task) |
 
-### Users ![read-only](https://img.shields.io/badge/read--only-blue)
+### Users
 
 | Method | Endpoint | Scope | Description |
 | ------ | -------- | ----- | ----------- |
 | ![GET](https://img.shields.io/badge/GET-0969da) | `/users` | `users:read` | [List team members](users.md#list-users) |
 | ![GET](https://img.shields.io/badge/GET-0969da) | `/users/{id}` | `users:read` | [Retrieve a team member](users.md#retrieve-a-user) |
 
-### Lookups ![read-only](https://img.shields.io/badge/read--only-blue)
+### Lookups
 
 | Method | Endpoint | Scope | Description |
 | ------ | -------- | ----- | ----------- |
