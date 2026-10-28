@@ -1,0 +1,26 @@
+meta {
+  name: List the events behind webhooks
+  type: http
+  seq: 1
+}
+get {
+  url: {{baseUrl}}/acc/:acc_id/webhook_events
+  body: none
+  auth: inherit
+}
+params:path {
+  acc_id: {{accId}}
+}
+params:query {
+  ~page: 
+  ~limit: 
+  ~type: 
+  ~created_after: 
+  ~starting_after: 
+}
+docs {
+  List the events behind webhooks
+
+  The events webhooks deliver, for catching up after downtime. There is no scope of its own: the list holds the events whose object type the token's read scopes cover (contacts:read for contact.created, financials:read for invoice.created and expense.created, and so on), and whose object the member can list right now. Events are kept 30 days, and are recorded while the account has a live grant to an app with a webhook endpoint, a disabled one included. Ordered oldest first. Unrelated to a file's events (/acc/{acc_id}/files/{file_id}/events).
+
+}

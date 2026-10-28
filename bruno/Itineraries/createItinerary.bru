@@ -1,0 +1,35 @@
+meta {
+  name: Create a v3 itinerary
+  type: http
+  seq: 2
+}
+post {
+  url: {{baseUrl}}/acc/:acc_id/itineraries
+  body: json
+  auth: inherit
+}
+params:path {
+  acc_id: {{accId}}
+}
+body:json {
+  {
+    "itinerary": {
+      "file_id": "",
+      "title": "",
+      "prepared_for": ""
+    }
+  }
+}
+docs {
+  Create a v3 itinerary
+
+  Creates the itinerary on the Super Builder, with its default pages (cover, travel brief, map and days) and, optionally, its day-by-day events in the same request.
+
+  Events carry real dates: the server derives the day slots and their order within a day, so the body never contains a day number, an index or a position, and the trip's own dates follow its first and last event — there is no trip_start_date to send.
+
+  Only accounts whose itineraries are on the v3 builder can be written to; an account whose itineraries are still on the legacy builder answers 403 and keeps using the legacy API, whichever builder its lookbooks are on.
+
+  `file_id` names the file the itinerary belongs to. A missing `file_id`, or one that is not a file the token can see in this account, is a 422.
+
+  Scopes: files:write
+}

@@ -1,5 +1,5 @@
 meta {
-  name: List the account's published itineraries, optionally filtered by country
+  name: List the itineraries on the files the token can see
   type: http
   seq: 1
 }
@@ -12,12 +12,16 @@ params:path {
   acc_id: {{accId}}
 }
 params:query {
+  ~file_id: 
+  ~published: 
   ~country_codes: 
   ~page: 
   ~limit: 
 }
 docs {
-  List the account's published itineraries, optionally filtered by country
+  List the itineraries on the files the token can see
+
+  Lists every itinerary, drafts included, on the files the token can see, newest first. `file_id` narrows the list to one file; `published=true` and `country_codes` narrow it to published itineraries and are refused with a 422 on the legacy (v2) builder, whose itineraries are never published (`published=false` lists them as usual).
 
   Scopes: files:read
 }

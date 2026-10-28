@@ -16,5 +16,7 @@ params:path {
 docs {
   Retrieve a single itinerary (metadata only)
 
+  Use `GET /acc/{acc_id}/itineraries/{id}`. This route also answers 404 for an itinerary on a file other than `file_id`.
+
   Scopes: files:read
 }

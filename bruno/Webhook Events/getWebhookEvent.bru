@@ -1,0 +1,20 @@
+meta {
+  name: Retrieve a single webhook event
+  type: http
+  seq: 2
+}
+get {
+  url: {{baseUrl}}/acc/:acc_id/webhook_events/:id
+  body: none
+  auth: inherit
+}
+params:path {
+  acc_id: {{accId}}
+  id: 
+}
+docs {
+  Retrieve a single webhook event
+
+  Visible under the same rules as the list; any other event is a 404.
+
+}

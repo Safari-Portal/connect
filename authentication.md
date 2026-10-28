@@ -19,7 +19,8 @@ GET https://connect.safariportal.dev/.well-known/oauth-authorization-server
   "token_endpoint": "https://connect.safariportal.dev/oauth/token",
   "scopes_supported": [
     "files:read", "files:write", "files:delete", "contacts:read", "contacts:write", "contacts:delete",
-    "tasks:read", "tasks:write", "users:read", "financials:read", "forms:read"
+    "tasks:read", "tasks:write", "users:read", "financials:read", "forms:read",
+    "contents:read"
   ],
   "code_challenge_methods_supported": ["S256"],
   "grant_types_supported": ["authorization_code", "refresh_token"]
@@ -123,7 +124,7 @@ Each refresh returns a **new** refresh token; the previous one is invalidated.
 | Scope             | Grants                                                        |
 | ----------------- | ------------------------------------------------------------- |
 | `files:read`      | List, search, and retrieve [files](files.md), and their stages, categories, events and notes |
-| `files:write`     | Create and update files, and add [notes](file_notes.md) to them |
+| `files:write`     | Create and update files, add [notes](file_notes.md) to them, and create [itineraries](itineraries.md) |
 | `files:delete`    | Delete files (restorable in Safari Portal during the retention period) |
 | `contacts:read`   | List, search, and retrieve [contacts](contacts.md), and their custom fields |
 | `contacts:write`  | Create and update contacts                                    |
@@ -133,6 +134,7 @@ Each refresh returns a **new** refresh token; the previous one is invalidated.
 | `users:read`      | List and retrieve account [users](users.md)                   |
 | `financials:read` | List and retrieve [invoices](invoices.md) and [expenses](expenses.md) |
 | `forms:read`      | List [forms](forms.md) and their [submissions](form_submissions.md) |
+| `contents:read`   | List [Content Library pages](contents.md)                     |
 
 One `financials:read` covers invoices and expenses because no permission state
 distinguishes them — the account permissions they derive from have no
@@ -144,3 +146,9 @@ access in the account. See [Endpoints](README.md#endpoints) for the scope each o
 
 More scopes are added as new resources ship; read `scopes_supported` from the discovery
 document rather than hard-coding this list.
+
+An app can only be granted the scopes it is registered with, so a scope that ships after your
+app was registered is not in it yet. Add it to the app first — under **Settings → Integrations →
+OAuth Applications**, or with a `PUT` to the `registration_client_uri` for a self-registered
+client — then send the user through authorization again: tokens issued earlier keep the scopes
+they were granted.

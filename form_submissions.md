@@ -27,6 +27,18 @@ nested `responses` array is included in every case.
   "file_id": "88",
   "submitted_at": "2026-06-15T09:12:00.000Z",
   "updated_at": "2026-06-15T09:12:00.000Z",
+  "attribution": {
+    "utm_source": "google",
+    "utm_medium": "cpc",
+    "utm_campaign": "spring-safari",
+    "utm_term": null,
+    "utm_content": null,
+    "gclid": "Cj0KCQjw",
+    "fbclid": null,
+    "msclkid": null,
+    "referrer": "https://www.google.com/",
+    "landing_page": "https://example.com/safaris?utm_source=google&utm_medium=cpc"
+  },
   "responses": [
     {
       "element_id": "wfe_1111aaaa2222",
@@ -63,7 +75,25 @@ nested `responses` array is included in every case.
 | `file_id`      | string \| null    | ID of the file (trip / tour request) this submission is tied to, or `null` when the submission is not assigned to a file — resolve via the [Files](files.md) endpoint |
 | `submitted_at` | string (ISO 8601) | When the submission was submitted                                                                   |
 | `updated_at`   | string (ISO 8601) | When the submission was last updated                                                                |
+| `attribution`  | object            | Where the submitter came from — see [Attribution object](#attribution-object) below                 |
 | `responses`    | array             | One entry per answered field — see [Response object](#response-object) below                         |
+
+### Attribution object
+
+Captured when the form is opened from a link carrying UTM tags or an ad click ID, or reached from another site. Embedded forms capture it only through the responsive widget (`embed.js`), which also remembers a visitor's first touch for 30 days when the script is on every page of the site. Every key is always present; a value is `null` when it wasn't captured.
+
+| Field          | Type           | Description |
+| -------------- | -------------- | ----------- |
+| `utm_source`   | string \| null | `utm_source` tag |
+| `utm_medium`   | string \| null | `utm_medium` tag |
+| `utm_campaign` | string \| null | `utm_campaign` tag |
+| `utm_term`     | string \| null | `utm_term` tag |
+| `utm_content`  | string \| null | `utm_content` tag |
+| `gclid`        | string \| null | Google Ads click ID |
+| `fbclid`       | string \| null | Meta click ID |
+| `msclkid`      | string \| null | Microsoft Ads click ID |
+| `referrer`     | string \| null | The external page that sent the visitor |
+| `landing_page` | string \| null | The page where the visit was captured (the first page of a remembered first touch), with its query string |
 
 ### Response object
 
@@ -92,8 +122,8 @@ Each entry in `responses` is a single answer, captured as a snapshot at submit t
 - **A submission outlives its form.** A submission still appears even if its form was later
   soft-deleted.
 - **Ordering.** Lists are ordered newest first (by `submitted_at` / `created_at` descending, then
-  `id` descending) and are [paginated](README.md#pagination). Within a submission, `responses` are
-  in a stable order that is **not** necessarily the form's display order.
+  `id` descending) and are [paginated](README.md#pagination). Within a submission, `responses`
+  follow the form's display order as it was at submission time.
 
 ## Scopes
 
@@ -144,6 +174,18 @@ curl "https://connect.safariportal.dev/acc/{account_id}/forms/42/submissions?pag
       "file_id": "88",
       "submitted_at": "2026-06-15T09:12:00.000Z",
       "updated_at": "2026-06-15T09:12:00.000Z",
+      "attribution": {
+        "utm_source": "google",
+        "utm_medium": "cpc",
+        "utm_campaign": "spring-safari",
+        "utm_term": null,
+        "utm_content": null,
+        "gclid": "Cj0KCQjw",
+        "fbclid": null,
+        "msclkid": null,
+        "referrer": "https://www.google.com/",
+        "landing_page": "https://example.com/safaris?utm_source=google&utm_medium=cpc"
+      },
       "responses": [
         {
           "element_id": "wfe_1111aaaa2222",
@@ -217,6 +259,18 @@ curl https://connect.safariportal.dev/acc/{account_id}/form_submissions/9001 \
     "file_id": "88",
     "submitted_at": "2026-06-15T09:12:00.000Z",
     "updated_at": "2026-06-15T09:12:00.000Z",
+    "attribution": {
+      "utm_source": "google",
+      "utm_medium": "cpc",
+      "utm_campaign": "spring-safari",
+      "utm_term": null,
+      "utm_content": null,
+      "gclid": "Cj0KCQjw",
+      "fbclid": null,
+      "msclkid": null,
+      "referrer": "https://www.google.com/",
+      "landing_page": "https://example.com/safaris?utm_source=google&utm_medium=cpc"
+    },
     "responses": [
       {
         "element_id": "wfe_1111aaaa2222",

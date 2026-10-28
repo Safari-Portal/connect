@@ -78,9 +78,9 @@ description links to the full reference for that endpoint.
 
 | Method | Endpoint | Scope | Description |
 | ------ | -------- | ----- | ----------- |
-| ![GET](https://img.shields.io/badge/GET-0969da) | `/itineraries` | `files:read` | [List published itineraries, by country](itineraries.md#list-the-accounts-itineraries) |
-| ![GET](https://img.shields.io/badge/GET-0969da) | `/files/{file_id}/itineraries` | `files:read` | [List a file's itineraries](itineraries.md#list-a-files-itineraries) |
-| ![GET](https://img.shields.io/badge/GET-0969da) | `/files/{file_id}/itineraries/{id}` | `files:read` | [Retrieve an itinerary](itineraries.md#retrieve-a-single-itinerary) |
+| ![GET](https://img.shields.io/badge/GET-0969da) | `/itineraries` | `files:read` | [List itineraries, by file, published state or country](itineraries.md#list-itineraries) |
+| ![GET](https://img.shields.io/badge/GET-0969da) | `/itineraries/{id}` | `files:read` | [Retrieve an itinerary](itineraries.md#retrieve-a-single-itinerary) |
+| ![POST](https://img.shields.io/badge/POST-1a7f37) | `/itineraries` | `files:write` | [Create a v3 itinerary with its events](itineraries.md#create-an-itinerary) |
 
 ### Lookbooks
 
@@ -89,6 +89,12 @@ description links to the full reference for that endpoint.
 | ![GET](https://img.shields.io/badge/GET-0969da) | `/lookbooks` | `files:read` | [List published lookbooks, by country](lookbooks.md#list-the-accounts-lookbooks) |
 | ![GET](https://img.shields.io/badge/GET-0969da) | `/files/{file_id}/lookbooks` | `files:read` | [List a file's lookbooks](lookbooks.md#list-a-files-lookbooks) |
 | ![GET](https://img.shields.io/badge/GET-0969da) | `/files/{file_id}/lookbooks/{id}` | `files:read` | [Retrieve a lookbook](lookbooks.md#retrieve-a-single-lookbook) |
+
+### Contents
+
+| Method | Endpoint | Scope | Description |
+| ------ | -------- | ----- | ----------- |
+| ![GET](https://img.shields.io/badge/GET-0969da) | `/contents` | `contents:read` | [Search Content Library pages for a `content_id`](contents.md#list-content-pages) |
 
 ### Forms
 
@@ -117,6 +123,13 @@ description links to the full reference for that endpoint.
 | ![GET](https://img.shields.io/badge/GET-0969da) | `/tasks/{id}` | `tasks:read` | [Retrieve a task](tasks.md#retrieve-a-task) |
 | ![POST](https://img.shields.io/badge/POST-1a7f37) | `/tasks` | `tasks:write` | [Create a task on a file](tasks.md#create-a-task) |
 
+### Webhook Events
+
+| Method | Endpoint | Scope | Description |
+| ------ | -------- | ----- | ----------- |
+| ![GET](https://img.shields.io/badge/GET-0969da) | `/webhook_events` | any read scope | [List events, for catching up after downtime](webhook_events.md#list-events) |
+| ![GET](https://img.shields.io/badge/GET-0969da) | `/webhook_events/{id}` | any read scope | [Retrieve an event](webhook_events.md#retrieve-an-event) |
+
 ### Users
 
 | Method | Endpoint | Scope | Description |
@@ -138,6 +151,11 @@ description links to the full reference for that endpoint.
 A token must carry the scope an endpoint requires, and the authorizing member must hold the
 matching permission in the account — see [Authentication](authentication.md#scopes). Write
 scopes are declinable at consent, so a grant may come back read-only.
+
+## Webhooks
+
+Get notified when records are created instead of polling — see [Webhooks](webhooks.md). To
+catch up after downtime, see [Webhook Events](webhook_events.md).
 
 ## Conventions
 
@@ -212,8 +230,10 @@ Errors use a consistent envelope and the matching HTTP status code:
 
 | Status | Meaning                                                                             |
 | ------ | ----------------------------------------------------------------------------------- |
+| `400`  | The request body is not valid JSON, or not the shape the endpoint expects           |
 | `401`  | Missing, expired, or invalid access token (`WWW-Authenticate: Bearer` is returned)  |
 | `403`  | The token lacks the required scope, or is bound to a different account               |
 | `404`  | The resource or account does not exist, or is not accessible to your token           |
 | `409`  | The request is valid but the record's current state forbids it (`description` says why) |
 | `422`  | The request body failed validation (`description` lists the reasons)                |
+| `429`  | Too many requests on one token (`Retry-After` gives the seconds to wait); only [itinerary create](itineraries.md#create-an-itinerary) is limited |

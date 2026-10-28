@@ -29,7 +29,7 @@ and a token bound to a different account returns `403`.
 
 | Field          | Type             | Description                                                                         |
 | -------------- | ---------------- | ----------------------------------------------------------------------------------- |
-| `handle`       | string           | Stable identifier made from the name on create (`wedding_date`), unique in the account, unchanged by a rename. The `handle` in a traveler's `custom_fields` and in the write param |
+| `handle`       | string           | Stable identifier made from the name on create (`wedding_date`), unique in the account, unchanged by a rename. A deleted field keeps its handle, and adding a field with the same name brings it back with that handle. The `handle` in a traveler's `custom_fields` and in the write param |
 | `name`         | string           | The field name shown on the profile                                                 |
 | `type`         | string           | `text`, `date` or `select`                                                          |
 | `category`     | string           | `personal_information`, `general`, `health_dietary` or `preferences`                |

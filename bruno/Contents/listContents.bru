@@ -1,0 +1,25 @@
+meta {
+  name: List the Content Library pages an itinerary event may reference
+  type: http
+  seq: 1
+}
+get {
+  url: {{baseUrl}}/acc/:acc_id/contents
+  body: none
+  auth: inherit
+}
+params:path {
+  acc_id: {{accId}}
+}
+params:query {
+  ~q: 
+  ~kind: 
+  ~source: 
+  ~page: 
+  ~limit: 
+}
+docs {
+  List the Content Library pages an itinerary event may reference
+
+  Scopes: contents:read
+}

@@ -92,17 +92,92 @@ paths:
   /acc/{acc_id}/itineraries:
     get:
       operationId: listItineraries
-      summary: List the account's published itineraries, optionally filtered by country
+      summary: List the itineraries on the files the token can see
+      description: >-
+        Lists every itinerary, drafts included, on the files the token can see, newest first.
+        `file_id` narrows the list to one file; `published=true` and `country_codes` narrow it
+        to published itineraries and are refused with a 422 on the legacy (v2) builder, whose
+        itineraries are never published (`published=false` lists them as usual).
       security:
         - oauth2: [files:read]
       parameters:
         - $ref: "#/components/parameters/AccId"
+        - $ref: "#/components/parameters/ItineraryFileId"
+        - $ref: "#/components/parameters/Published"
         - $ref: "#/components/parameters/CountryCodes"
         - $ref: "#/components/parameters/Page"
         - $ref: "#/components/parameters/Limit"
       responses:
         "200":
           $ref: "#/components/responses/ItineraryList"
+        "401":
+          $ref: "#/components/responses/Unauthorized"
+        "403":
+          $ref: "#/components/responses/Forbidden"
+        "404":
+          $ref: "#/components/responses/NotFound"
+        "422":
+          $ref: "#/components/responses/UnprocessableEntity"
+    post:
+      operationId: createItinerary
+      summary: Create a v3 itinerary
+      description: >-
+        Creates the itinerary on the Super Builder, with its default pages (cover, travel
+        brief, map and days) and, optionally, its day-by-day events in the same request.
+
+
+        Events carry real dates: the server derives the day slots and their order within
+        a day, so the body never contains a day number, an index or a position, and the
+        trip's own dates follow its first and last event — there is no trip_start_date
+        to send.
+
+
+        Only accounts whose itineraries are on the v3 builder can be written to; an account
+        whose itineraries are still on the legacy builder answers 403 and keeps using the
+        legacy API, whichever builder its lookbooks are on.
+
+
+        `file_id` names the file the itinerary belongs to. A missing `file_id`, or one that is
+        not a file the token can see in this account, is a 422.
+      security:
+        - oauth2: [files:write]
+      parameters:
+        - $ref: "#/components/parameters/AccId"
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/ItineraryWrite"
+      responses:
+        "201":
+          $ref: "#/components/responses/ItineraryWriteResult"
+        "400":
+          $ref: "#/components/responses/BadRequest"
+        "401":
+          $ref: "#/components/responses/Unauthorized"
+        "403":
+          $ref: "#/components/responses/Forbidden"
+        "422":
+          $ref: "#/components/responses/UnprocessableEntity"
+        "429":
+          $ref: "#/components/responses/TooManyRequests"
+  /acc/{acc_id}/itineraries/{id}:
+    get:
+      operationId: getItinerary
+      summary: Retrieve a single itinerary (metadata only)
+      security:
+        - oauth2: [files:read]
+      parameters:
+        - $ref: "#/components/parameters/AccId"
+        - name: id
+          in: path
+          required: true
+          schema:
+            type: string
+      responses:
+        "200":
+          $ref: "#/components/responses/ItineraryShow"
         "401":
           $ref: "#/components/responses/Unauthorized"
         "403":
@@ -123,6 +198,30 @@ paths:
       responses:
         "200":
           $ref: "#/components/responses/LookbookList"
+        "401":
+          $ref: "#/components/responses/Unauthorized"
+        "403":
+          $ref: "#/components/responses/Forbidden"
+        "404":
+          $ref: "#/components/responses/NotFound"
+  /acc/{acc_id}/contents:
+    get:
+      operationId: listContents
+      summary: List the Content Library pages an itinerary event may reference
+      security:
+        - oauth2: [contents:read]
+      parameters:
+        - $ref: "#/components/parameters/AccId"
+        - $ref: "#/components/parameters/ContentQ"
+        - $ref: "#/components/parameters/ContentKind"
+        - $ref: "#/components/parameters/ContentSource"
+        - $ref: "#/components/parameters/Page"
+        - $ref: "#/components/parameters/Limit"
+      responses:
+        "200":
+          $ref: "#/components/responses/ContentList"
+        "400":
+          $ref: "#/components/responses/BadRequest"
         "401":
           $ref: "#/components/responses/Unauthorized"
         "403":
@@ -593,6 +692,8 @@ paths:
     get:
       operationId: listFileItineraries
       summary: List a file's itineraries (metadata only)
+      deprecated: true
+      description: Use `GET /acc/{acc_id}/itineraries?file_id=…`, which answers the same.
       security:
         - oauth2: [files:read]
       parameters:
@@ -617,6 +718,10 @@ paths:
     get:
       operationId: getFileItinerary
       summary: Retrieve a single itinerary (metadata only)
+      deprecated: true
+      description: >-
+        Use `GET /acc/{acc_id}/itineraries/{id}`. This route also answers 404 for an itinerary
+        on a file other than `file_id`.
       security:
         - oauth2: [files:read]
       parameters:
@@ -1115,6 +1220,84 @@ paths:
           $ref: "#/components/responses/Forbidden"
         "404":
           $ref: "#/components/responses/NotFound"
+  /acc/{acc_id}/webhook_events:
+    get:
+      operationId: listWebhookEvents
+      summary: List the events behind webhooks
+      description: >-
+        The events webhooks deliver, for catching up after downtime. There is no scope of its own:
+        the list holds the events whose object type the token's read scopes cover (contacts:read
+        for contact.created, financials:read for invoice.created and expense.created, and so on),
+        and whose object the member can list right now. Events are kept 30 days, and are recorded
+        while the account has a live grant to an app with a webhook endpoint, a disabled one included.
+        Ordered oldest first. Unrelated to a file's events (/acc/{acc_id}/files/{file_id}/events).
+      security:
+        - oauth2: []
+      parameters:
+        - $ref: "#/components/parameters/AccId"
+        - $ref: "#/components/parameters/Page"
+        - $ref: "#/components/parameters/Limit"
+        - name: type
+          in: query
+          required: false
+          description: Comma-separated event types, e.g. `contact.created,task.created`. An unknown type is a 400.
+          schema:
+            type: string
+        - name: created_after
+          in: query
+          required: false
+          description: Only events created at or after this ISO 8601 timestamp. Anything else is a 400.
+          schema:
+            type: string
+            format: date-time
+        - name: starting_after
+          in: query
+          required: false
+          description: >-
+            An event `id` (`evt_…`). Only events recorded after that one are returned, to page forward
+            within one walk. An event's place in the order is fixed before commit, so this is not a lossless
+            recovery cursor: start a recovery walk from an overlap with created_after and dedupe by id (see
+            the catching-up guide). It works for an event no longer visible to the token; an id that is not
+            an event of this account is a 400.
+          schema:
+            type: string
+            pattern: "^evt_[A-Za-z0-9]+$"
+      responses:
+        "200":
+          $ref: "#/components/responses/WebhookEventList"
+        "400":
+          $ref: "#/components/responses/BadRequest"
+        "401":
+          $ref: "#/components/responses/Unauthorized"
+        "403":
+          $ref: "#/components/responses/Forbidden"
+        "404":
+          $ref: "#/components/responses/NotFound"
+  /acc/{acc_id}/webhook_events/{id}:
+    get:
+      operationId: getWebhookEvent
+      summary: Retrieve a single webhook event
+      description: >-
+        Visible under the same rules as the list; any other event is a 404.
+      security:
+        - oauth2: []
+      parameters:
+        - $ref: "#/components/parameters/AccId"
+        - name: id
+          in: path
+          required: true
+          description: The event `id` (`evt_…`).
+          schema:
+            type: string
+      responses:
+        "200":
+          $ref: "#/components/responses/WebhookEventShow"
+        "401":
+          $ref: "#/components/responses/Unauthorized"
+        "403":
+          $ref: "#/components/responses/Forbidden"
+        "404":
+          $ref: "#/components/responses/NotFound"
 components:
   securitySchemes:
     oauth2:
@@ -1126,7 +1309,7 @@ components:
           tokenUrl: https://connect.safariportal.dev/oauth/token
           scopes:
             files:read: Read files and their events, notes, categories, and stages
-            files:write: Create and update files, and add notes to them
+            files:write: Create and update files, add notes to them, and create itineraries
             files:delete: Delete files
             contacts:read: Read contacts
             contacts:write: Create and update contacts
@@ -1136,6 +1319,7 @@ components:
             users:read: Read account users
             financials:read: Read invoices and expenses
             forms:read: Read forms and their submissions
+            contents:read: List Content Library pages
   parameters:
     AccId:
       name: acc_id
@@ -1204,6 +1388,20 @@ components:
       schema:
         type: string
         enum: [next_7_days, this_week, next_week]
+    ItineraryFileId:
+      name: file_id
+      in: query
+      required: false
+      description: Keep only the itineraries on this file. A file the token cannot see is a 404.
+      schema:
+        type: string
+    Published:
+      name: published
+      in: query
+      required: false
+      description: "`true` keeps only published itineraries; omitted or `false` lists drafts too."
+      schema:
+        type: boolean
     CountryCodes:
       name: country_codes
       in: query
@@ -1215,6 +1413,35 @@ components:
         type: array
         items:
           type: string
+    ContentQ:
+      name: q
+      in: query
+      required: false
+      description: >
+        Every word must start a word of the page's name, handle, tags, area or country
+        (`masai mar` finds "Masai Mara"; `asai` does not). Results rank an exact name first,
+        then names starting with the query, then names containing it.
+      schema:
+        type: string
+    ContentKind:
+      name: kind
+      in: query
+      required: false
+      description: Filter to one page kind. Any other value is a 400; an empty value is the same as leaving it out.
+      schema:
+        type: string
+        enum: [property, area, activity, miscellaneous, about_us, about_safari, pre_travel_info]
+    ContentSource:
+      name: source
+      in: query
+      required: false
+      description: >
+        Filter to where pages come from: `own` (the account's own pages), `safari_portal`
+        (approved Safari Portal pages) or `shared` (pages another agency shared with the account).
+        Any other value is a 400; an empty value is the same as leaving it out.
+      schema:
+        type: string
+        enum: [own, safari_portal, shared]
     ContactCountryCodes:
       name: "country_codes[]"
       in: query
@@ -1300,6 +1527,19 @@ components:
             $ref: "#/components/schemas/ErrorEnvelope"
     Conflict:
       description: The record's current state forbids the request (`description` says why)
+      content:
+        application/json:
+          schema:
+            $ref: "#/components/schemas/ErrorEnvelope"
+    TooManyRequests:
+      description: >-
+        The token's budget for this operation is spent — ten create requests per minute,
+        refused ones included. The window is one minute long; wait the seconds `Retry-After` gives and resend.
+      headers:
+        Retry-After:
+          description: Seconds to wait before resending — the longest the current window can still run.
+          schema:
+            type: integer
       content:
         application/json:
           schema:
@@ -1407,6 +1647,22 @@ components:
               data:
                 oneOf:
                   - $ref: "#/components/schemas/Contact"
+                  - $ref: "#/components/schemas/ResourceIdentity"
+            required:
+              - data
+    ItineraryWriteResult:
+      description: >
+        The itinerary. Full representation for a token holding `files:read`; otherwise just
+        the id, since echoing the record back is a read.
+      content:
+        application/json:
+          schema:
+            type: object
+            additionalProperties: false
+            properties:
+              data:
+                oneOf:
+                  - $ref: "#/components/schemas/ItineraryDetail"
                   - $ref: "#/components/schemas/ResourceIdentity"
             required:
               - data
@@ -1579,6 +1835,23 @@ components:
             required:
               - data
               - meta
+    ContentList:
+      description: A page of Content Library pages
+      content:
+        application/json:
+          schema:
+            type: object
+            additionalProperties: false
+            properties:
+              data:
+                type: array
+                items:
+                  $ref: "#/components/schemas/Content"
+              meta:
+                $ref: "#/components/schemas/PaginationMeta"
+            required:
+              - data
+              - meta
     ContactShow:
       description: The contact
       content:
@@ -1625,6 +1898,35 @@ components:
             required:
               - data
               - meta
+    WebhookEventList:
+      description: A page of webhook events
+      content:
+        application/json:
+          schema:
+            type: object
+            additionalProperties: false
+            properties:
+              data:
+                type: array
+                items:
+                  $ref: "#/components/schemas/WebhookEvent"
+              meta:
+                $ref: "#/components/schemas/PaginationMeta"
+            required:
+              - data
+              - meta
+    WebhookEventShow:
+      description: The webhook event
+      content:
+        application/json:
+          schema:
+            type: object
+            additionalProperties: false
+            properties:
+              data:
+                $ref: "#/components/schemas/WebhookEvent"
+            required:
+              - data
   schemas:
     PaginationMeta:
       type: object
@@ -1977,6 +2279,105 @@ components:
                   - value
       required:
         - contact
+    ItineraryWrite:
+      type: object
+      description: Request body for creating a v3 itinerary.
+      # The example drives the generated Bruno template: a bare itinerary, since an event's
+      # fields depend on its kind (itineraries.md, "Events by kind").
+      example:
+        itinerary:
+          file_id: ""
+          title: ""
+          prepared_for: ""
+      properties:
+        itinerary:
+          type: object
+          required: [file_id]
+          properties:
+            file_id:
+              type: string
+              description: Id of the file (trip) the itinerary belongs to.
+            title:
+              type: string
+            prepared_for:
+              type: string
+              nullable: true
+            subheadline:
+              type: string
+              nullable: true
+            events:
+              type: array
+              maxItems: 50
+              description: >-
+                Day-by-day events, created with the itinerary. A list of anything but
+                objects is a 400; a refusal on a field is a 422 naming the index of the
+                offending entry, and nothing is created. At most 50 per request, and the
+                events laid out day by day together cover at most 180 days (each counts
+                its days, both ends included; a multi_day_page event writes no days and
+                does not count), so the whole batch answers inside one response. There
+                is no endpoint yet to add events to an existing itinerary.
+              items:
+                type: object
+                properties:
+                  kind:
+                    type: string
+                    enum: [flight, transportation, accommodation, activity, area, information]
+                  title:
+                    type: string
+                    nullable: true
+                    description: >-
+                      Shown on the event's first day instead of the automatic title, as when
+                      typed in the builder; omit it to keep the automatic one.
+                  start_date:
+                    type: string
+                    description: YYYY-MM-DD.
+                  end_date:
+                    type: string
+                    description: >-
+                      YYYY-MM-DD. Omit it for a single-day event: an absent end_date
+                      takes the start_date. A FlightStats flight ignores it and ends as
+                      many days after start_date as it lands after it departs.
+                  display_settings:
+                    type: object
+                    description: >-
+                      How the event is drawn across its days. The modes depend on kind; omit
+                      it to take the kind's default.
+                    properties:
+                      mode:
+                        type: string
+                        enum:
+                          - multi_day_page
+                          - content_on_start_day_with_daily_summary
+                          - check_in_out_only
+                          - check_in_overnights_check_out
+                          - arrival_day_only
+                        description: >-
+                          Each kind allows only some of these (itineraries.md, "Events by
+                          kind"); multi_day_page needs more than one day.
+                  content_id:
+                    type: string
+                    nullable: true
+                    description: >-
+                      Content Library page to attach, an `id` from `GET /acc/{account_id}/contents`.
+                      Must be published and visible to the account; an accommodation event accepts
+                      a property page only.
+                  data:
+                    type: object
+                    additionalProperties: true
+                    description: >-
+                      Kind-specific fields, listed per kind in itineraries.md ("Events by
+                      kind"). A field the kind does not have is dropped; a list sent where an
+                      object belongs, or the other way round, is a 422, and so is a time
+                      not sent as HH:MM on a 24-hour clock. A flight is dated by the event's
+                      start_date (a manual one also by its end_date); the one date here is a FlightStats flight's
+                      flight_date, the date it was searched for.
+                required:
+                  - kind
+                  - start_date
+          required:
+            - title
+      required:
+        - itinerary
     TaskWrite:
       type: object
       description: Request body for creating a task.
@@ -2045,6 +2446,7 @@ components:
         note:
           type: string
           nullable: true
+          description: HTML from the in-app rich-text editor. A teammate mention comes as its plain "@Name" text.
         types:
           type: array
           items:
@@ -2669,7 +3071,7 @@ components:
           type: string
         content:
           type: string
-          description: HTML from the in-app rich-text editor; notes created through the API hold whatever was sent.
+          description: HTML from the in-app rich-text editor; notes created through the API hold whatever was sent. A teammate mention comes as its plain "@Name" text.
         author_id:
           type: string
           description: User id of the team member who wrote the note.
@@ -2726,6 +3128,29 @@ components:
         - id
         - name
         - pipeline
+    Content:
+      type: object
+      additionalProperties: false
+      description: >
+        A Content Library page the account may reference: its own, a Safari Portal page
+        that has been approved, or one another agency shared with it — published, active, not
+        deleted and listed in the Content Library. Its `id` is what an itinerary event takes as
+        `content_id`.
+      properties:
+        id:
+          type: string
+        kind:
+          type: string
+          enum: [property, area, activity, miscellaneous, about_us, about_safari, pre_travel_info]
+        name:
+          type: string
+        handle:
+          type: string
+      required:
+        - id
+        - kind
+        - name
+        - handle
     Itinerary:
       type: object
       additionalProperties: false
@@ -2950,6 +3375,8 @@ components:
           type: string
         updated_at:
           type: string
+        attribution:
+          $ref: "#/components/schemas/SubmissionAttribution"
         responses:
           type: array
           items:
@@ -2961,7 +3388,54 @@ components:
         - file_id
         - submitted_at
         - updated_at
+        - attribution
         - responses
+    SubmissionAttribution:
+      type: object
+      additionalProperties: false
+      description: Where the submitter came from. Every key is present; a value is null when it wasn't captured.
+      properties:
+        utm_source:
+          type: string
+          nullable: true
+        utm_medium:
+          type: string
+          nullable: true
+        utm_campaign:
+          type: string
+          nullable: true
+        utm_term:
+          type: string
+          nullable: true
+        utm_content:
+          type: string
+          nullable: true
+        gclid:
+          type: string
+          nullable: true
+        fbclid:
+          type: string
+          nullable: true
+        msclkid:
+          type: string
+          nullable: true
+        referrer:
+          type: string
+          nullable: true
+        landing_page:
+          type: string
+          nullable: true
+      required:
+        - utm_source
+        - utm_medium
+        - utm_campaign
+        - utm_term
+        - utm_content
+        - gclid
+        - fbclid
+        - msclkid
+        - referrer
+        - landing_page
     SubmissionResponse:
       type: object
       additionalProperties: false
@@ -3021,3 +3495,77 @@ components:
       required:
         - filename
         - url
+    WebhookEvent:
+      type: object
+      additionalProperties: false
+      description: >-
+        The envelope a webhook delivers, without `user_id`. A thin event: fetch the object from
+        its own endpoint for its current state.
+      properties:
+        id:
+          type: string
+          description: >-
+            Opaque `evt_`-prefixed event id, the same on every delivery of the event. Store and compare it;
+            don't parse it.
+        object:
+          type: string
+          enum: [event]
+        type:
+          type: string
+          enum:
+            - file.created
+            - contact.created
+            - task.created
+            - invoice.created
+            - expense.created
+            - form_submission.created
+        created_at:
+          type: string
+          format: date-time
+        account_id:
+          type: string
+        request:
+          type: object
+          nullable: true
+          description: >-
+            The client whose API request created the object. Set only when that client is the
+            one reading; null otherwise, including for objects created in the app and for objects
+            created as a side effect of an API request (e.g. tasks from a task template).
+          additionalProperties: false
+          properties:
+            client_id:
+              type: string
+          required:
+            - client_id
+        data:
+          type: object
+          additionalProperties: false
+          properties:
+            object:
+              type: object
+              additionalProperties: false
+              properties:
+                type:
+                  type: string
+                  enum:
+                    - file
+                    - contact
+                    - task
+                    - invoice
+                    - expense
+                    - form_submission
+                id:
+                  type: string
+              required:
+                - type
+                - id
+          required:
+            - object
+      required:
+        - id
+        - object
+        - type
+        - created_at
+        - account_id
+        - request
+        - data
