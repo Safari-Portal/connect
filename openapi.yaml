@@ -33,6 +33,8 @@ paths:
                   - data
         "401":
           $ref: "#/components/responses/Unauthorized"
+        "429":
+          $ref: "#/components/responses/TooManyRequests"
   /acc/{acc_id}/contacts:
     get:
       operationId: listContacts
@@ -63,6 +65,8 @@ paths:
           $ref: "#/components/responses/Forbidden"
         "404":
           $ref: "#/components/responses/NotFound"
+        "429":
+          $ref: "#/components/responses/TooManyRequests"
     post:
       operationId: createContact
       summary: Create a contact
@@ -89,6 +93,8 @@ paths:
           $ref: "#/components/responses/NotFound"
         "422":
           $ref: "#/components/responses/UnprocessableEntity"
+        "429":
+          $ref: "#/components/responses/TooManyRequests"
   /acc/{acc_id}/itineraries:
     get:
       operationId: listItineraries
@@ -118,6 +124,8 @@ paths:
           $ref: "#/components/responses/NotFound"
         "422":
           $ref: "#/components/responses/UnprocessableEntity"
+        "429":
+          $ref: "#/components/responses/TooManyRequests"
     post:
       operationId: createItinerary
       summary: Create a v3 itinerary
@@ -184,6 +192,8 @@ paths:
           $ref: "#/components/responses/Forbidden"
         "404":
           $ref: "#/components/responses/NotFound"
+        "429":
+          $ref: "#/components/responses/TooManyRequests"
   /acc/{acc_id}/lookbooks:
     get:
       operationId: listLookbooks
@@ -204,6 +214,8 @@ paths:
           $ref: "#/components/responses/Forbidden"
         "404":
           $ref: "#/components/responses/NotFound"
+        "429":
+          $ref: "#/components/responses/TooManyRequests"
   /acc/{acc_id}/contents:
     get:
       operationId: listContents
@@ -228,6 +240,8 @@ paths:
           $ref: "#/components/responses/Forbidden"
         "404":
           $ref: "#/components/responses/NotFound"
+        "429":
+          $ref: "#/components/responses/TooManyRequests"
   /acc/{acc_id}/contacts/{id}:
     get:
       operationId: getContact
@@ -250,6 +264,8 @@ paths:
           $ref: "#/components/responses/Forbidden"
         "404":
           $ref: "#/components/responses/NotFound"
+        "429":
+          $ref: "#/components/responses/TooManyRequests"
     patch:
       operationId: updateContact
       summary: Update a contact
@@ -279,6 +295,8 @@ paths:
           $ref: "#/components/responses/NotFound"
         "422":
           $ref: "#/components/responses/UnprocessableEntity"
+        "429":
+          $ref: "#/components/responses/TooManyRequests"
     delete:
       operationId: deleteContact
       summary: Delete a contact
@@ -306,6 +324,8 @@ paths:
           $ref: "#/components/responses/NotFound"
         "409":
           $ref: "#/components/responses/Conflict"
+        "429":
+          $ref: "#/components/responses/TooManyRequests"
   /acc/{acc_id}/forms:
     get:
       operationId: listForms
@@ -340,6 +360,8 @@ paths:
           $ref: "#/components/responses/Forbidden"
         "404":
           $ref: "#/components/responses/NotFound"
+        "429":
+          $ref: "#/components/responses/TooManyRequests"
   /acc/{acc_id}/forms/{id}:
     get:
       operationId: getForm
@@ -372,6 +394,8 @@ paths:
           $ref: "#/components/responses/Forbidden"
         "404":
           $ref: "#/components/responses/NotFound"
+        "429":
+          $ref: "#/components/responses/TooManyRequests"
   /acc/{acc_id}/forms/{form_id}/submissions:
     get:
       operationId: listFormSubmissions
@@ -396,6 +420,8 @@ paths:
           $ref: "#/components/responses/Forbidden"
         "404":
           $ref: "#/components/responses/NotFound"
+        "429":
+          $ref: "#/components/responses/TooManyRequests"
   /acc/{acc_id}/contacts/{contact_id}/form_submissions:
     get:
       operationId: listContactFormSubmissions
@@ -420,6 +446,8 @@ paths:
           $ref: "#/components/responses/Forbidden"
         "404":
           $ref: "#/components/responses/NotFound"
+        "429":
+          $ref: "#/components/responses/TooManyRequests"
   /acc/{acc_id}/form_submissions/{id}:
     get:
       operationId: getFormSubmission
@@ -452,6 +480,8 @@ paths:
           $ref: "#/components/responses/Forbidden"
         "404":
           $ref: "#/components/responses/NotFound"
+        "429":
+          $ref: "#/components/responses/TooManyRequests"
   /acc/{acc_id}/files:
     get:
       operationId: listFiles
@@ -474,6 +504,8 @@ paths:
           $ref: "#/components/responses/Forbidden"
         "404":
           $ref: "#/components/responses/NotFound"
+        "429":
+          $ref: "#/components/responses/TooManyRequests"
     post:
       operationId: createFile
       summary: Create a file (as a lead)
@@ -500,6 +532,8 @@ paths:
           $ref: "#/components/responses/NotFound"
         "422":
           $ref: "#/components/responses/UnprocessableEntity"
+        "429":
+          $ref: "#/components/responses/TooManyRequests"
   /acc/{acc_id}/files/{id}:
     get:
       operationId: getFile
@@ -522,6 +556,8 @@ paths:
           $ref: "#/components/responses/Forbidden"
         "404":
           $ref: "#/components/responses/NotFound"
+        "429":
+          $ref: "#/components/responses/TooManyRequests"
     patch:
       operationId: updateFile
       summary: Update a file
@@ -553,6 +589,8 @@ paths:
           $ref: "#/components/responses/NotFound"
         "422":
           $ref: "#/components/responses/UnprocessableEntity"
+        "429":
+          $ref: "#/components/responses/TooManyRequests"
     delete:
       operationId: deleteFile
       summary: Delete a file
@@ -580,6 +618,8 @@ paths:
           $ref: "#/components/responses/NotFound"
         "409":
           $ref: "#/components/responses/Conflict"
+        "429":
+          $ref: "#/components/responses/TooManyRequests"
   /acc/{acc_id}/files/{file_id}/events:
     get:
       operationId: listFileEvents
@@ -604,6 +644,8 @@ paths:
           $ref: "#/components/responses/Forbidden"
         "404":
           $ref: "#/components/responses/NotFound"
+        "429":
+          $ref: "#/components/responses/TooManyRequests"
   /acc/{acc_id}/files/{file_id}/notes:
     get:
       operationId: listFileNotes
@@ -628,6 +670,8 @@ paths:
           $ref: "#/components/responses/Forbidden"
         "404":
           $ref: "#/components/responses/NotFound"
+        "429":
+          $ref: "#/components/responses/TooManyRequests"
     post:
       operationId: createFileNote
       summary: Add a note to a file
@@ -661,6 +705,8 @@ paths:
           $ref: "#/components/responses/NotFound"
         "422":
           $ref: "#/components/responses/UnprocessableEntity"
+        "429":
+          $ref: "#/components/responses/TooManyRequests"
   /acc/{acc_id}/files/{file_id}/notes/{id}:
     get:
       operationId: getFileNote
@@ -688,6 +734,8 @@ paths:
           $ref: "#/components/responses/Forbidden"
         "404":
           $ref: "#/components/responses/NotFound"
+        "429":
+          $ref: "#/components/responses/TooManyRequests"
   /acc/{acc_id}/files/{file_id}/itineraries:
     get:
       operationId: listFileItineraries
@@ -714,6 +762,8 @@ paths:
           $ref: "#/components/responses/Forbidden"
         "404":
           $ref: "#/components/responses/NotFound"
+        "429":
+          $ref: "#/components/responses/TooManyRequests"
   /acc/{acc_id}/files/{file_id}/itineraries/{id}:
     get:
       operationId: getFileItinerary
@@ -745,6 +795,8 @@ paths:
           $ref: "#/components/responses/Forbidden"
         "404":
           $ref: "#/components/responses/NotFound"
+        "429":
+          $ref: "#/components/responses/TooManyRequests"
   /acc/{acc_id}/files/{file_id}/lookbooks:
     get:
       operationId: listFileLookbooks
@@ -769,6 +821,8 @@ paths:
           $ref: "#/components/responses/Forbidden"
         "404":
           $ref: "#/components/responses/NotFound"
+        "429":
+          $ref: "#/components/responses/TooManyRequests"
   /acc/{acc_id}/files/{file_id}/lookbooks/{id}:
     get:
       operationId: getFileLookbook
@@ -796,6 +850,8 @@ paths:
           $ref: "#/components/responses/Forbidden"
         "404":
           $ref: "#/components/responses/NotFound"
+        "429":
+          $ref: "#/components/responses/TooManyRequests"
   /acc/{acc_id}/contact_custom_fields:
     get:
       operationId: listContactCustomFields
@@ -829,6 +885,8 @@ paths:
           $ref: "#/components/responses/Forbidden"
         "404":
           $ref: "#/components/responses/NotFound"
+        "429":
+          $ref: "#/components/responses/TooManyRequests"
   /acc/{acc_id}/file_sources:
     get:
       operationId: listFileSources
@@ -858,6 +916,8 @@ paths:
           $ref: "#/components/responses/Forbidden"
         "404":
           $ref: "#/components/responses/NotFound"
+        "429":
+          $ref: "#/components/responses/TooManyRequests"
   /acc/{acc_id}/file_trip_types:
     get:
       operationId: listFileTripTypes
@@ -887,6 +947,8 @@ paths:
           $ref: "#/components/responses/Forbidden"
         "404":
           $ref: "#/components/responses/NotFound"
+        "429":
+          $ref: "#/components/responses/TooManyRequests"
   /acc/{acc_id}/file_travel_regions:
     get:
       operationId: listFileTravelRegions
@@ -916,6 +978,8 @@ paths:
           $ref: "#/components/responses/Forbidden"
         "404":
           $ref: "#/components/responses/NotFound"
+        "429":
+          $ref: "#/components/responses/TooManyRequests"
   /acc/{acc_id}/file_channels:
     get:
       operationId: listFileChannels
@@ -945,6 +1009,8 @@ paths:
           $ref: "#/components/responses/Forbidden"
         "404":
           $ref: "#/components/responses/NotFound"
+        "429":
+          $ref: "#/components/responses/TooManyRequests"
   /acc/{acc_id}/file_stages:
     get:
       operationId: listFileStages
@@ -980,6 +1046,8 @@ paths:
           $ref: "#/components/responses/Forbidden"
         "404":
           $ref: "#/components/responses/NotFound"
+        "429":
+          $ref: "#/components/responses/TooManyRequests"
   /acc/{acc_id}/tasks:
     get:
       operationId: listTasks
@@ -1001,6 +1069,8 @@ paths:
           $ref: "#/components/responses/Forbidden"
         "404":
           $ref: "#/components/responses/NotFound"
+        "429":
+          $ref: "#/components/responses/TooManyRequests"
     post:
       operationId: createTask
       summary: Create a task on a file
@@ -1035,6 +1105,8 @@ paths:
           $ref: "#/components/responses/NotFound"
         "422":
           $ref: "#/components/responses/UnprocessableEntity"
+        "429":
+          $ref: "#/components/responses/TooManyRequests"
   /acc/{acc_id}/tasks/{id}:
     get:
       operationId: getTask
@@ -1067,6 +1139,8 @@ paths:
           $ref: "#/components/responses/Forbidden"
         "404":
           $ref: "#/components/responses/NotFound"
+        "429":
+          $ref: "#/components/responses/TooManyRequests"
   /acc/{acc_id}/users:
     get:
       operationId: listUsers
@@ -1086,6 +1160,8 @@ paths:
           $ref: "#/components/responses/Forbidden"
         "404":
           $ref: "#/components/responses/NotFound"
+        "429":
+          $ref: "#/components/responses/TooManyRequests"
   /acc/{acc_id}/users/{id}:
     get:
       operationId: getUser
@@ -1118,6 +1194,8 @@ paths:
           $ref: "#/components/responses/Forbidden"
         "404":
           $ref: "#/components/responses/NotFound"
+        "429":
+          $ref: "#/components/responses/TooManyRequests"
   /acc/{acc_id}/invoices:
     get:
       operationId: listInvoices
@@ -1128,15 +1206,41 @@ paths:
         - $ref: "#/components/parameters/AccId"
         - $ref: "#/components/parameters/Page"
         - $ref: "#/components/parameters/Limit"
+        - name: status
+          in: query
+          required: false
+          description: Comma-separated statuses, e.g. `not_paid,partially_paid`; matches any of them. One of `draft`, `not_paid`, `partially_paid`, `paid_in_full`, `voided`. Anything else is a 400.
+          schema:
+            type: string
+        - name: contact_id
+          in: query
+          required: false
+          description: >-
+            Only invoices whose primary customer (the first of several, as `primary_contact_id` on the
+            single invoice) is this contact.
+          schema:
+            type: string
+            pattern: "^[0-9]+$"
+        - $ref: "#/components/parameters/FinancialFileId"
+        - $ref: "#/components/parameters/FinancialOutstanding"
+        - $ref: "#/components/parameters/FinancialOverdue"
+        - $ref: "#/components/parameters/DueFrom"
+        - $ref: "#/components/parameters/DueTo"
+        - $ref: "#/components/parameters/PaidFrom"
+        - $ref: "#/components/parameters/PaidTo"
       responses:
         "200":
           $ref: "#/components/responses/InvoiceList"
+        "400":
+          $ref: "#/components/responses/BadRequest"
         "401":
           $ref: "#/components/responses/Unauthorized"
         "403":
           $ref: "#/components/responses/Forbidden"
         "404":
           $ref: "#/components/responses/NotFound"
+        "429":
+          $ref: "#/components/responses/TooManyRequests"
   /acc/{acc_id}/invoices/{id}:
     get:
       operationId: getInvoice
@@ -1169,6 +1273,8 @@ paths:
           $ref: "#/components/responses/Forbidden"
         "404":
           $ref: "#/components/responses/NotFound"
+        "429":
+          $ref: "#/components/responses/TooManyRequests"
   /acc/{acc_id}/expenses:
     get:
       operationId: listExpenses
@@ -1179,15 +1285,39 @@ paths:
         - $ref: "#/components/parameters/AccId"
         - $ref: "#/components/parameters/Page"
         - $ref: "#/components/parameters/Limit"
+        - name: status
+          in: query
+          required: false
+          description: Comma-separated statuses, e.g. `not_paid,partially_paid`; matches any of them. One of `draft`, `not_paid`, `partially_paid`, `paid_in_full`. Anything else is a 400.
+          schema:
+            type: string
+        - name: pay_to_id
+          in: query
+          required: false
+          description: Only expenses paid to this contact (the beneficiary, as `pay_to_id` on the single expense).
+          schema:
+            type: string
+            pattern: "^[0-9]+$"
+        - $ref: "#/components/parameters/FinancialFileId"
+        - $ref: "#/components/parameters/FinancialOutstanding"
+        - $ref: "#/components/parameters/FinancialOverdue"
+        - $ref: "#/components/parameters/DueFrom"
+        - $ref: "#/components/parameters/DueTo"
+        - $ref: "#/components/parameters/PaidFrom"
+        - $ref: "#/components/parameters/PaidTo"
       responses:
         "200":
           $ref: "#/components/responses/ExpenseList"
+        "400":
+          $ref: "#/components/responses/BadRequest"
         "401":
           $ref: "#/components/responses/Unauthorized"
         "403":
           $ref: "#/components/responses/Forbidden"
         "404":
           $ref: "#/components/responses/NotFound"
+        "429":
+          $ref: "#/components/responses/TooManyRequests"
   /acc/{acc_id}/expenses/{id}:
     get:
       operationId: getExpense
@@ -1220,6 +1350,8 @@ paths:
           $ref: "#/components/responses/Forbidden"
         "404":
           $ref: "#/components/responses/NotFound"
+        "429":
+          $ref: "#/components/responses/TooManyRequests"
   /acc/{acc_id}/webhook_events:
     get:
       operationId: listWebhookEvents
@@ -1273,6 +1405,8 @@ paths:
           $ref: "#/components/responses/Forbidden"
         "404":
           $ref: "#/components/responses/NotFound"
+        "429":
+          $ref: "#/components/responses/TooManyRequests"
   /acc/{acc_id}/webhook_events/{id}:
     get:
       operationId: getWebhookEvent
@@ -1298,6 +1432,8 @@ paths:
           $ref: "#/components/responses/Forbidden"
         "404":
           $ref: "#/components/responses/NotFound"
+        "429":
+          $ref: "#/components/responses/TooManyRequests"
 components:
   securitySchemes:
     oauth2:
@@ -1477,10 +1613,11 @@ components:
       in: query
       required: false
       description: >
-        Filter to contacts owned by any of these member ids (a contact matches through any of
-        its owners, not only the primary one). The literal `none` matches contacts that have no
-        owner; combined with member ids the result is the union. Repeat the parameter for
-        multiple values.
+        Filter to contacts owned by any of these team members, as user ids from the Users
+        endpoint (a contact matches through any of its owners, not only the primary one). The
+        literal `none` matches contacts that have no owner; combined with user ids the result is
+        the union. An id that is not a team member of the account is rejected with a 400.
+        Repeat the parameter for multiple values.
       style: form
       explode: true
       schema:
@@ -1500,6 +1637,70 @@ components:
         type: array
         items:
           type: string
+    FinancialFileId:
+      name: file_id
+      in: query
+      required: false
+      description: Only records on this file.
+      schema:
+        type: string
+        pattern: "^[0-9]+$"
+    FinancialOutstanding:
+      name: outstanding
+      in: query
+      required: false
+      description: >-
+        `true` keeps records with money still to move: at least one planned or pending payment, due
+        date or not. `false` is the same as leaving it out.
+      schema:
+        type: string
+        enum: ["true", "false"]
+    FinancialOverdue:
+      name: overdue
+      in: query
+      required: false
+      description: >-
+        `true` keeps records with a planned or pending payment past its due date. `false` is the same
+        as leaving it out.
+      schema:
+        type: string
+        enum: ["true", "false"]
+    DueFrom:
+      name: due_from
+      in: query
+      required: false
+      description: >-
+        ISO date (YYYY-MM-DD). Keeps records with a planned or pending payment due on or after it. A
+        payment with no due date matches no window.
+      schema:
+        type: string
+        format: date
+    DueTo:
+      name: due_to
+      in: query
+      required: false
+      description: ISO date (YYYY-MM-DD). Keeps records with a planned or pending payment due on or before it.
+      schema:
+        type: string
+        format: date
+    PaidFrom:
+      name: paid_from
+      in: query
+      required: false
+      description: >-
+        ISO date (YYYY-MM-DD). Keeps records with a paid payment paid on or after it. Refunds on an
+        invoice do not count, and neither does a payment initiated but not yet paid.
+      schema:
+        type: string
+        format: date
+    PaidTo:
+      name: paid_to
+      in: query
+      required: false
+      description: ISO date (YYYY-MM-DD). Keeps records with a paid payment paid on or before it.
+      schema:
+        type: string
+        format: date
   responses:
     Unauthorized:
       description: Missing or invalid access token
@@ -1533,8 +1734,9 @@ components:
             $ref: "#/components/schemas/ErrorEnvelope"
     TooManyRequests:
       description: >-
-        The token's budget for this operation is spent — ten create requests per minute,
-        refused ones included. The window is one minute long; wait the seconds `Retry-After` gives and resend.
+        The token's budget for this resource is spent — 20 requests per 10 seconds, 10 of them
+        list requests (itinerary create allows 10 per minute). Refused requests count too; wait
+        the seconds `Retry-After` gives and resend.
       headers:
         Retry-After:
           description: Seconds to wait before resending — the longest the current window can still run.
@@ -2084,6 +2286,17 @@ components:
         dietary_preferences:
           type: string
           nullable: true
+        drinks_preferences:
+          type: string
+          nullable: true
+        weight:
+          type: string
+          nullable: true
+          description: Free text, unit included as recorded.
+        height:
+          type: string
+          nullable: true
+          description: Free text, unit included as recorded.
         custom_fields:
           type: array
           description: >
@@ -2117,6 +2330,9 @@ components:
         - anniversary
         - medical_issues
         - dietary_preferences
+        - drinks_preferences
+        - weight
+        - height
         - created_at
         - updated_at
     ContactCustomFieldValue:
@@ -2221,8 +2437,10 @@ components:
               type: string
             date_of_birth:
               type: string
+              nullable: true
             anniversary_date:
               type: string
+              nullable: true
             known_traveler_number:
               type: string
             gender:
@@ -2234,8 +2452,19 @@ components:
               description: ISO 3166-1 alpha-2 country code, e.g. "BR". Takes precedence over `nationality` when both are sent.
             medical_issues:
               type: string
+              nullable: true
             dietary_preferences:
               type: string
+              nullable: true
+            drinks_preferences:
+              type: string
+              nullable: true
+            weight:
+              type: string
+              nullable: true
+            height:
+              type: string
+              nullable: true
             referred_by_id:
               type: string
             tags:
@@ -2783,6 +3012,14 @@ components:
           type: string
           nullable: true
           description: The planned trip end the team entered while organizing the file, or null. Kept after confirmation, like estimated_start_date.
+        estimated_value:
+          type: number
+          nullable: true
+          description: Estimated trip value in major units of the account's base currency, or null.
+        estimated_profit:
+          type: number
+          nullable: true
+          description: Estimated profit in major units of the account's base currency, or null. May be negative.
         created_at:
           type: string
         confirmed_at:
@@ -2807,6 +3044,8 @@ components:
         - end_date
         - estimated_start_date
         - estimated_end_date
+        - estimated_value
+        - estimated_profit
         - created_at
         - confirmed_at
         - updated_at
@@ -2943,6 +3182,14 @@ components:
           type: string
           nullable: true
           description: The planned trip end the team entered while organizing the file, or null. Kept after confirmation, like estimated_start_date.
+        estimated_value:
+          type: number
+          nullable: true
+          description: Estimated trip value in major units of the account's base currency, or null.
+        estimated_profit:
+          type: number
+          nullable: true
+          description: Estimated profit in major units of the account's base currency, or null. May be negative.
         created_at:
           type: string
         confirmed_at:
@@ -2971,6 +3218,8 @@ components:
         - end_date
         - estimated_start_date
         - estimated_end_date
+        - estimated_value
+        - estimated_profit
         - created_at
         - confirmed_at
         - updated_at
@@ -2985,10 +3234,14 @@ components:
           properties:
             file_name:
               type: string
-            stage_id: {}
-            source_category_id: {}
-            trip_type_category_id: {}
-            travel_region_category_id: {}
+            stage_id:
+              description: A stage from one of the account's pipelines (otherwise 422); null clears it.
+            source_category_id:
+              description: One of the account's source categories (otherwise 422); null clears it.
+            trip_type_category_id:
+              description: One of the account's trip type categories (otherwise 422); null clears it.
+            travel_region_category_id:
+              description: One of the account's travel region categories (otherwise 422); null clears it.
             license_type:
               type: string
             channel:
@@ -3007,18 +3260,23 @@ components:
             traveler_ids:
               type: array
               items: {}
+              description: Traveler contacts of the account (otherwise 422); replaces the file's travelers.
             sales_consultant_ids:
               type: array
               items: {}
+              description: User ids of active team members of the account (otherwise 422).
             partner_agent_ids:
               type: array
               items: {}
+              description: Partner contacts of the account (otherwise 422).
             trip_leader_ids:
               type: array
               items: {}
+              description: Contacts of the account (otherwise 422).
             supplier_ids:
               type: array
               items: {}
+              description: Contacts of the account (otherwise 422).
             estimated_start_date:
               type: string
               nullable: true
@@ -3029,6 +3287,23 @@ components:
               nullable: true
               example: "2027-03-22"
               description: Planned trip end (YYYY-MM-DD, otherwise 422), on or after estimated_start_date. Same both-or-neither rule as estimated_start_date.
+            estimated_value:
+              oneOf:
+                - type: number
+                  minimum: 0
+                  nullable: true
+                - type: string
+                  pattern: '^\s*((\d{1,3}(,\d{3})+|\d+)(\.\d+)?)?\s*$'
+              example: 12500.5
+              description: Estimated trip value in major units of the account's base currency. A negative or non-numeric value is refused (422). null or a blank string clears it.
+            estimated_profit:
+              oneOf:
+                - type: number
+                  nullable: true
+                - type: string
+                  pattern: '^\s*(-?(\d{1,3}(,\d{3})+|\d+)(\.\d+)?)?\s*$'
+              example: 3200
+              description: Estimated profit in major units of the account's base currency; may be negative. A non-numeric value is refused (422). null or a blank string clears it.
       required:
         - file
     FileEvent:
@@ -3048,9 +3323,11 @@ components:
         request_location:
           type: string
           nullable: true
+          description: Where the request that wrote the event came from (city, region, country). Only for what a client did with a shared link (public_link_viewed, private_link_viewed, public_link_shared, guest_info_viewed); null for every other event.
         request_ip:
           type: string
           nullable: true
+          description: The IP address of that request, for the same events as request_location; null for every other event.
         created_at:
           type: string
       required:

@@ -148,18 +148,45 @@ without access.
 GET /acc/{account_id}/expenses
 ```
 
-Requires `financials:read`. Returns all expenses visible to the member, ordered newest first
+Requires `financials:read`. Returns the expenses visible to the member, ordered newest first
 (by `created_at` descending, then `id` descending). Returns expense fields only — payments
 are not included in the list response. Supports [pagination](README.md#pagination) via `page`
 and `limit`.
 
-| Query param | Description                                  |
-| ----------- | -------------------------------------------- |
-| `page`      | Page number (default `1`)                    |
-| `limit`     | Items per page (default `25`, maximum `100`) |
+| Query param   | Description |
+| ------------- | ----------- |
+| `page`        | Page number (default `1`) |
+| `limit`       | Items per page (default `25`, maximum `100`) |
+| `file_id`     | Only expenses on this file |
+| `status`      | Comma-separated statuses, matching any of them: `draft`, `not_paid`, `partially_paid`, `paid_in_full` |
+| `pay_to_id`   | Only expenses paid to this contact (`pay_to_id`) |
+| `outstanding` | `true`: only expenses with money still to move — at least one `planned` or `pending` payment, due date or not |
+| `overdue`     | `true`: only expenses with a `planned` or `pending` payment past its due date |
+| `due_from`    | ISO date (`YYYY-MM-DD`): only expenses with a `planned` or `pending` payment due on or after it |
+| `due_to`      | ISO date: only expenses with a `planned` or `pending` payment due on or before it |
+| `paid_from`   | ISO date: only expenses with a `paid` payment paid on or after it |
+| `paid_to`     | ISO date: only expenses with a `paid` payment paid on or before it |
+
+Filters combine (all must match) and only ever narrow the expenses the member can see. Apart from
+`status`, the names match the `list_expenses` MCP tool's arguments. A payment with no due date or payment date
+matches no date window, and each window asks that *some* payment fall inside it. A blank value
+is the same as leaving the param out; any other malformed value — a non-numeric id, an unknown
+status, a non-ISO or impossible date, `outstanding`/`overdue` other than `true`/`false`, a
+`_from` after its `_to`, or an array (`status[]=`) — returns `400` with the param in `errors.source`:
+
+```json
+{
+  "errors": {
+    "status": 400,
+    "title": "Invalid filter",
+    "source": "status",
+    "description": "Unknown: unpaid. Expected: draft, not_paid, partially_paid, paid_in_full"
+  }
+}
+```
 
 ```bash
-curl "https://connect.safariportal.dev/acc/{account_id}/expenses?page=1&limit=10" \
+curl "https://connect.safariportal.dev/acc/{account_id}/expenses?status=not_paid,partially_paid&due_to=2026-07-31" \
   -H "Authorization: Bearer <access_token>"
 ```
 

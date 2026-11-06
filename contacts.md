@@ -39,6 +39,9 @@ contact list in the product must not be able to page it out through the API.
   "anniversary": "2010-08-20",
   "medical_issues": "Penicillin allergy",
   "dietary_preferences": "Vegetarian, no nuts",
+  "drinks_preferences": "Sparkling water, no ice",
+  "weight": "94 kg",
+  "height": "188 cm",
   "custom_fields": [
     { "handle": "wedding_date", "name": "Wedding Date", "type": "date", "category": "general", "value": "2026-12-01" },
     { "handle": "travel_style", "name": "Travel Style", "type": "select", "category": "preferences", "value": ["Luxury"] },
@@ -57,11 +60,12 @@ encrypted at rest and are neither exposed nor filterable.
 
 ### The traveler profile
 
-`dob`, `anniversary`, `medical_issues` and `dietary_preferences` are the traveler profile.
-All four can be set on write: `dob` and `anniversary` are `YYYY-MM-DD` or `null` (sent as
-`date_of_birth` and `anniversary_date`), and `medical_issues` and `dietary_preferences` are
-free text or `null`. All four are stored encrypted, and the same four appear on each entry of
-a file's [`travelers`](files.md) array.
+`dob`, `anniversary`, `medical_issues`, `dietary_preferences`, `drinks_preferences`, `weight`
+and `height` are the traveler profile. All seven can be set on write: `dob` and `anniversary`
+are `YYYY-MM-DD` or `null` (sent as `date_of_birth` and `anniversary_date`), and the rest are
+free text or `null` (`weight` and `height` carry their unit, e.g. `"94 kg"`). All but `height`
+are stored encrypted, and the same seven appear on each entry of a file's
+[`travelers`](files.md) array.
 
 ### Custom fields
 
@@ -212,6 +216,9 @@ required. Returns `201` with the created contact, or `422` with validation detai
 | `nationality_country_code`     | string |
 | `medical_issues`               | string |
 | `dietary_preferences`          | string |
+| `drinks_preferences`           | string |
+| `weight`                       | string |
+| `height`                       | string |
 | `referred_by_id`               | string (contact id) |
 | `tags`                         | array of strings         |
 | `emergency_contacts_attributes`| array of `{ name, phone }` |

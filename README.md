@@ -214,6 +214,26 @@ List endpoints accept:
 | `page`  | `1`     | Page number (1-based)                        |
 | `limit` | `25`    | Items per page — clamped to a maximum of `100` |
 
+### Rate limits
+
+Each access token gets its own budget for each resource (contacts, files, tasks and so on):
+
+| Requests | Budget |
+| -------- | ------ |
+| Any request | `20` per 10 seconds |
+| List requests (`GET` on a collection) | `10` per 10 seconds |
+| [Itinerary create](itineraries.md#create-an-itinerary) | `10` per minute |
+
+A request that goes over a budget gets `429` with the error envelope and a `Retry-After`
+header giving the seconds to wait: the length of that budget's window (`10`, or `60` for
+itinerary create). Refused requests count toward the budget, so back off rather than
+retrying at once.
+
+The OAuth endpoints are limited per IP address instead, since they run before a token
+exists: `/oauth/token` takes `120` requests a minute and `/oauth/register` (dynamic client
+registration) `30` a minute. Over the limit they answer `429` with an OAuth error body
+(`{"error": "too_many_requests"}`) and `Retry-After`.
+
 ### Errors
 
 Errors use a consistent envelope and the matching HTTP status code:
@@ -236,4 +256,4 @@ Errors use a consistent envelope and the matching HTTP status code:
 | `404`  | The resource or account does not exist, or is not accessible to your token           |
 | `409`  | The request is valid but the record's current state forbids it (`description` says why) |
 | `422`  | The request body failed validation (`description` lists the reasons)                |
-| `429`  | Too many requests on one token (`Retry-After` gives the seconds to wait); only [itinerary create](itineraries.md#create-an-itinerary) is limited |
+| `429`  | The token's rate limit is spent (`Retry-After` gives the seconds to wait) — see [Rate limits](#rate-limits) |

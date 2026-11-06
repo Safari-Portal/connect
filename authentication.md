@@ -119,6 +119,10 @@ curl -X POST https://connect.safariportal.dev/oauth/token \
 
 Each refresh returns a **new** refresh token; the previous one is invalidated.
 
+The token endpoint accepts `120` requests a minute from one IP address, failed ones
+included. Past that it answers `429` with `{"error": "too_many_requests"}` and a
+`Retry-After` header (`60`). Refresh when a token expires, not on every call.
+
 ## Scopes
 
 | Scope             | Grants                                                        |

@@ -54,6 +54,9 @@ see only their own files; owners and managers see all files in the account.
       "anniversary": "2010-08-20",
       "medical_issues": "Penicillin allergy",
       "dietary_preferences": "Vegetarian, no nuts",
+      "drinks_preferences": "Sparkling water, no ice",
+      "weight": "94 kg",
+      "height": "188 cm",
       "created_at": "2026-01-10T09:00:00.000Z",
       "updated_at": "2026-05-02T11:15:00.000Z"
     }
@@ -245,6 +248,9 @@ curl https://connect.safariportal.dev/acc/{account_id}/files/42 \
         "anniversary": "2010-08-20",
         "medical_issues": "Penicillin allergy",
         "dietary_preferences": "Vegetarian, no nuts",
+        "drinks_preferences": "Sparkling water, no ice",
+        "weight": "94 kg",
+        "height": "188 cm",
         "created_at": "2026-01-10T09:00:00.000Z",
         "updated_at": "2026-05-02T11:15:00.000Z"
       }
@@ -351,6 +357,9 @@ curl -X POST https://connect.safariportal.dev/acc/{account_id}/files \
         "anniversary": "2010-08-20",
         "medical_issues": "Penicillin allergy",
         "dietary_preferences": "Vegetarian, no nuts",
+        "drinks_preferences": "Sparkling water, no ice",
+        "weight": "94 kg",
+        "height": "188 cm",
         "created_at": "2026-01-10T09:00:00.000Z",
         "updated_at": "2026-05-02T11:15:00.000Z"
       }

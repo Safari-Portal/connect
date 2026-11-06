@@ -242,7 +242,7 @@ Each entry in `events`:
 | `transportation` | `content_on_start_day_with_daily_summary`                             | `transportation_type` (`transfer` — the default, `train`, `rental_car`, `other`), `departure_time`, `arrival_time`, `departure_from`, `arrival_to`, `duration`, `confirmation_number`, `provider`, `booked_by`; `transfer`/`other`/`rental_car`: `vehicle_type`; `train`: `train_type`, `train_number`, `coach_number`, `seats`, `service_class`; `rental_car`: `vehicle_number`, `rental_company_name`, `rental_company_address`; contacts: `contacts_mode`, `contacts`, `manual_contact` |
 | `accommodation`  | `multi_day_page`, `check_in_out_only`, `check_in_overnights_check_out` | `room_basis`, `bed_configuration`, `confirmation_number`, `check_in`, `check_out`, `standard_check_in_time`, `standard_check_out_time`, `policies_note`, `amenities_note`, `inclusions`, `exclusions`, `is_alternative`, `rooms`, `different_rooms_per_travelers`, `roomings`; contacts: `contacts_mode`, `contacts`, `manual_contact` |
 | `activity`       | `multi_day_page`, `content_on_start_day_with_daily_summary`           | `start_time`, `end_time`, `activity_type`, `confirmation_number`, `supplier_name`, `booked_via_name`, `inclusions`, `exclusions`; contacts: `contacts_mode`, `contacts`, `manual_contact` |
-| `area`           | `multi_day_page`, `arrival_day_only`                                  | none |
+| `area`           | `arrival_day_only`, `multi_day_page`                                  | none |
 | `information`    | `multi_day_page`, `content_on_start_day_with_daily_summary`           | none |
 
 - **`multi_day_page` needs more than one day.** A single-day event gets the kind's other mode,
