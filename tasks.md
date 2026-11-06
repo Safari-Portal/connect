@@ -180,6 +180,8 @@ curl https://connect.safariportal.dev/acc/{account_id}/tasks/301 \
 POST /acc/{account_id}/tasks
 ```
 
+Send an `Idempotency-Key` header to make a retry safe — see [Idempotent requests](README.md#idempotent-requests).
+
 Requires `tasks:write`. Files one task on one file. `file_id`, `name` and `due_date`
 are required — a task with no due date (`tbd`) can exist in the app but cannot be
 created through this endpoint, because the alternative is a dynamic due date computed

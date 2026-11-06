@@ -201,6 +201,8 @@ the countries the itinerary covers, each entry `{ "id": "…", "code": "KE", "na
 POST /acc/{account_id}/itineraries
 ```
 
+Send an `Idempotency-Key` header to make a retry safe — see [Idempotent requests](README.md#idempotent-requests).
+
 Requires `files:write`, and the account's itineraries must be on the v3 builder. New itineraries are
 created unpublished. Send the fields in an `itinerary` object; fields sent at the top level
 instead, `events` included, are folded into it, as on every Connect write.
@@ -290,6 +292,7 @@ Each entry in `events`:
 ```bash
 curl -X POST https://connect.safariportal.dev/acc/{account_id}/itineraries \
   -H "Authorization: Bearer <access_token>" \
+  -H "Idempotency-Key: 9d1c4e7a-3b52-4f0e-8a6d-2c7b1e5f4a90" \
   -H "Content-Type: application/json" \
   -d '{
     "itinerary": {
@@ -348,12 +351,17 @@ which entry to fix:
 | ------ | --------------------------------------------------------------------------------------------- |
 | `400`  | Neither an `itinerary` key nor any itinerary field, or `itinerary` is not an object; `events` is not a list of objects; the body is not valid JSON |
 | `403`  | The token lacks `files:write`, is bound to another account, or the account's itineraries are still on the legacy builder |
+| `409`  | A request with the same `Idempotency-Key` is still running |
 | `422`  | A field was refused — missing `file_id` or a file that does not exist, belongs to another account or you may not see; missing `title`, a date that is not `YYYY-MM-DD`, more than 50 events or 180 days of day-by-day events, a `data` field or `display_settings` of the wrong shape, a number inside `data` sent as anything but a whole number or a yes/no field as anything but `true`/`false`, a time not as `HH:MM`, a FlightStats flight without its number and times, or any event rule (`description` names the index and, inside `data`, the field) |
 | `429`  | More than ten create requests in a minute on one token, refused ones included; wait the seconds `Retry-After` gives (60) and resend |
 
 A request at both limits (50 events, 180 days of day-by-day events) takes the server up to
-about 25 seconds to answer. Give the request a client timeout of at least 30 seconds, and do not
-resend on a slow answer: the first request may still create the itinerary.
+about 25 seconds to answer. Give the request a client timeout of at least 30 seconds, and send an
+`Idempotency-Key` with every create, as in the example above. To resend after a timeout, send the
+same request with the same key: a resend while the first request is still running gets `409`, and
+one after it succeeded gets that itinerary back instead of a second one. The `409` lasts 5 minutes
+(see [Idempotent requests](README.md#idempotent-requests)); past that, list the file's itineraries
+before resending.
 
 Dates are checked before anything is written, because `12/08/2026` would otherwise be read
 as 8 December and quietly build a different trip.
@@ -364,9 +372,6 @@ type (an object where text belongs) is dropped too, the same as the other Connec
 event and inside `data` it is a `422` naming the field. Check names against the tables
 above: `trip_events` instead of `events` creates an itinerary with no events, and
 `display_mode` instead of `display_settings` leaves the event on its default mode.
-
-> **Create is not idempotent yet.** Retrying after a timeout creates a second itinerary. Before
-> retrying, [list the file's itineraries](#list-itineraries) (`file_id=…`) and look for the one you sent.
 
 See [Errors](README.md#errors) and [Pagination](README.md#pagination) in the README for
 shared conventions.

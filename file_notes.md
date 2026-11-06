@@ -116,6 +116,8 @@ file returns `404`.
 POST /acc/{account_id}/files/{file_id}/notes
 ```
 
+Send an `Idempotency-Key` header to make a retry safe — see [Idempotent requests](README.md#idempotent-requests).
+
 Requires `files:write`, and the authorizing member must be allowed to edit the file. The
 note is authored by the member the token belongs to.
 

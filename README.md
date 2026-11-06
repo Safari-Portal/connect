@@ -234,6 +234,37 @@ exists: `/oauth/token` takes `120` requests a minute and `/oauth/register` (dyna
 registration) `30` a minute. Over the limit they answer `429` with an OAuth error body
 (`{"error": "too_many_requests"}`) and `Retry-After`.
 
+### Idempotent requests
+
+A create (`POST`) that times out or drops its connection may still have succeeded. To retry
+it safely, send a unique `Idempotency-Key` header (a UUID, say, up to 255 characters) and
+resend the same request with the same key:
+
+```bash
+curl -X POST https://connect.safariportal.dev/acc/{account_id}/tasks \
+  -H "Authorization: Bearer <access_token>" \
+  -H "Idempotency-Key: 5f0c7a52-8e1b-4d8e-9a57-3b1f6f0d2c11" \
+  -H "Content-Type: application/json" \
+  -d '{ "task": { "file_id": "42", "name": "Chase the deposit", "due_date": "2026-08-14" } }'
+```
+
+- A repeat with the same key and the same request (method, path and body) creates nothing.
+  It gets the first response back, with an `Idempotent-Replayed: true` header, and no second
+  webhook event is sent.
+- The same key with a different request is a `422`. A repeat while the first request is
+  still running is a `409`; retry it once that request has finished.
+- A server error (`500`) is kept too, because the record may have been saved before it: a
+  retry with the same key gets the `500` back and creates nothing. Check whether the record
+  exists, and send any new attempt with a new key.
+- Any other failed create (a `4xx`) releases its key, so a retry with the same key runs again.
+  The `409` and `422` above come from the key check, not the create, and leave the first
+  request's key as it was.
+- A request still unanswered after 5 minutes is treated as dead: a retry then runs again
+  instead of getting `409`.
+- Keys belong to the authorization: they survive refreshing the access token, and two apps
+  (or two accounts) never share one. A key expires 24 hours after its first use.
+- Without the header nothing changes: every request runs.
+
 ### Errors
 
 Errors use a consistent envelope and the matching HTTP status code:
@@ -254,6 +285,6 @@ Errors use a consistent envelope and the matching HTTP status code:
 | `401`  | Missing, expired, or invalid access token (`WWW-Authenticate: Bearer` is returned)  |
 | `403`  | The token lacks the required scope, or is bound to a different account               |
 | `404`  | The resource or account does not exist, or is not accessible to your token           |
-| `409`  | The request is valid but the record's current state forbids it (`description` says why) |
-| `422`  | The request body failed validation (`description` lists the reasons)                |
+| `409`  | The request is valid but the record's current state forbids it (`description` says why), or a request with the same `Idempotency-Key` is still running |
+| `422`  | The request body failed validation (`description` lists the reasons), or an `Idempotency-Key` was reused with a different request |
 | `429`  | The token's rate limit is spent (`Retry-After` gives the seconds to wait) — see [Rate limits](#rate-limits) |

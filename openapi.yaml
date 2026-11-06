@@ -74,6 +74,7 @@ paths:
         - oauth2: [contacts:write]
       parameters:
         - $ref: "#/components/parameters/AccId"
+        - $ref: "#/components/parameters/IdempotencyKey"
       requestBody:
         required: true
         content:
@@ -91,6 +92,8 @@ paths:
           $ref: "#/components/responses/Forbidden"
         "404":
           $ref: "#/components/responses/NotFound"
+        "409":
+          $ref: "#/components/responses/IdempotencyKeyInUse"
         "422":
           $ref: "#/components/responses/UnprocessableEntity"
         "429":
@@ -151,6 +154,7 @@ paths:
         - oauth2: [files:write]
       parameters:
         - $ref: "#/components/parameters/AccId"
+        - $ref: "#/components/parameters/IdempotencyKey"
       requestBody:
         required: true
         content:
@@ -166,6 +170,8 @@ paths:
           $ref: "#/components/responses/Unauthorized"
         "403":
           $ref: "#/components/responses/Forbidden"
+        "409":
+          $ref: "#/components/responses/IdempotencyKeyInUse"
         "422":
           $ref: "#/components/responses/UnprocessableEntity"
         "429":
@@ -513,6 +519,7 @@ paths:
         - oauth2: [files:write]
       parameters:
         - $ref: "#/components/parameters/AccId"
+        - $ref: "#/components/parameters/IdempotencyKey"
       requestBody:
         required: true
         content:
@@ -530,6 +537,8 @@ paths:
           $ref: "#/components/responses/Forbidden"
         "404":
           $ref: "#/components/responses/NotFound"
+        "409":
+          $ref: "#/components/responses/IdempotencyKeyInUse"
         "422":
           $ref: "#/components/responses/UnprocessableEntity"
         "429":
@@ -686,6 +695,7 @@ paths:
           required: true
           schema:
             type: string
+        - $ref: "#/components/parameters/IdempotencyKey"
       requestBody:
         required: true
         content:
@@ -703,6 +713,8 @@ paths:
           $ref: "#/components/responses/Forbidden"
         "404":
           $ref: "#/components/responses/NotFound"
+        "409":
+          $ref: "#/components/responses/IdempotencyKeyInUse"
         "422":
           $ref: "#/components/responses/UnprocessableEntity"
         "429":
@@ -1086,6 +1098,7 @@ paths:
         - oauth2: [tasks:write]
       parameters:
         - $ref: "#/components/parameters/AccId"
+        - $ref: "#/components/parameters/IdempotencyKey"
       requestBody:
         required: true
         content:
@@ -1103,6 +1116,8 @@ paths:
           $ref: "#/components/responses/Forbidden"
         "404":
           $ref: "#/components/responses/NotFound"
+        "409":
+          $ref: "#/components/responses/IdempotencyKeyInUse"
         "422":
           $ref: "#/components/responses/UnprocessableEntity"
         "429":
@@ -1457,6 +1472,21 @@ components:
             forms:read: Read forms and their submissions
             contents:read: List Content Library pages
   parameters:
+    IdempotencyKey:
+      name: Idempotency-Key
+      in: header
+      required: false
+      description: >-
+        A unique value (a UUID, say) that makes a create safe to retry. Within 24 hours, a repeat
+        with the same key and the same request replays the first success with an
+        `Idempotent-Replayed: true` header and creates nothing; the same key with a different
+        request is a 422, and a repeat while the first is still running is a 409. A 500 is kept
+        and replayed too; a 4xx is not, so a retry after one runs again. See "Idempotent
+        requests" in the README.
+      schema:
+        type: string
+        minLength: 1
+        maxLength: 255
     AccId:
       name: acc_id
       in: path
@@ -1701,6 +1731,12 @@ components:
       schema:
         type: string
         format: date
+  headers:
+    IdempotentReplayed:
+      description: "`true` when this is the stored response to an earlier request with the same `Idempotency-Key`."
+      schema:
+        type: string
+        enum: ["true"]
   responses:
     Unauthorized:
       description: Missing or invalid access token
@@ -1728,6 +1764,14 @@ components:
             $ref: "#/components/schemas/ErrorEnvelope"
     Conflict:
       description: The record's current state forbids the request (`description` says why)
+      content:
+        application/json:
+          schema:
+            $ref: "#/components/schemas/ErrorEnvelope"
+    IdempotencyKeyInUse:
+      description: >-
+        A request with the same `Idempotency-Key` is still being processed. Retry once it has
+        finished to get its result.
       content:
         application/json:
           schema:
@@ -1840,6 +1884,9 @@ components:
       description: >
         The contact. Full representation for a token holding `contacts:read`; otherwise just
         the id, since echoing the record back is a read.
+      headers:
+        Idempotent-Replayed:
+          $ref: "#/components/headers/IdempotentReplayed"
       content:
         application/json:
           schema:
@@ -1856,6 +1903,9 @@ components:
       description: >
         The itinerary. Full representation for a token holding `files:read`; otherwise just
         the id, since echoing the record back is a read.
+      headers:
+        Idempotent-Replayed:
+          $ref: "#/components/headers/IdempotentReplayed"
       content:
         application/json:
           schema:
@@ -1872,6 +1922,9 @@ components:
       description: >
         The task. Full representation for a token holding `tasks:read`; otherwise just the id,
         since echoing the record back is a read.
+      headers:
+        Idempotent-Replayed:
+          $ref: "#/components/headers/IdempotentReplayed"
       content:
         application/json:
           schema:
@@ -1888,6 +1941,9 @@ components:
       description: >
         The file. Full representation for a token holding `files:read`; otherwise just the id,
         since echoing the record back is a read.
+      headers:
+        Idempotent-Replayed:
+          $ref: "#/components/headers/IdempotentReplayed"
       content:
         application/json:
           schema:
@@ -1967,6 +2023,9 @@ components:
       description: >
         The note. Full representation for a token holding `files:read`; otherwise just the id,
         since echoing the record back is a read.
+      headers:
+        Idempotent-Replayed:
+          $ref: "#/components/headers/IdempotentReplayed"
       content:
         application/json:
           schema:
@@ -2280,6 +2339,10 @@ components:
           type: string
           nullable: true
           description: Anniversary date, ISO 8601 (YYYY-MM-DD).
+        passport_expiration_date:
+          type: string
+          nullable: true
+          description: Passport expiration date, ISO 8601 (YYYY-MM-DD). Read-only.
         medical_issues:
           type: string
           nullable: true
@@ -2328,6 +2391,7 @@ components:
         - country_name
         - dob
         - anniversary
+        - passport_expiration_date
         - medical_issues
         - dietary_preferences
         - drinks_preferences

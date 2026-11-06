@@ -52,6 +52,7 @@ see only their own files; owners and managers see all files in the account.
       "country_name": "United States",
       "dob": "1985-06-15",
       "anniversary": "2010-08-20",
+      "passport_expiration_date": "2035-12-31",
       "medical_issues": "Penicillin allergy",
       "dietary_preferences": "Vegetarian, no nuts",
       "drinks_preferences": "Sparkling water, no ice",
@@ -246,6 +247,7 @@ curl https://connect.safariportal.dev/acc/{account_id}/files/42 \
         "country_name": "United States",
         "dob": "1985-06-15",
         "anniversary": "2010-08-20",
+        "passport_expiration_date": "2035-12-31",
         "medical_issues": "Penicillin allergy",
         "dietary_preferences": "Vegetarian, no nuts",
         "drinks_preferences": "Sparkling water, no ice",
@@ -271,6 +273,8 @@ curl https://connect.safariportal.dev/acc/{account_id}/files/42 \
 ```
 POST /acc/{account_id}/files
 ```
+
+Send an `Idempotency-Key` header to make a retry safe — see [Idempotent requests](README.md#idempotent-requests).
 
 Requires `files:write`. New files are always created in **leads** status. Returns `201`
 with the created file on success. Returns `422` with validation details on failure.
@@ -355,6 +359,7 @@ curl -X POST https://connect.safariportal.dev/acc/{account_id}/files \
         "country_name": "United States",
         "dob": "1985-06-15",
         "anniversary": "2010-08-20",
+        "passport_expiration_date": "2035-12-31",
         "medical_issues": "Penicillin allergy",
         "dietary_preferences": "Vegetarian, no nuts",
         "drinks_preferences": "Sparkling water, no ice",

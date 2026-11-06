@@ -37,6 +37,7 @@ contact list in the product must not be able to page it out through the API.
   "country_name": "United States",
   "dob": "1985-06-15",
   "anniversary": "2010-08-20",
+  "passport_expiration_date": "2035-12-31",
   "medical_issues": "Penicillin allergy",
   "dietary_preferences": "Vegetarian, no nuts",
   "drinks_preferences": "Sparkling water, no ice",
@@ -66,6 +67,9 @@ are `YYYY-MM-DD` or `null` (sent as `date_of_birth` and `anniversary_date`), and
 free text or `null` (`weight` and `height` carry their unit, e.g. `"94 kg"`). All but `height`
 are stored encrypted, and the same seven appear on each entry of a file's
 [`travelers`](files.md) array.
+
+`passport_expiration_date` (`YYYY-MM-DD` or `null`) is read-only: it is set from the dashboard
+or a form mapped to it, not through this API. The passport number is not exposed.
 
 ### Custom fields
 
@@ -193,6 +197,8 @@ curl https://connect.safariportal.dev/acc/{account_id}/contacts/123 \
 ```
 POST /acc/{account_id}/contacts
 ```
+
+Send an `Idempotency-Key` header to make a retry safe — see [Idempotent requests](README.md#idempotent-requests).
 
 Requires `contacts:write`. Creates a traveler. `first_name` and `last_name` are
 required. Returns `201` with the created contact, or `422` with validation details.
